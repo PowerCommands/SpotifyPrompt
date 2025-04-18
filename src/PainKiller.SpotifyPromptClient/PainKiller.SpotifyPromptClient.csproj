@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include="CommandPromptConfiguration.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -18,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="BaseClasses\" />
+    <Folder Include="DomainObjects\Data\" />
   </ItemGroup>
 
 </Project>
