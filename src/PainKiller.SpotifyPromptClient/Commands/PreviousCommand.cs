@@ -7,7 +7,7 @@ using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Previous command", 
+[CommandDesign(     description: "Spotify - Previous command", 
                         options: [""],
                        examples: ["//Previous","previous"])]
 public class PreviousCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)

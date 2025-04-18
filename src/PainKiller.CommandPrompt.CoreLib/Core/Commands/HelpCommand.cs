@@ -26,7 +26,7 @@ public class HelpCommand(string identity) : ConsoleCommandBase<ApplicationConfig
     private bool EntryFilter(HelpEntry entry, string filter)
     {
         if (string.IsNullOrWhiteSpace(filter)) return true;
-        return entry.Identifier.Contains(filter, StringComparison.OrdinalIgnoreCase);
+        return entry.Identifier.Contains(filter, StringComparison.OrdinalIgnoreCase) || entry.Description.Contains(filter, StringComparison.OrdinalIgnoreCase);
     }
     private void DisplayTable(IEnumerable<HelpEntry> entries, int selectedIndex)
     {

@@ -7,7 +7,7 @@ using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Player command", 
+[CommandDesign(     description: "Spotify - Player command", 
                         options: [""],
                        examples: ["//Play","play"])]
 public class PlayCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
