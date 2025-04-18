@@ -2,7 +2,7 @@
 
 A CLI extension for the PainKiller CommandPrompt framework that lets you control Spotify playback directly from your terminal.
 
-<img src="images/logo.png" width="640">
+<img src="images/logo2.png" width="640">
 
 ## Prerequisites
 
