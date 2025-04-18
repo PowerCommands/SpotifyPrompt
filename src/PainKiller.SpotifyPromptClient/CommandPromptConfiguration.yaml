@@ -1,0 +1,43 @@
+version: 1.0
+configuration:
+  spotify:        
+    redirectUri: http://localhost:50555/callback
+    refreshMarginInMinutes: 5
+    scopes:
+      - user-read-playback-state
+      - user-modify-playback-state
+      - user-read-currently-playing
+      - playlist-read-private
+      - playlist-modify-public
+      - playlist-modify-private    
+  core:
+    name: SpotifyPrompt
+    version: 1.0
+    prompt: cp>
+    defaultCommand: ''
+    showLogo: true
+    suggestions: 
+    - exit
+    roamingDirectory: SpotifyPrompt
+    modules:
+      security:
+        secrets:
+        - name: spotify_prompt
+          options:
+            target: User
+      storage:
+        applicationDataFolder: $ROAMING$/SpotifyPrompt
+        backupPath: backup
+      ollama:
+        baseAddress: localhost
+        port: 11434
+        model: gemma3:latest
+      infoPanel:
+        enabled: true
+        height: 2
+        updateIntervalSeconds: 60
+  log:
+    fileName: commandprompt.log
+    filePath: logs
+    rollingIntervall: Day
+    restrictedToMinimumLevel: Debug
