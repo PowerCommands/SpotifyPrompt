@@ -10,7 +10,6 @@ using PainKiller.ReadLine;
 using Serilog;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
-using PainKiller.CommandPrompt.CoreLib.Modules.InfoPanelModule.DomainObjects;
 using PainKiller.CommandPrompt.CoreLib.Modules.InfoPanelModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects;
 namespace PainKiller.SpotifyPromptClient.Bootstrap;
@@ -35,7 +34,7 @@ public static class Startup
         foreach (var consoleCommand in commands) consoleCommand.OnInitialized();
         
         ShowLogo(config.Core, margin: config.Core.Modules.InfoPanel.Height);
-        InfoPanelService.Instance.RegisterContent(new DefaultInfoPanel(new SpotifyInfoPanelContent(config.Spotify.RefreshMarginInMinutes)));
+        InfoPanelService.Instance.RegisterContent(new SpotifyPanel(new SpotifyInfoPanelContent(config.Spotify.RefreshMarginInMinutes)));
 
         Console.WriteLine();
         Console.WriteLine();
@@ -81,5 +80,6 @@ public static class Startup
         if(!config.ShowLogo) return;
         ConsoleService.WriteCenteredText($" Version {config.Version} ", $"{config.Name}", margin);
         Console.WriteLine();
+
     }
 }

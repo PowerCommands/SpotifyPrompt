@@ -1,4 +1,6 @@
 ﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
+using PainKiller.ReadLine.Managers;
+using PainKiller.SpotifyPromptClient.Commands;
 using PainKiller.SpotifyPromptClient.DomainObjects;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
@@ -22,7 +24,7 @@ public class RefreshTokenManager
     public (TokenResponse Token, string Status) EnsureTokenValid()
     {
         var token = StorageService<TokenResponse>.Service.GetObject();
-        if (string.IsNullOrEmpty(token.AccessToken)) return (token, "Spotify: not authenticated");
+        if (string.IsNullOrEmpty(token.AccessToken)) return (token, "Not authenticated");
         if (token.IsExpired || token.TimeUntilExpiration < _refreshBuffer)
         {
             try
@@ -32,14 +34,14 @@ public class RefreshTokenManager
                 newToken.RetrievedAt = DateTime.UtcNow;
                 StorageService<TokenResponse>.Service.StoreObject(newToken);
                 var mins = (int)newToken.TimeUntilExpiration.TotalMinutes;
-                return (newToken, $"Spotify: token refreshed, expires in {mins} min");
+                return (newToken, $"Token refreshed, expires in {mins} min");
             }
             catch (Exception ex)
             {
-                return (token, $"Spotify: refresh failed ({ex.Message})");
+                return (token, $"Refresh failed ({ex.Message})");
             }
         }
         var remaining = (int)token.TimeUntilExpiration.TotalMinutes;
-        return (token, $"Spotify: token valid for {remaining} min");
+        return (token, $"Token valid for {remaining} min");
     }
 }

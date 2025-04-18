@@ -16,12 +16,8 @@ namespace PainKiller.ReadLine.Managers
 
         public static void AppendContextBoundSuggestions(string contextId, string[] suggestions, bool clearAllExceptOptions = true)
         {
-            var keepValues = ContextBoundSuggestions.TryGetValue(contextId, out var values)
-                ? values.Where(v => v.StartsWith("--")).ToList()
-                : new List<string>();
-
+            var keepValues = ContextBoundSuggestions.TryGetValue(contextId, out var values) ? values.Where(v => v.StartsWith("--")).ToList() : new List<string>();
             keepValues.AddRange(suggestions.Distinct());
-
             ContextBoundSuggestions[contextId] = keepValues.ToArray();
         }
         private static string[] GetSuggestions(string input)

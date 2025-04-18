@@ -12,8 +12,8 @@ namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Authorize to your registered spotify application", 
                         options: [""],
-                       examples: ["//Authorize","authorize"])]
-public class AuthorizeCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
+                       examples: ["//Authorize with your spotify account","login"])]
+public class LoginCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {

@@ -16,9 +16,8 @@ public static class ConsoleService
         {
             Border = BoxBorder.Rounded,
             Padding = new Padding(1, 1),
-            Header = new PanelHeader($"[blue]{headline}[/]", Justify.Center)
+            Header = new PanelHeader($"[green]{headline}[/]", Justify.Center)
         };
-
         AnsiConsole.Write(panel);
     }
 }

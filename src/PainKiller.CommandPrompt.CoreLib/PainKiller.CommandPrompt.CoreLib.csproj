@@ -21,4 +21,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\PainKiller.ReadLine\PainKiller.ReadLine.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Modules\InfoPanelModule\DomainObjects\" />
+	</ItemGroup>
 </Project>

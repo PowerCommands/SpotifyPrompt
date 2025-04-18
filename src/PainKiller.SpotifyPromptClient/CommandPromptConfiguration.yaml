@@ -2,7 +2,7 @@ version: 1.0
 configuration:
   spotify:        
     redirectUri: http://localhost:50555/callback
-    refreshMarginInMinutes: 5
+    refreshMarginInMinutes: 10
     scopes:
       - user-read-playback-state
       - user-modify-playback-state
@@ -35,7 +35,7 @@ configuration:
       infoPanel:
         enabled: true
         height: 2
-        updateIntervalSeconds: 60
+        updateIntervalSeconds: 30
   log:
     fileName: commandprompt.log
     filePath: logs

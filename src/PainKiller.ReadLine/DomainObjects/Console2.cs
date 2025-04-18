@@ -17,8 +17,9 @@ namespace PainKiller.ReadLine.DomainObjects
         }
         public void SetCursorPosition(int left, int top)
         {
-            if (!PasswordMode)
-                Console.SetCursorPosition(left, top);
+            top = Math.Abs(top);
+            left = Math.Abs(left);
+            if (!PasswordMode) Console.SetCursorPosition(left, top);
         }
         public void Write(string value)
         {

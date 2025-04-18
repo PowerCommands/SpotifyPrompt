@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using PainKiller.SpotifyPromptClient.BaseClasses;
 
@@ -9,7 +10,7 @@ namespace PainKiller.SpotifyPromptClient.Managers;
 /// Attempts to select an active device; if none is active, picks the first available device.
 /// Assumes token is kept fresh by InfoPanel refresh thread.
 /// </summary>
-public class PlayerManager(RefreshTokenManager refreshTokenManager) : SpotifyClientBase(refreshTokenManager)
+public class PlayerManager(RefreshTokenManager refreshTokenManager) : SpotifyClientBase
 {
     private string GetDeviceId()
     {
@@ -36,7 +37,6 @@ public class PlayerManager(RefreshTokenManager refreshTokenManager) : SpotifyCli
 
         throw new InvalidOperationException("No available Spotify devices found.");
     }
-
     private void SendCommand(HttpMethod method, string endpoint, object? content = null)
     {
         var accessToken = GetAccessToken();
@@ -69,5 +69,28 @@ public class PlayerManager(RefreshTokenManager refreshTokenManager) : SpotifyCli
     public void Previous()
     {
         SendCommand(HttpMethod.Post, "https://api.spotify.com/v1/me/player/previous");
+    }
+    public (string? TrackName, string? Artists) GetCurrentlyPlaying()
+    {
+        var accessToken = GetAccessToken();
+        var request = new HttpRequestMessage(HttpMethod.Get, "https://api.spotify.com/v1/me/player/currently-playing");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        if (response.StatusCode == HttpStatusCode.NoContent)
+            return (null, null);
+
+        response.EnsureSuccessStatusCode();
+        var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+        using var doc = JsonDocument.Parse(json);
+        var itemElement = doc.RootElement.GetProperty("item");
+        var name = itemElement.GetProperty("name").GetString();
+        var artists = itemElement.GetProperty("artists")
+            .EnumerateArray()
+            .Select(a => a.GetProperty("name").GetString())
+            .Where(n => !string.IsNullOrEmpty(n))
+            .ToArray();
+        return (name, string.Join(", ", artists));
     }
 }
