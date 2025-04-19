@@ -10,7 +10,7 @@ namespace PainKiller.SpotifyPromptClient.Managers;
 public class PlaylistManager : SpotifyClientBase, IPlaylistManager
 {
     private const string BaseUrl = "https://api.spotify.com/v1/me/playlists";
-
+    private PlaylistManager() { }
     private static readonly Lazy<IPlaylistManager> Instance = new(() => new PlaylistManager());
     public static IPlaylistManager Default => Instance.Value;
 

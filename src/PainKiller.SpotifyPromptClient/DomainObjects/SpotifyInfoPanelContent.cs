@@ -32,7 +32,11 @@ public class SpotifyInfoPanelContent(int refreshMarginInMinutes) : IInfoPanelCon
 
             var device = DeviceManager.Default.GetDevices().FirstOrDefault(d => d.IsActive);
             var deviceName = device?.Name ?? "No active device";
-            return $"Currently playing: {currentlyPlaying.Artists} - {currentlyPlaying.TrackName}\nDevice:{deviceName} {status}";
+
+            var shuffleState = playerManager.GetShuffleState();
+            var shuffleStateText = shuffleState ? "Enabled" : "Disabled";
+
+            return $"Currently playing: {currentlyPlaying.Artists} - {currentlyPlaying.TrackName}\nDevice:{deviceName} {status} Shuffle status: {shuffleStateText}";
         }
         catch (Exception ex)
         {

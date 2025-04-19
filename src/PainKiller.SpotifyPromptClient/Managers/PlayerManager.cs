@@ -94,4 +94,35 @@ public class PlayerManager(IRefreshTokenManager refreshTokenManager) : SpotifyCl
             .ToArray();
         return (name, string.Join(", ", artists));
     }
+    public void SetShuffle(bool state, string? deviceId = null)
+    {
+        var accessToken = GetAccessToken();
+        var url = $"https://api.spotify.com/v1/me/player/shuffle?state={state.ToString().ToLower()}";
+
+        if (!string.IsNullOrEmpty(deviceId))
+            url += $"&device_id={Uri.EscapeDataString(deviceId)}";
+
+        using var request = new HttpRequestMessage(HttpMethod.Put, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        response.EnsureSuccessStatusCode();
+    }
+    public bool GetShuffleState(string? deviceId = null)
+    {
+        var accessToken = GetAccessToken();
+        var url = "https://api.spotify.com/v1/me/player";
+
+        if (!string.IsNullOrEmpty(deviceId)) url += $"?device_id={Uri.EscapeDataString(deviceId)}";
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        response.EnsureSuccessStatusCode();
+
+        var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+        using var doc = JsonDocument.Parse(json);
+        return doc.RootElement.GetProperty("shuffle_state").GetBoolean();
+    }
 }
