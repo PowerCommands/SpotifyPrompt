@@ -25,22 +25,37 @@ public class SpotifyInfoPanelContent(int refreshMarginInMinutes) : IInfoPanelCon
             var (token, status) = refreshManager.EnsureTokenValid();
 
             var devices = DeviceManager.Default.GetDevices();
-            SuggestionProviderManager.AppendContextBoundSuggestions(nameof(DeviceCommand).Replace("Command","").ToLower(), devices.OrderBy(d => d.IsActive).Select(d => d.Name).ToArray());
+            SuggestionProviderManager.AppendContextBoundSuggestions(
+                nameof(DeviceCommand).Replace("Command", "").ToLower(),
+                devices.OrderBy(d => d.IsActive).Select(d => d.Name).ToArray()
+            );
 
             var playerManager = new PlayerManager(refreshManager);
             var currentlyPlaying = playerManager.GetCurrentlyPlaying();
 
-            var device = DeviceManager.Default.GetDevices().FirstOrDefault(d => d.IsActive);
+            var device = devices.FirstOrDefault(d => d.IsActive);
             var deviceName = device?.Name ?? "No active device";
 
             var shuffleState = playerManager.GetShuffleState();
             var shuffleStateText = shuffleState ? "Enabled" : "Disabled";
 
-            return $"Currently playing: {currentlyPlaying.Artists} - {currentlyPlaying.TrackName}\nDevice:{deviceName} {status} Shuffle status: {shuffleStateText}";
+            // Build two columns: left = device/status, right = shuffle
+            var leftText = $"Device: {deviceName} {status}";
+            var rightText = $"Shuffle status: {shuffleStateText}";
+
+            var totalWidth = Console.WindowWidth;
+            var padding = (totalWidth-1) - leftText.Length - rightText.Length;
+            if (padding < 1) padding = 1;
+
+            var secondLine = leftText + new string(' ', padding) + rightText;
+
+            return $"Currently playing: {currentlyPlaying.Artists} - {currentlyPlaying.TrackName}\n{secondLine}";
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ConsoleService.Writer.WriteError("Could not update info, you probably need to login with login command.");
+            ConsoleService.Writer.WriteError(
+                "Could not update info, you probably need to login with login command."
+            );
         }
         return "You probably need to login with login command";
     }
