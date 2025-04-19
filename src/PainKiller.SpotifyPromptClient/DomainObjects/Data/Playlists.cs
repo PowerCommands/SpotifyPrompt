@@ -1,4 +1,4 @@
-﻿using PainKiller.SpotifyPromptClient.Contracts;
+﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Contracts;
 
 namespace PainKiller.SpotifyPromptClient.DomainObjects.Data;
 

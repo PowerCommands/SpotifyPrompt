@@ -2,7 +2,7 @@ using PainKiller.CommandPrompt.CoreLib.Core.BaseClasses;
 using PainKiller.CommandPrompt.CoreLib.Core.Contracts;
 using PainKiller.CommandPrompt.CoreLib.Core.DomainObjects;
 using PainKiller.CommandPrompt.CoreLib.Metadata.Attributes;
-using PainKiller.SpotifyPromptClient.BaseClasses;
+using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.DomainObjects;
 using PainKiller.SpotifyPromptClient.Configuration;
 using PainKiller.SpotifyPromptClient.DomainObjects;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
@@ -16,7 +16,7 @@ public class DeviceCommand(string identifier) : ConsoleCommandBase<CommandPrompt
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        var storage = new ObjectStorageBase<Devices, DeviceInfo>();
+        var storage = new ObjectStorage<Devices, DeviceInfo>();
         if (input.Arguments.Length > 0)
         {
             var deviceName = input.Arguments.First();

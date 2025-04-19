@@ -4,6 +4,7 @@ using PainKiller.CommandPrompt.CoreLib.Core.DomainObjects;
 using PainKiller.CommandPrompt.CoreLib.Core.Extensions;
 using PainKiller.CommandPrompt.CoreLib.Core.Presentation;
 using PainKiller.CommandPrompt.CoreLib.Metadata.Attributes;
+using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.DomainObjects;
 using PainKiller.SpotifyPromptClient.BaseClasses;
 using PainKiller.SpotifyPromptClient.Configuration;
 using PainKiller.SpotifyPromptClient.DomainObjects;
@@ -19,7 +20,7 @@ public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        var storage = new ObjectStorageBase<Playlists, PlaylistInfo>();
+        var storage = new ObjectStorage<Playlists, PlaylistInfo>();
         if (input.HasOption("update"))
         {
             var playlists = PlaylistManager.Default.GetAllPlaylists();

@@ -3,10 +3,11 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using PainKiller.SpotifyPromptClient.Contracts;
 using PainKiller.SpotifyPromptClient.DomainObjects;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
-public class AuthorizationCodeFlowManager(string clientId, string redirectUri, string[] scopes)
+public class AuthorizationCodeFlowManager(string clientId, string redirectUri, string[] scopes) : IAuthorizationCodeFlowManager
 {
     private readonly string _redirectUri = redirectUri.EndsWith("/") ? redirectUri : redirectUri + "/";
     private string _codeVerifier = string.Empty;

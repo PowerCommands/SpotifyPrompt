@@ -3,13 +3,14 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text;
 using PainKiller.SpotifyPromptClient.BaseClasses;
+using PainKiller.SpotifyPromptClient.Contracts;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 
-public sealed class DeviceManager : SpotifyClientBase
-    {
-        private static readonly Lazy<DeviceManager> Instance = new(() => new DeviceManager());
-        public static DeviceManager Default => Instance.Value;
+public sealed class DeviceManager : SpotifyClientBase, IDeviceManager
+{
+        private static readonly Lazy<IDeviceManager> Instance = new(() => new DeviceManager());
+        public static IDeviceManager Default => Instance.Value;
         
         /// <summary>
         /// Retrieves all available devices for the user.

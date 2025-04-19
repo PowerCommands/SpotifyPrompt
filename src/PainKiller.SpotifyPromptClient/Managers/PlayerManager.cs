@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using PainKiller.SpotifyPromptClient.BaseClasses;
+using PainKiller.SpotifyPromptClient.Contracts;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 
@@ -10,7 +11,7 @@ namespace PainKiller.SpotifyPromptClient.Managers;
 /// Attempts to select an active device; if none is active, picks the first available device.
 /// Assumes token is kept fresh by InfoPanel refresh thread.
 /// </summary>
-public class PlayerManager(RefreshTokenManager refreshTokenManager) : SpotifyClientBase
+public class PlayerManager(IRefreshTokenManager refreshTokenManager) : SpotifyClientBase, IPlayerManager
 {
     private string GetDeviceId()
     {

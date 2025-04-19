@@ -1,9 +1,9 @@
-﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
-using PainKiller.SpotifyPromptClient.Contracts;
+﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Contracts;
+using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 
-namespace PainKiller.SpotifyPromptClient.BaseClasses;
+namespace PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.DomainObjects;
 
-public class ObjectStorageBase<T, TItem> where T : IDataObjects<TItem>, new() where TItem : class, new()
+public class ObjectStorage<T, TItem> where T : IDataObjects<TItem>, new() where TItem : class, new()
 {
     private T _dataObject = StorageService<T>.Service.GetObject();
 
