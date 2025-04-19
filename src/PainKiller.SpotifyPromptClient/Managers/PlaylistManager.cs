@@ -81,4 +81,62 @@ public class PlaylistManager : SpotifyClientBase, IPlaylistManager
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
         response.EnsureSuccessStatusCode();
     }
+    public List<TrackObject> GetAllTracksForPlaylist(string playlistId)
+    {
+        var tracks = new List<TrackObject>();
+        var accessToken = GetAccessToken();
+        string? nextUrl = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit=100";
+
+        while (!string.IsNullOrEmpty(nextUrl))
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, nextUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = _http.SendAsync(request).GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
+
+            var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            foreach (var item in root.GetProperty("items").EnumerateArray())
+            {
+                var t = item.GetProperty("track");
+                var track = new TrackObject
+                {
+                    Id = t.GetProperty("id").GetString() ?? "",
+                    Name = t.GetProperty("name").GetString() ?? "",
+                    DurationMs = t.GetProperty("duration_ms").GetInt32(),
+                    Uri = t.GetProperty("uri").GetString() ?? "",
+                    Artists = t.GetProperty("artists")
+                               .EnumerateArray()
+                               .Select(a => new ArtistSimplified
+                               {
+                                   Id = a.GetProperty("id").GetString() ?? "",
+                                   Name = a.GetProperty("name").GetString() ?? "",
+                                   Uri = a.GetProperty("uri").GetString() ?? ""
+                               }).ToList(),
+                    Album = new Album
+                    {
+                        Id = t.GetProperty("album").GetProperty("id").GetString() ?? "",
+                        Name = t.GetProperty("album").GetProperty("name").GetString() ?? "",
+                        ReleaseDate = t.GetProperty("album").GetProperty("release_date").GetString() ?? "",
+                        TotalTracks = t.GetProperty("album").GetProperty("total_tracks").GetInt32(),
+                        Uri = t.GetProperty("album").GetProperty("uri").GetString() ?? "",
+                        Artists = t.GetProperty("album").GetProperty("artists")
+                                   .EnumerateArray()
+                                   .Select(a => new ArtistSimplified
+                                   {
+                                       Id = a.GetProperty("id").GetString() ?? "",
+                                       Name = a.GetProperty("name").GetString() ?? "",
+                                       Uri = a.GetProperty("uri").GetString() ?? ""
+                                   }).ToList()
+                    }
+                };
+                tracks.Add(track);
+            }
+
+            nextUrl = root.GetProperty("next").GetString();
+        }
+        return tracks;
+    }
 }
