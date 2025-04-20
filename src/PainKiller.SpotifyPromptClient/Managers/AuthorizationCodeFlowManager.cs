@@ -3,8 +3,6 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using PainKiller.SpotifyPromptClient.Contracts;
-using PainKiller.SpotifyPromptClient.DomainObjects;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 public class AuthorizationCodeFlowManager(string clientId, string redirectUri, string[] scopes) : IAuthorizationCodeFlowManager

@@ -14,7 +14,7 @@ public class NextCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        var playerManager = new PlayerManager(RefreshTokenManager.DefaultInstance());
+        var playerManager = new PlayerManager();
         playerManager.Next();
         return Ok();
     }

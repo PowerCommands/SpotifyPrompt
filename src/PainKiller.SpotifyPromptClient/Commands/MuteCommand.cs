@@ -2,21 +2,18 @@ using PainKiller.CommandPrompt.CoreLib.Core.BaseClasses;
 using PainKiller.CommandPrompt.CoreLib.Core.Contracts;
 using PainKiller.CommandPrompt.CoreLib.Core.DomainObjects;
 using PainKiller.CommandPrompt.CoreLib.Metadata.Attributes;
-using PainKiller.CommandPrompt.CoreLib.Modules.ShellModule.Services;
 using PainKiller.SpotifyPromptClient.Configuration;
 using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Player command", 
-                       examples: ["//Play","play"])]
-public class PlayCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
+[CommandDesign(     description: "Spotify - Mute command", 
+                       examples: ["//Mute the volyme","mute"])]
+public class MuteCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
-    public override void OnInitialized() => ShellService.Default.Execute("spotify");
     public override RunResult Run(ICommandLineInput input)
     {
-        IPlayerManager playerManager = new PlayerManager();
-        playerManager.Play();
+        DeviceManager.Default.SetVolume(0);
         return Ok();
     }
 }

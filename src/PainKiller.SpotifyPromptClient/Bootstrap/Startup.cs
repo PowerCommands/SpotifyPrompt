@@ -11,7 +11,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Modules.InfoPanelModule.Services;
-using PainKiller.SpotifyPromptClient.DomainObjects;
+
 namespace PainKiller.SpotifyPromptClient.Bootstrap;
 
 public static class Startup

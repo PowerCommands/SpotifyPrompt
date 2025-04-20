@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Globalization;
+using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Core.Runtime;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
@@ -57,6 +58,13 @@ public static class ConsoleCommandExtensions
     }
     public static bool HasOption(this ICommandLineInput input, string option) => input.Options.ContainsKey(option.ToLower());
     public static string GetOptionValue(this ICommandLineInput input, string option) => input.Options.TryGetValue(option.ToLower(), out var value) ? value : string.Empty;
+    public static T GetTypedOptionValue<T>(this ICommandLineInput input, string option, string defaultValue)
+    {
+        input.Options.TryGetValue(option.ToLower(), out var rawValue);
+        var stringValue = rawValue ?? defaultValue;
+        if (typeof(T).IsEnum) return (T)Enum.Parse(typeof(T), stringValue, ignoreCase: true);
+        return (T)Convert.ChangeType(stringValue, typeof(T), CultureInfo.InvariantCulture);
+    }
     public static string GetFullPath(this ICommandLineInput input)
     {
         var path = input.Arguments.FirstOrDefault() ?? Environment.CurrentDirectory;

@@ -14,7 +14,7 @@ public class PauseCommand(string identifier) : ConsoleCommandBase<CommandPromptC
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        var playerManager = new PlayerManager(RefreshTokenManager.DefaultInstance());
+        var playerManager = new PlayerManager();
         playerManager.Pause();
         return Ok();
     }

@@ -1,5 +1,6 @@
-﻿using PainKiller.CommandPrompt.CoreLib.Configuration.Services;
-using PainKiller.CommandPrompt.CoreLib.Core.Services;
+﻿using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Configuration.Services;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 using PainKiller.CommandPrompt.CoreLib.Modules.InfoPanelModule.Contracts;
 using PainKiller.CommandPrompt.CoreLib.Modules.SecurityModule.Extensions;
 using PainKiller.ReadLine.Managers;
@@ -10,6 +11,7 @@ using PainKiller.SpotifyPromptClient.Managers;
 namespace PainKiller.SpotifyPromptClient.DomainObjects;
 public class SpotifyInfoPanelContent(int refreshMarginInMinutes) : IInfoPanelContent
 {
+    private readonly ILogger<SpotifyInfoPanelContent> _logger = LoggerProvider.CreateLogger<SpotifyInfoPanelContent>();
     public string GetText()
     {
         try
@@ -30,7 +32,7 @@ public class SpotifyInfoPanelContent(int refreshMarginInMinutes) : IInfoPanelCon
                 devices.OrderBy(d => d.IsActive).Select(d => d.Name).ToArray()
             );
 
-            var playerManager = new PlayerManager(refreshManager);
+            var playerManager = new PlayerManager();
             var currentlyPlaying = playerManager.GetCurrentlyPlaying();
 
             var device = devices.FirstOrDefault(d => d.IsActive);
@@ -51,12 +53,10 @@ public class SpotifyInfoPanelContent(int refreshMarginInMinutes) : IInfoPanelCon
 
             return $"Currently playing: {currentlyPlaying.Artists} - {currentlyPlaying.TrackName}\n{secondLine}";
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            ConsoleService.Writer.WriteError(
-                "Could not update info, you probably need to login with login command."
-            );
+            _logger.LogError($"Error while getting Spotify info panel content: {ex.Message}");
         }
-        return "You probably need to login with login command";
+        return "Error refreshing information, a refresh token may need to be fetched, you could try to start the player with play command.\nIf that does´nt work try to login again with login command.";
     }
 }

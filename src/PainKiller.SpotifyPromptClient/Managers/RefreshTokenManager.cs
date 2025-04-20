@@ -1,6 +1,4 @@
 ﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
-using PainKiller.SpotifyPromptClient.Contracts;
-using PainKiller.SpotifyPromptClient.DomainObjects;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 public class RefreshTokenManager : IRefreshTokenManager

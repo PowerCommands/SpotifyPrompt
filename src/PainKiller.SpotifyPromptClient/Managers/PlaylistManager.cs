@@ -1,9 +1,6 @@
-﻿using PainKiller.SpotifyPromptClient.DomainObjects;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using PainKiller.SpotifyPromptClient.BaseClasses;
-using PainKiller.SpotifyPromptClient.Contracts;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 

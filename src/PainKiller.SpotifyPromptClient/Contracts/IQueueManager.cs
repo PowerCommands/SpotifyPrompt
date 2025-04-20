@@ -1,6 +1,4 @@
-﻿using PainKiller.SpotifyPromptClient.DomainObjects;
-
-namespace PainKiller.SpotifyPromptClient.Contracts;
+﻿namespace PainKiller.SpotifyPromptClient.Contracts;
 
 public interface IQueueManager
 {

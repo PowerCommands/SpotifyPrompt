@@ -5,7 +5,6 @@ using PainKiller.CommandPrompt.CoreLib.Metadata.Attributes;
 using PainKiller.CommandPrompt.CoreLib.Modules.SecurityModule.Extensions;
 using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.Configuration;
-using PainKiller.SpotifyPromptClient.DomainObjects;
 using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;

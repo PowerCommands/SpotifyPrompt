@@ -14,7 +14,7 @@ public class PreviousCommand(string identifier) : ConsoleCommandBase<CommandProm
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        var playerManager = new PlayerManager(RefreshTokenManager.DefaultInstance());
+        var playerManager = new PlayerManager();
         playerManager.Previous();
         return Ok();
     }

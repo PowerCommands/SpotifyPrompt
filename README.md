@@ -7,7 +7,10 @@ A CLI extension for the PainKiller CommandPrompt framework that lets you control
 ## Prerequisites
 
 - **.NET 9.0 SDK** installed on your machine.
-- A **Spotify Developer** account with a registered application. You’ll need:
+- A **Spotify Developer** account with a registered application. 
+  Register your account here: https://developer.spotify.com/
+
+  You’ll need:
   - **Client ID**
   - **Redirect URI** (e.g., `http://localhost:5000/callback/`)
 - Your Spotify **Client ID** stored as an encrypted secret under the key `spotify_prompt` in the built‑in Security module.
@@ -92,3 +95,4 @@ A CLI extension for the PainKiller CommandPrompt framework that lets you control
 
 **Enjoy controlling Spotify right from your terminal!**
 
+Read more about the Spotify API here: https://developer.spotify.com/documentation/web-api
