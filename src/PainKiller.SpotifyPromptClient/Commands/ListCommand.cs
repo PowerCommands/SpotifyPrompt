@@ -60,9 +60,9 @@ public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         var storedPlaylists = playlistStorage.GetItems().OrderBy(p => p.Name).ToList();
         var selectedLists = ListService.ShowSelectFromFilteredList<PlaylistInfo>("Select a playlist!", storedPlaylists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer);
         if (selectedLists.Count == 0) return Ok();
-        var selected = ListService.ListDialog("Select playlist", selectedLists.Select(l => $"{l.Id}| {l.Name}").ToList());
+        var selected = ListService.ListDialog("Select playlist", selectedLists.Select(l => l.Name).ToList());
         if (selected.Count == 0) return Ok();
-        var selectedId = selected.First().Value.Split('|').First();
+        var selectedId = selectedLists[selected.Keys.First()].Id;
         var selectedPlayList = playlistStorage.GetItems().First(p => p.Id == selectedId);
 
         var action = ToolbarService.NavigateToolbar<PlayListAction>();
