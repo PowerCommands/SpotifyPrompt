@@ -23,7 +23,7 @@ public class SetupSecretManager(ApplicationConfiguration applicationConfiguratio
         }
         catch (Exception ex)
         {
-            ConsoleService.Writer.WriteError(ex.Message);
+            ConsoleService.Writer.WriteError(ex.Message, scope:nameof(InitSecret));
         }
     }
 }

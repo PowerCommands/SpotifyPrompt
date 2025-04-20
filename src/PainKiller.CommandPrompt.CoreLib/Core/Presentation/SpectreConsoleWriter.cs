@@ -1,17 +1,17 @@
 ﻿using Spectre.Console;
 using System.Runtime.CompilerServices;
-using static Serilog.Log;
+using PainKiller.CommandPrompt.CoreLib.Core.BaseClasses;
+
 
 namespace PainKiller.CommandPrompt.CoreLib.Core.Presentation;
-public class SpectreConsoleWriter : IConsoleWriter
+public class SpectreConsoleWriter : ConsoleWriterBase, IConsoleWriter
 {
     // ReSharper disable once InconsistentNaming
     private static readonly Lazy<SpectreConsoleWriter> _instance = new(() => new SpectreConsoleWriter());
     public static SpectreConsoleWriter Instance => _instance.Value;
     private SpectreConsoleWriter(){}
-
     private int _reservedLines;
-    public void WriteDescription(string label, string text, bool writeToLog = true, Color? consoleColor = null, bool noBorder = false, string scope = "")
+    public void WriteDescription(string label, string text, bool writeToLog = true, Color? consoleColor = null, bool noBorder = false, [CallerMemberName] string scope = "")
     {
         EnforceMargin();
         var color = consoleColor ?? Color.Blue;
@@ -36,7 +36,7 @@ public class SpectreConsoleWriter : IConsoleWriter
         var color = consoleColor ?? Color.Black;
         var escaped = Markup.Escape(text);
         AnsiConsole.Markup($"{ToDefaultColorIfBlack(escaped, color)}");
-        if (writeLog) Information("{Scope}: {Text}", scope, text);
+        if (writeLog) Information(scope, text);
     }
 
     public void WriteLine(string text = "", bool writeLog = true, Color? consoleColor = null, [CallerMemberName] string scope = "")
@@ -45,7 +45,7 @@ public class SpectreConsoleWriter : IConsoleWriter
         var color = consoleColor ?? Color.Black;
         var escaped = Markup.Escape(text);
         AnsiConsole.MarkupLine($"{ToDefaultColorIfBlack(escaped, color)}");
-        if (writeLog) Information("{Scope}: {Text}", scope, text);
+        if (writeLog) Information(scope, text);
     }
 
     public void WriteSuccessLine(string text, bool writeLog = true, [CallerMemberName] string scope = "")
@@ -53,47 +53,42 @@ public class SpectreConsoleWriter : IConsoleWriter
         EnforceMargin();
         var escaped = Markup.Escape(text);
         AnsiConsole.MarkupLine($"[green]{escaped}[/]");
-        if (writeLog) Information("{Scope}: {Text}", scope, text);
+        if (writeLog) Information(scope, text);
     }
-
-    public void WriteWarning(string text, [CallerMemberName] string scope = "")
+    public void WriteWarning(string text, string scope)
     {
         EnforceMargin();
         var escaped = Markup.Escape(text);
         AnsiConsole.MarkupLine($"[yellow]{escaped}[/]");
-        Warning("{Scope}: {Text}", scope, text);
+        Warning(scope, text);
     }
-
-    public void WriteError(string text, [CallerMemberName] string scope = "")
+    public void WriteError(string text, string scope)
     {
         EnforceMargin();
         var escaped = Markup.Escape(text);
         AnsiConsole.MarkupLine($"[red]{escaped}[/]");
-        Error("{Scope}: {Text}", scope, text);
+        Error(scope, text);
     }
-
-    public void WriteCritical(string text, [CallerMemberName] string scope = "")
+    public void WriteCritical(string text, string scope)
     {
         EnforceMargin();
         var escaped = Markup.Escape(text);
         AnsiConsole.MarkupLine($"[bold red]{escaped}[/]");
-        Fatal("{Scope}: {Text}", scope, text);
+        Fatal(scope, text);
     }
-
     public void WriteHeadLine(string text, bool writeLog = true, [CallerMemberName] string scope = "")
     {
         EnforceMargin();
         var escaped = Markup.Escape(text);
         AnsiConsole.MarkupLine($"[bold blue]{escaped}[/]");
-        if (writeLog) Information("{Scope}: {Text}", scope, text);
+        if (writeLog) Information(scope, text);
     }
-
     public void WriteUrl(string text, bool writeLog = true, [CallerMemberName] string scope = "")
     {
         EnforceMargin();
         var escaped = Markup.Escape(text);
         AnsiConsole.MarkupLine($"[underline blue]{escaped}[/]");
-        if (writeLog) Information("{Scope} [URL]: {Text}", scope, text);
+        if (writeLog) Information(scope, text);
     }
 
     public void WritePrompt(string prompt)
@@ -204,7 +199,6 @@ public class SpectreConsoleWriter : IConsoleWriter
 
         AnsiConsole.Write(table);
     }
-
     public void ClearRow(int top)
     {
         var originalLeft = Console.CursorLeft;

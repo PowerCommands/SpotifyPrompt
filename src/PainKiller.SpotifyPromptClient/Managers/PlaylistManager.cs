@@ -1,19 +1,14 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-
+using PainKiller.CommandPrompt.CoreLib.Core.Services;
 namespace PainKiller.SpotifyPromptClient.Managers;
-
 public class PlaylistManager : SpotifyClientBase, IPlaylistManager
 {
     private const string BaseUrl = "https://api.spotify.com/v1/me/playlists";
     private PlaylistManager() { }
     private static readonly Lazy<IPlaylistManager> Instance = new(() => new PlaylistManager());
     public static IPlaylistManager Default => Instance.Value;
-
-    /// <summary>
-    /// Retrieves all playlists for the current user, paging through results 50 at a time.
-    /// </summary>
     public List<PlaylistInfo> GetAllPlaylists()
     {
         var playlists = new List<PlaylistInfo>();
@@ -31,8 +26,6 @@ public class PlaylistManager : SpotifyClientBase, IPlaylistManager
             var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-
-            // Parse items
             if (root.TryGetProperty("items", out var items))
             {
                 foreach (var item in items.EnumerateArray())
@@ -47,19 +40,10 @@ public class PlaylistManager : SpotifyClientBase, IPlaylistManager
                     playlists.Add(info);
                 }
             }
-
-            // Determine next page URL
             nextUrl = root.GetProperty("next").GetString();
         }
-
         return playlists;
     }
-
-    /// <summary>
-    /// Starts playback of the specified playlist on the given device (or default device if none specified).
-    /// </summary>
-    /// <param name="playlistId">The Spotify ID of the playlist to play.</param>
-    /// <param name="deviceId">Optional device ID to start playback on.</param>
     public void PlayPlaylist(string playlistId, string? deviceId = null)
     {
         var accessToken = GetAccessToken();
@@ -69,10 +53,7 @@ public class PlaylistManager : SpotifyClientBase, IPlaylistManager
         var body = new { context_uri = $"spotify:playlist:{playlistId}" };
         var json = JsonSerializer.Serialize(body);
 
-        var request = new HttpRequestMessage(HttpMethod.Put, uri)
-        {
-            Content = new StringContent(json, Encoding.UTF8, "application/json")
-        };
+        var request = new HttpRequestMessage(HttpMethod.Put, uri) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
@@ -97,41 +78,52 @@ public class PlaylistManager : SpotifyClientBase, IPlaylistManager
 
             foreach (var item in root.GetProperty("items").EnumerateArray())
             {
-                var t = item.GetProperty("track");
-                var track = new TrackObject
+                var trackId = "<unknown>";
+                var trackName = "<unknown>";
+                try
                 {
-                    Id = t.GetProperty("id").GetString() ?? "",
-                    Name = t.GetProperty("name").GetString() ?? "",
-                    DurationMs = t.GetProperty("duration_ms").GetInt32(),
-                    Uri = t.GetProperty("uri").GetString() ?? "",
-                    Artists = t.GetProperty("artists")
-                               .EnumerateArray()
-                               .Select(a => new ArtistSimplified
-                               {
-                                   Id = a.GetProperty("id").GetString() ?? "",
-                                   Name = a.GetProperty("name").GetString() ?? "",
-                                   Uri = a.GetProperty("uri").GetString() ?? ""
-                               }).ToList(),
-                    Album = new Album
-                    {
-                        Id = t.GetProperty("album").GetProperty("id").GetString() ?? "",
-                        Name = t.GetProperty("album").GetProperty("name").GetString() ?? "",
-                        ReleaseDate = t.GetProperty("album").GetProperty("release_date").GetString() ?? "",
-                        TotalTracks = t.GetProperty("album").GetProperty("total_tracks").GetInt32(),
-                        Uri = t.GetProperty("album").GetProperty("uri").GetString() ?? "",
-                        Artists = t.GetProperty("album").GetProperty("artists")
-                                   .EnumerateArray()
-                                   .Select(a => new ArtistSimplified
-                                   {
-                                       Id = a.GetProperty("id").GetString() ?? "",
-                                       Name = a.GetProperty("name").GetString() ?? "",
-                                       Uri = a.GetProperty("uri").GetString() ?? ""
-                                   }).ToList()
-                    }
-                };
-                tracks.Add(track);
-            }
+                    var t = item.GetProperty("track");
+                    trackId = t.GetProperty("id").GetString() ?? "<unknown>";
+                    trackName = t.GetProperty("name").GetString() ?? "<unknown>";
 
+                    var track = new TrackObject
+                    {
+                        Id = trackId,
+                        Name = trackName,
+                        DurationMs = t.GetProperty("duration_ms").GetInt32(),
+                        Uri = t.GetProperty("uri").GetString() ?? "",
+                        Artists = t.GetProperty("artists")
+                                      .EnumerateArray()
+                                      .Select(a => new ArtistSimplified
+                                      {
+                                          Id = a.GetProperty("id").GetString() ?? "",
+                                          Name = a.GetProperty("name").GetString() ?? "",
+                                          Uri = a.GetProperty("uri").GetString() ?? ""
+                                      }).ToList(),
+                        Album = new Album
+                        {
+                            Id = t.GetProperty("album").GetProperty("id").GetString() ?? "",
+                            Name = t.GetProperty("album").GetProperty("name").GetString() ?? "",
+                            ReleaseDate = t.GetProperty("album").GetProperty("release_date").GetString() ?? "",
+                            TotalTracks = t.GetProperty("album").GetProperty("total_tracks").GetInt32(),
+                            Uri = t.GetProperty("album").GetProperty("uri").GetString() ?? "",
+                            Artists = t.GetProperty("album").GetProperty("artists")
+                                             .EnumerateArray()
+                                             .Select(a2 => new ArtistSimplified
+                                             {
+                                                 Id = a2.GetProperty("id").GetString() ?? "",
+                                                 Name = a2.GetProperty("name").GetString() ?? "",
+                                                 Uri = a2.GetProperty("uri").GetString() ?? ""
+                                             }).ToList()
+                        }
+                    };
+                    tracks.Add(track);
+                }
+                catch (Exception ex)
+                {
+                    ConsoleService.Writer.WriteWarning($"Warning: failed to parse track '{trackName}' (ID: {trackId}) in playlist {playlistId}: {ex.Message}", scope:nameof(GetAllTracksForPlaylist));
+                }
+            }
             nextUrl = root.GetProperty("next").GetString();
         }
         return tracks;

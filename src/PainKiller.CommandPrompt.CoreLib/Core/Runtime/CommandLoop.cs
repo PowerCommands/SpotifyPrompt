@@ -24,7 +24,7 @@ public class CommandLoop(ICommandRuntime runtime, IUserInputReader inputReader, 
             if(result.Success) _logger.LogDebug($"Result: {result.Identifier} {result.Message} {result.Success}");
             else
             {
-                ConsoleService.Writer.WriteError($"Error occured running {result.Identifier} command. {result.Message}");
+                ConsoleService.Writer.WriteError($"Error occured running {result.Identifier} command. {result.Message}", scope:nameof(CommandLoop));
                 _logger.LogCritical($"Error occured running {result.Identifier} command. {result.Message}");
             }
         }

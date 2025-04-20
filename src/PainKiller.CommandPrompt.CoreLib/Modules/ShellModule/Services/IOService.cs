@@ -5,7 +5,7 @@ public static class IOService
     {
         if (destFolder.StartsWith(sourceFolder, StringComparison.OrdinalIgnoreCase))
         {
-            ConsoleService.Writer.WriteError("Error: Destination folder is a subdirectory of the source folder.");
+            ConsoleService.Writer.WriteError("Error: Destination folder is a subdirectory of the source folder.", scope:nameof(CopyFolder));
             return;
         }
 

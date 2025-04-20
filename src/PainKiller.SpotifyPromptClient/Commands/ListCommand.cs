@@ -7,7 +7,9 @@ using PainKiller.CommandPrompt.CoreLib.Metadata.Attributes;
 using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.DomainObjects;
 using PainKiller.SpotifyPromptClient.Configuration;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
+using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -34,15 +36,19 @@ public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
                 {
                     var existing = playlistTracks.FirstOrDefault(p => p.Id == playlist.Id);
                     if(existing != null && playlist.TrackCount == existing.Items.Count) continue;
-                    var playListWithTracks = new PlaylistWithTracks { Id = playlist.Id, Items = PlaylistManager.Default.GetAllTracksForPlaylist(playlist.Id) };
-                    playlistTracksStorage.Insert(playListWithTracks, p => p.Id == playListWithTracks.Id);
+                    var allTracks = PlaylistManager.Default.GetAllTracksForPlaylist(playlist.Id);
+                    var playListWithTracks = new PlaylistWithTracks { Id = playlist.Id, Items =  allTracks};
+                    playlistTracksStorage.Insert(playListWithTracks, p => p.Id == playListWithTracks.Id, saveToFile: false);
                     Writer.WriteSuccessLine($"Playlists tracks stored for [{playlist.Name}] trackcount: {playlist.TrackCount}");
+                    TrackStorageService.Default.StoreTracks(allTracks);
                 }
                 catch (Exception ex)
                 {
-                    Writer.WriteError($"Failed to store tracks for [{playlist.Name}] trackcount: {playlist.TrackCount} - {ex.Message}");
+                    Writer.WriteError($"Failed to store tracks for [{playlist.Name}] trackcount: {playlist.TrackCount} - {ex.Message}", scope:nameof(ListCommand));
                 }
             }
+            playlistTracksStorage.Save();
+            Writer.WriteSuccessLine("Playlists tracks, albums and artists persisted.");
         }
         if (input.HasOption("compare"))
         {
@@ -52,11 +58,34 @@ public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
             return Ok();
         }
         var storedPlaylists = playlistStorage.GetItems().OrderBy(p => p.Name).ToList();
-        var selected = ListService.ShowSelectFromFilteredList<PlaylistInfo>("Select a playlist!", storedPlaylists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer);
+        var selectedLists = ListService.ShowSelectFromFilteredList<PlaylistInfo>("Select a playlist!", storedPlaylists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer);
+        if (selectedLists.Count == 0) return Ok();
+        var selected = ListService.ListDialog("Select playlist", selectedLists.Select(l => $"{l.Id}| {l.Name}").ToList());
         if (selected.Count == 0) return Ok();
-        PlaylistManager.Default.PlayPlaylist(selected.First().Id);
-        var tracks = PlaylistManager.Default.GetAllTracksForPlaylist(selected.First().Id);
-        Writer.WriteTable(tracks.Select(t => new{Artist = t.Artists.First().Name,Title = t.Name ,Album = t.Album.Name, Released = t.Album.ReleaseDate.Trim().Truncate(4," ")}));
+        var selectedId = selected.First().Value.Split('|').First();
+        var selectedPlayList = playlistStorage.GetItems().First(p => p.Id == selectedId);
+
+        var action = ToolbarService.NavigateToolbar<PlayListAction>();
+        if (action == PlayListAction.Play)
+        {
+            PlaylistManager.Default.PlayPlaylist(selectedPlayList.Id);
+        }
+
+        if (action == PlayListAction.Play || action == PlayListAction.View)
+        {
+            var tracks = PlaylistManager.Default.GetAllTracksForPlaylist(selectedPlayList.Id);
+            Writer.WriteTable(tracks.Select(t => new{Artist = t.Artists.First().Name,Title = t.Name ,Album = t.Album.Name, Released = t.Album.ReleaseDate.Trim().Truncate(4," ")}));
+        }
+        if(action == PlayListAction.Delete)
+        {
+            var confirm = DialogService.YesNoDialog("Are you sure you want to delete the playlist?");
+            if (confirm)
+            {
+                playlistStorage.Remove(p => p.Id == selectedPlayList.Id, saveToFile: true);
+                PlaylistModifyManager.Default.DeletePlaylist(selectedPlayList.Id);
+                Writer.WriteSuccessLine($"Playlist [{selectedPlayList.Name}] deleted.");
+            }
+        }
         return Ok();
     }
     private void Presentation(List<PlaylistInfo> items) => Writer.WriteTable(items);

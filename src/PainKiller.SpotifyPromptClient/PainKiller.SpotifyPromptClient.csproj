@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DomainObjects\Data\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
