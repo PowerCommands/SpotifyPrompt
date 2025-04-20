@@ -1,6 +1,4 @@
-﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Contracts;
-
-namespace PainKiller.SpotifyPromptClient.DomainObjects.Data;
+﻿namespace PainKiller.SpotifyPromptClient.DomainObjects.Data;
 
 public class Artists : IDataObjects<ArtistSimplified>
 {

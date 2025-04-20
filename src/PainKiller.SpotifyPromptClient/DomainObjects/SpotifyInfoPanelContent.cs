@@ -5,7 +5,6 @@ using PainKiller.CommandPrompt.CoreLib.Modules.InfoPanelModule.Contracts;
 using PainKiller.CommandPrompt.CoreLib.Modules.SecurityModule.Extensions;
 using PainKiller.ReadLine.Managers;
 using PainKiller.SpotifyPromptClient.Commands;
-using PainKiller.SpotifyPromptClient.Configuration;
 using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.DomainObjects;

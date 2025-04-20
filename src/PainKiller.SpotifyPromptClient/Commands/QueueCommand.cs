@@ -1,9 +1,3 @@
-using PainKiller.CommandPrompt.CoreLib.Core.BaseClasses;
-using PainKiller.CommandPrompt.CoreLib.Core.Contracts;
-using PainKiller.CommandPrompt.CoreLib.Core.DomainObjects;
-using PainKiller.CommandPrompt.CoreLib.Core.Extensions;
-using PainKiller.CommandPrompt.CoreLib.Metadata.Attributes;
-using PainKiller.SpotifyPromptClient.Configuration;
 using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;

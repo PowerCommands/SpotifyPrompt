@@ -1,6 +1,9 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Enums;
 public enum Genres
 {
+    Next,
+    Unknown,
+    Custom,
     Pop,
     Metal,
     Rock,
@@ -8,13 +11,13 @@ public enum Genres
     Punk,
     HipHop,
     RnB,
-    Electronic,
+    Synth,
     Jazz,
     Blues,
     Country,
     Reggae,
     Classical,
     Opera,
-    Custom,
-    End
+    End,
+    NotSet
 }

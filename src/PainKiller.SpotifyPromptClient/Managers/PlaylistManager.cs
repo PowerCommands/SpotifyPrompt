@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using PainKiller.CommandPrompt.CoreLib.Core.Services;
+
 namespace PainKiller.SpotifyPromptClient.Managers;
 public class PlaylistManager : SpotifyClientBase, IPlaylistManager
 {

@@ -1,5 +1,4 @@
-﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.DomainObjects;
-using PainKiller.SpotifyPromptClient.DomainObjects.Data;
+﻿using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 
 namespace PainKiller.SpotifyPromptClient.Services;
 public class TrackStorageService : ITrackStorageService
