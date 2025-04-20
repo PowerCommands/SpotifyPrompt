@@ -9,7 +9,6 @@ using PainKiller.SpotifyPromptClient.Managers;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - View queue", 
-                        options: [""],
                        examples: ["//View Queue","queue"])]
 public class QueueCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {

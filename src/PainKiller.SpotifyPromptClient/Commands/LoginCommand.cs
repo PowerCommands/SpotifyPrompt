@@ -10,7 +10,6 @@ using PainKiller.SpotifyPromptClient.Managers;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Authorize to your registered spotify application", 
-                        options: [""],
                        examples: ["//Authorize with your spotify account","login"])]
 public class LoginCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {

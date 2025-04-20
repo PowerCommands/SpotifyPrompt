@@ -8,7 +8,6 @@ using PainKiller.SpotifyPromptClient.Managers;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Paus command", 
-                        options: [""],
                        examples: ["//Pause","pause"])]
 public class PauseCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {

@@ -8,7 +8,6 @@ using PainKiller.SpotifyPromptClient.Managers;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Next command", 
-                        options: [""],
                        examples: ["//Next","next"])]
 public class NextCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
