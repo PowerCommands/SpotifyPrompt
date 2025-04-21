@@ -8,7 +8,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
 [CommandDesign(     description: "Spotify - Playlist command", 
                         options: ["update","compare"],
                        examples: ["//View playlist","list","//Update playlists", "list --update","//Compare playlist with updated playlists with tracks","list --compare"])]
-public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
+public class ListCommand(string identifier) : TracksBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
@@ -66,7 +66,8 @@ public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         if (action == PlayListAction.Play || action == PlayListAction.View)
         {
             var tracks = PlaylistManager.Default.GetAllTracksForPlaylist(selectedPlayList.Id);
-            Writer.WriteTable(tracks.Select(t => new{Artist = t.Artists.First().Name,Title = t.Name ,Album = t.Album.Name, Released = t.Album.ReleaseDate.Trim().Truncate(4," ")}));
+            TrackService.Default.UpdateSelectedTracks(tracks);
+            ShowSelectedTracks();
         }
         if(action == PlayListAction.Delete)
         {

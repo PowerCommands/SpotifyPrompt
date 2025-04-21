@@ -1,4 +1,3 @@
-using PainKiller.CommandPrompt.CoreLib.Modules.ShellModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Services;
 
@@ -8,7 +7,6 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                        examples: ["//Show your artists and their tracks","artist"])]
 public class ArtistCommand(string identifier) : TracksBaseCommand(identifier)
 {
-    public override void OnInitialized() => ShellService.Default.Execute("spotify");
     public override RunResult Run(ICommandLineInput input)
     {
         var artistStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();

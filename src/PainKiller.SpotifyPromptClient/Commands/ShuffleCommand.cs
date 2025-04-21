@@ -1,4 +1,3 @@
-using PainKiller.CommandPrompt.CoreLib.Modules.ShellModule.Services;
 using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
@@ -7,7 +6,6 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                        examples: ["//Enable/Disable Shuffle","shuffle"])]
 public class ShuffleCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
-    public override void OnInitialized() => ShellService.Default.Execute("spotify");
     public override RunResult Run(ICommandLineInput input)
     {
         IPlayerManager playerManager = new PlayerManager();

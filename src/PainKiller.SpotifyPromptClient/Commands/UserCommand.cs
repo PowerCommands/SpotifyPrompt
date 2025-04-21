@@ -1,5 +1,4 @@
-﻿using PainKiller.CommandPrompt.CoreLib.Modules.ShellModule.Services;
-using PainKiller.SpotifyPromptClient.Managers;
+﻿using PainKiller.SpotifyPromptClient.Managers;
 using Spectre.Console;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
@@ -8,7 +7,6 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                        examples: ["//View user details","user"])]
 public class UserCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
-    public override void OnInitialized() => ShellService.Default.Execute("spotify");
     public override RunResult Run(ICommandLineInput input)
     {
         var user = UserManager.Default.GetCurrentUser();

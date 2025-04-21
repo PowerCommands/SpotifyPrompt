@@ -7,7 +7,10 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                        examples: ["//Play","play"])]
 public class PlayCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
-    public override void OnInitialized() => ShellService.Default.Execute("spotify");
+    public override void OnInitialized()
+    {
+        if(Configuration.Spotify.StartSpotifyClient) ShellService.Default.Execute("spotify");
+    }
     public override RunResult Run(ICommandLineInput input)
     {
         IPlayerManager playerManager = new PlayerManager();

@@ -3,6 +3,7 @@ configuration:
   spotify:        
     redirectUri: http://localhost:50555/callback
     refreshMarginInMinutes: 10
+    startSpotifyClient: false
     scopes:
       - user-read-playback-state
       - user-modify-playback-state
