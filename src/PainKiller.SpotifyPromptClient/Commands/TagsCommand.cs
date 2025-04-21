@@ -1,4 +1,5 @@
-﻿using PainKiller.SpotifyPromptClient.DomainObjects.Data;
+﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
+using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Managers;
 
@@ -17,6 +18,20 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 
     public override RunResult Run(ICommandLineInput input)
     {
+        var artists = StorageService<Artists>.Service.GetObject().Items;
+        var albums = StorageService<Albums>.Service.GetObject().Items;
+        var playlists = StorageService<Playlists>.Service.GetObject().Items;
+
+        var taggedArtists = artists.Where(a => !string.IsNullOrEmpty(a.Tags)).ToList();
+        var taggedAlbums = albums.Where(a => !string.IsNullOrEmpty(a.Tags)).ToList();
+        var taggedPlaylists = playlists.Where(a => !string.IsNullOrEmpty(a.Tags)).ToList();
+
+        Writer.WriteDescription("Artists:",$"{taggedArtists.Count} of {artists.Count}");
+        Writer.WriteDescription("Albums:", $"{taggedAlbums.Count} of {albums.Count}");
+        Writer.WriteDescription("Playlists:", $"{taggedPlaylists.Count} of {playlists.Count}");
+
+        Console.ReadLine();
+
         if (input.HasOption("artist")) AddTags(_artistStore, "Filter artists to tag", a => a.Name, a => a.Id, input.HasOption("filter-tag-missing"), input.GetOptionValue("filter"));
         else if (input.HasOption("album")) AddTags(_albumStore, "Filter albums to tag", a => a.Name, a => a.Id, input.HasOption("filter-tag-missing"), input.GetOptionValue("filter"));
         else if (input.HasOption("playlist")) AddTags(_playlistStore, "Filter playlists to tag", p => p.Name, p => p.Id, input.HasOption("filter-tag-missing"), input.GetOptionValue("filter"));

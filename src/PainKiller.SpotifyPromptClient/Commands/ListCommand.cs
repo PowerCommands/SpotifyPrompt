@@ -52,7 +52,7 @@ public class ListCommand(string identifier) : TracksBaseCommand(identifier)
             return Ok();
         }
         var storedPlaylists = playlistStorage.GetItems().OrderBy(p => p.Name).ToList();
-        var selectedLists = ListService.ShowSelectFromFilteredList<PlaylistInfo>("Select a playlist!", storedPlaylists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer, filter);
+        var selectedLists = ListService.ShowSelectFromFilteredList<PlaylistInfo>("Select a playlist!", storedPlaylists,(info, s) => (info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) || info.Tags.Contains(s, StringComparison.OrdinalIgnoreCase)), Presentation, Writer, filter);
         if (selectedLists.Count == 0) return Ok();
         var selected = ListService.ListDialog("Select playlist", selectedLists.Select(l => l.Name).ToList());
         if (selected.Count == 0) return Ok();
