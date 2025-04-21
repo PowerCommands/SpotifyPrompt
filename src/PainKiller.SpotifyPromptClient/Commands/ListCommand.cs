@@ -12,7 +12,7 @@ public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        var playlistStorage = new ObjectStorage<Playlists, PlaylistInfo>();
+        var playlistStorage = new SpotifyObjectStorage<Playlists, PlaylistInfo>();
         var playlistTracksStorage = new ObjectStorage<PlaylistTracks, PlaylistWithTracks>();
 
         if (input.HasOption("update"))

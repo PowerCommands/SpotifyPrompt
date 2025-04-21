@@ -8,8 +8,8 @@ public class TrackStorageService : ITrackStorageService
     public static ITrackStorageService Default => Instance.Value;
 
     private readonly ObjectStorage<Tracks, TrackObject> _trackStore = new();
-    private readonly ObjectStorage<Albums, Album> _albumStore = new();
-    private readonly ObjectStorage<Artists, ArtistSimplified> _artistStore = new();
+    private readonly SpotifyObjectStorage<Albums, Album> _albumStore = new();
+    private readonly SpotifyObjectStorage<Artists, ArtistSimplified> _artistStore = new();
     public void StoreTracks(IEnumerable<TrackObject> tracks)
     {
         var uniqueTracks = tracks.GroupBy(t => t.Id).Select(g => g.First()).ToList();

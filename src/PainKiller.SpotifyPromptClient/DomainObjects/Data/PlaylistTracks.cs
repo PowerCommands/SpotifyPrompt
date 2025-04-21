@@ -1,5 +1,4 @@
-﻿
-namespace PainKiller.SpotifyPromptClient.DomainObjects.Data;
+﻿namespace PainKiller.SpotifyPromptClient.DomainObjects.Data;
 public class PlaylistTracks : IDataObjects<PlaylistWithTracks>
 {
     public DateTime LastUpdated { get; set; }

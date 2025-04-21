@@ -10,7 +10,7 @@ public class ArtistCommand(string identifier) : ConsoleCommandBase<CommandPrompt
     public override void OnInitialized() => ShellService.Default.Execute("spotify");
     public override RunResult Run(ICommandLineInput input)
     {
-        var artistStorage = new ObjectStorage<Artists, ArtistSimplified>();
+        var artistStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
         var artists = artistStorage.GetItems();
         var selectedArtists = ListService.ShowSelectFromFilteredList<ArtistSimplified>("Select a playlist!", artists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer);
         if (selectedArtists.Count == 0) return Ok();

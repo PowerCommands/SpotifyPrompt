@@ -11,9 +11,9 @@ namespace PainKiller.SpotifyPromptClient.Commands;
 )]
 public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
-    private readonly ObjectStorage<Albums, Album> _albumStore       = new();
-    private readonly ObjectStorage<Artists, ArtistSimplified> _artistStore     = new();
-    private readonly ObjectStorage<Playlists, PlaylistInfo> _playlistStore = new();
+    private readonly SpotifyObjectStorage<Albums, Album> _albumStore       = new();
+    private readonly SpotifyObjectStorage<Artists, ArtistSimplified> _artistStore     = new();
+    private readonly SpotifyObjectStorage<Playlists, PlaylistInfo> _playlistStore = new();
 
     public override RunResult Run(ICommandLineInput input)
     {
@@ -22,7 +22,7 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         else if (input.HasOption("playlist")) AddTags(_playlistStore, "Filter playlists to tag", p => p.Name, p => p.Id, input.HasOption("filter-tag-missing"), input.GetOptionValue("filter"));
         return Ok();
     }
-    private void AddTags<TKey, TEntity>(ObjectStorage<TKey, TEntity> store, string filterTitle, Func<TEntity, string> nameSelector, Func<TEntity, string> idSelector, bool tagMissing, string filter) where TKey : IDataObjects<TEntity>, new() where TEntity : class, IContainsTags, new()
+    private void AddTags<TKey, TEntity>(SpotifyObjectStorage<TKey, TEntity> store, string filterTitle, Func<TEntity, string> nameSelector, Func<TEntity, string> idSelector, bool tagMissing, string filter) where TKey : IDataObjects<TEntity>, new() where TEntity : class, IContainsTags, new()
     {
         var items = tagMissing ? store.GetItems().Where(t => string.IsNullOrEmpty(t.Tags)).ToList() : store.GetItems();
         if(!string.IsNullOrEmpty("filter")) items = items.Where(t => t.Tags.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
