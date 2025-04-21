@@ -4,14 +4,16 @@ using PainKiller.SpotifyPromptClient.Services;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Artist command", 
+                      arguments: ["filter"],
                        examples: ["//Show your artists and their tracks","artist"])]
 public class ArtistCommand(string identifier) : TracksBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
+        var filter = string.Join(' ', input.Arguments);
         var artistStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
         var artists = artistStorage.GetItems();
-        var selectedArtists = ListService.ShowSelectFromFilteredList<ArtistSimplified>("Select a artist!", artists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer);
+        var selectedArtists = ListService.ShowSelectFromFilteredList<ArtistSimplified>("Select a artist!", artists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer, filter);
         if (selectedArtists.Count == 0) return Ok();
 
         var tracksStorage = new ObjectStorage<Tracks, TrackObject>();

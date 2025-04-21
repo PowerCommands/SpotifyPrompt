@@ -5,13 +5,15 @@ using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Playlist command", 
+[CommandDesign(     description: "Spotify - Playlist command",
+                      arguments: ["filter"],
                         options: ["update","compare"],
                        examples: ["//View playlist","list","//Update playlists", "list --update","//Compare playlist with updated playlists with tracks","list --compare"])]
 public class ListCommand(string identifier) : TracksBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
+        var filter = string.Join(' ', input.Arguments);
         var playlistStorage = new SpotifyObjectStorage<Playlists, PlaylistInfo>();
         var playlistTracksStorage = new ObjectStorage<PlaylistTracks, PlaylistWithTracks>();
 
@@ -50,7 +52,7 @@ public class ListCommand(string identifier) : TracksBaseCommand(identifier)
             return Ok();
         }
         var storedPlaylists = playlistStorage.GetItems().OrderBy(p => p.Name).ToList();
-        var selectedLists = ListService.ShowSelectFromFilteredList<PlaylistInfo>("Select a playlist!", storedPlaylists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer);
+        var selectedLists = ListService.ShowSelectFromFilteredList<PlaylistInfo>("Select a playlist!", storedPlaylists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer, filter);
         if (selectedLists.Count == 0) return Ok();
         var selected = ListService.ListDialog("Select playlist", selectedLists.Select(l => l.Name).ToList());
         if (selected.Count == 0) return Ok();
