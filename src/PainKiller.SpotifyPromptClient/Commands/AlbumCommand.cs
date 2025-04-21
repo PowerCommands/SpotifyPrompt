@@ -30,5 +30,5 @@ public class AlbumCommand(string identifier) : TracksBaseCommand(identifier)
         ShowSelectedTracks();
         return Ok();
     }
-    private void Presentation(List<Album> items) => Writer.WriteTable(items.Select(a => new{Name = a.Name, Artist = a.Artists.FirstOrDefault()?.Name, ReleaseDate = a.ReleaseDate}));
+    private void Presentation(List<Album> items) => Writer.WriteTable(items.Select(a => new{Name = a.Name, Artist = a.Artists.FirstOrDefault()?.Name, ReleaseDate = a.ReleaseDate, TotalTracks = a.TotalTracks}));
 }
