@@ -5,6 +5,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Artist command", 
                       arguments: ["filter"],
+                        options: ["tags"],
                        examples: ["//Show your artists and their tracks","artist"])]
 public class ArtistCommand(string identifier) : TracksBaseCommand(identifier)
 {
@@ -13,7 +14,8 @@ public class ArtistCommand(string identifier) : TracksBaseCommand(identifier)
         var filter = string.Join(' ', input.Arguments);
         var artistStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
         var artists = artistStorage.GetItems();
-        var selectedArtists = ListService.ShowSelectFromFilteredList<ArtistSimplified>("Select a artist!", artists,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer, filter);
+        var tags = input.GetOptionValue("tags");
+        var selectedArtists = ListService.ShowSelectFromFilteredList("Select a artist!", artists,(info, s) => (info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) && info.Tags.Contains(tags, StringComparison.OrdinalIgnoreCase)), Presentation, Writer, filter);
         if (selectedArtists.Count == 0) return Ok();
 
         var tracksStorage = new ObjectStorage<Tracks, TrackObject>();
