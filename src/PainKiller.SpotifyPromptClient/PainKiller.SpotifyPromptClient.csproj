@@ -16,8 +16,4 @@
     <ProjectReference Include="..\PainKiller.CommandPrompt.CoreLib\PainKiller.CommandPrompt.CoreLib.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>

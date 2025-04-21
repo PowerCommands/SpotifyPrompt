@@ -1,11 +1,12 @@
 ﻿using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 
 namespace PainKiller.SpotifyPromptClient.Services;
-public class TrackStorageService : ITrackStorageService
+public class TrackService : ITrackService
 {
-    private TrackStorageService() { }
-    private static readonly Lazy<ITrackStorageService> Instance = new(() => new TrackStorageService());
-    public static ITrackStorageService Default => Instance.Value;
+    private readonly List<TrackObject> _selected = [];
+    private TrackService() { }
+    private static readonly Lazy<ITrackService> Instance = new(() => new TrackService());
+    public static ITrackService Default => Instance.Value;
 
     private readonly ObjectStorage<Tracks, TrackObject> _trackStore = new();
     private readonly SpotifyObjectStorage<Albums, Album> _albumStore = new();
@@ -24,4 +25,11 @@ public class TrackStorageService : ITrackStorageService
         _albumStore.Save();
         _artistStore.Save();
     }
+    public void UpdateSelectedTracks(List<TrackObject> tracks)
+    {
+        _selected.Clear();
+        _selected.AddRange(tracks);
+    }
+    public void AppendToSelectedTracks(List<TrackObject> tracks) => _selected.AddRange(tracks);
+    public List<TrackObject> GetSelectedTracks() => _selected;
 }

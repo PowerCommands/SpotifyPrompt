@@ -32,7 +32,7 @@ public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
                     var playListWithTracks = new PlaylistWithTracks { Id = playlist.Id, Items =  allTracks};
                     playlistTracksStorage.Insert(playListWithTracks, p => p.Id == playListWithTracks.Id, saveToFile: false);
                     Writer.WriteSuccessLine($"Playlists tracks stored for [{playlist.Name}] trackcount: {playlist.TrackCount}");
-                    TrackStorageService.Default.StoreTracks(allTracks);
+                    TrackService.Default.StoreTracks(allTracks);
                 }
                 catch (Exception ex)
                 {
