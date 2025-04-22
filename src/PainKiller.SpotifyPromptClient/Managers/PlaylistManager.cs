@@ -1,10 +1,14 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 public class PlaylistManager : SpotifyClientBase, IPlaylistManager
 {
+    private readonly ILogger<PlayerManager> _logger = LoggerProvider.CreateLogger<PlayerManager>();
+
     private const string BaseUrl = "https://api.spotify.com/v1/me/playlists";
     private PlaylistManager() { }
     private static readonly Lazy<IPlaylistManager> Instance = new(() => new PlaylistManager());
@@ -21,6 +25,7 @@ public class PlaylistManager : SpotifyClientBase, IPlaylistManager
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             var response = _http.SendAsync(request).GetAwaiter().GetResult();
+            _logger.LogInformation($"Response: {response.StatusCode}");
             response.EnsureSuccessStatusCode();
 
             var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
@@ -57,6 +62,7 @@ public class PlaylistManager : SpotifyClientBase, IPlaylistManager
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
     }
     public List<TrackObject> GetAllTracksForPlaylist(string playlistId)
@@ -70,6 +76,7 @@ public class PlaylistManager : SpotifyClientBase, IPlaylistManager
             var request = new HttpRequestMessage(HttpMethod.Get, nextUrl);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = _http.SendAsync(request).GetAwaiter().GetResult();
+            _logger.LogInformation($"Response: {response.StatusCode}");
             response.EnsureSuccessStatusCode();
 
             var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();

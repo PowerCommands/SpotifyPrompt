@@ -17,7 +17,7 @@ public static class ListService
         {
             Console.Clear();
             Console.WriteLine($"{Emo.Right.Icon()} Type to filter results, press ENTER {Emo.Enter.Icon()} to select, BACKSPACE {Emo.Backspace.Icon()}  to delete, ESC {Emo.Escape.Icon()} to exit:");
-            Console.Title = inputBuffer;
+            Console.Title = string.IsNullOrEmpty(inputBuffer) ? "*" : inputBuffer;
 
             filteredItems = items.Where(item => match(item, inputBuffer)).ToList();
             if (filteredItems.Count == 0)

@@ -1,8 +1,12 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 namespace PainKiller.SpotifyPromptClient.Managers;
 public class SearchManager : SpotifyClientBase, ISearchManager
 {
+    private readonly ILogger<SearchManager> _logger = LoggerProvider.CreateLogger<SearchManager>();
+
     private SearchManager() { }
     private static readonly Lazy<ISearchManager> Instance = new(() => new SearchManager());
     public static ISearchManager Default => Instance.Value;
@@ -40,6 +44,7 @@ public class SearchManager : SpotifyClientBase, ISearchManager
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
         return resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
     }

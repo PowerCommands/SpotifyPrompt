@@ -3,7 +3,8 @@ using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Show tracks.", 
+[CommandDesign(     description: "Spotify - Show tracks.",
+                        options: ["tags"],
                       arguments: ["filter"],
                        examples: ["//Show tracks","track"])]
 public class TrackCommand(string identifier) : TracksBaseCommand(identifier)
@@ -12,8 +13,9 @@ public class TrackCommand(string identifier) : TracksBaseCommand(identifier)
     {
         var filter = string.Join(' ', input.Arguments);
         var tracksStorage = new ObjectStorage<Tracks, TrackObject>();
+        input.TryGetOption(out string tags, "");
         var tracks = tracksStorage.GetItems();
-        var selectedTracks = ListService.ShowSelectFromFilteredList<TrackObject>("Select a track!", tracks,(info, s) => (info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) || info.Artists.Any(a => a.Name.Contains(s, StringComparison.OrdinalIgnoreCase))), Presentation, Writer, filter);
+        var selectedTracks = ListService.ShowSelectFromFilteredList<TrackObject>("Select a track!", tracks,(info, s) => ((info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) || info.Artists.Any(a => a.Name.Contains(s, StringComparison.OrdinalIgnoreCase))) && info.Tags.Contains(tags, StringComparison.OrdinalIgnoreCase)), Presentation, Writer, filter);
         TrackService.Default.UpdateSelectedTracks(selectedTracks);
         ShowSelectedTracks();
         return Ok();

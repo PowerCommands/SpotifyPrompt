@@ -17,7 +17,6 @@ public enum Genres
     Country,
     Reggae,
     Classical,
-    Opera,
     End,
     NotSet
 }

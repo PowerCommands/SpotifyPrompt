@@ -32,4 +32,6 @@ public class TrackService : ITrackService
     }
     public void AppendToSelectedTracks(List<TrackObject> tracks) => _selected.AddRange(tracks);
     public List<TrackObject> GetSelectedTracks() => _selected;
+
+
 }

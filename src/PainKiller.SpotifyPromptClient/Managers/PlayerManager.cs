@@ -1,9 +1,12 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 namespace PainKiller.SpotifyPromptClient.Managers;
 public class PlayerManager : SpotifyClientBase, IPlayerManager
 {
+    private readonly ILogger<PlayerManager> _logger = LoggerProvider.CreateLogger<PlayerManager>();
     private void SendCommand(HttpMethod method, string endpoint, object? content = null)
     {
         var accessToken = GetAccessToken();
@@ -19,6 +22,7 @@ public class PlayerManager : SpotifyClientBase, IPlayerManager
         }
 
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
     }
     public void Play() => SendCommand(HttpMethod.Put, "https://api.spotify.com/v1/me/player/play");
@@ -36,6 +40,7 @@ public class PlayerManager : SpotifyClientBase, IPlayerManager
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {response.StatusCode}");
         if (response.StatusCode == HttpStatusCode.NoContent)
             return (null, null);
 
@@ -64,6 +69,7 @@ public class PlayerManager : SpotifyClientBase, IPlayerManager
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
     }
     public bool GetShuffleState(string? deviceId = null)
@@ -77,6 +83,7 @@ public class PlayerManager : SpotifyClientBase, IPlayerManager
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
 
         var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();

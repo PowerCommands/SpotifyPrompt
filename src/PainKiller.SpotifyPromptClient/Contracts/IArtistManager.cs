@@ -7,4 +7,11 @@ public interface IArtistManager
     /// Requires user-read-private scope if you ever want followers/email, otherwise public data only.
     /// </summary>
     Artist GetArtist(string artistId);
+
+    /// <summary>
+    /// Fetch multiple artists’ full profiles.
+    /// </summary>
+    /// <param name="ids"></param>
+    /// <returns></returns>
+    List<Artist> GetArtists(IEnumerable<string> ids);
 }

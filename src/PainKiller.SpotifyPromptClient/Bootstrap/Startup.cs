@@ -17,7 +17,8 @@ public static class Startup
     public static CommandLoop Build()
     {
         var config = ReadConfiguration();
-        
+        Console.Title = config.Core.Name;
+
         var logger = LoggerProvider.CreateLogger<Program>();
         logger.LogInformation($"{config.Core.Name} started, configuration read and logging initialized.");
 
@@ -34,7 +35,11 @@ public static class Startup
         ShowLogo(config.Core, margin: config.Core.Modules.InfoPanel.Height);
         InfoPanelService.Instance.RegisterContent(new SpotifyPanel(new SpotifyInfoPanelContent(config.Spotify.RefreshMarginInMinutes)));
 
-        EventBusService.Service.Subscribe<AfterCommandExecutionEvent>(eventData => { InfoPanelService.Instance.Update(); });
+        EventBusService.Service.Subscribe<AfterCommandExecutionEvent>(eventData =>
+        {
+            InfoPanelService.Instance.Update();
+            Console.Title = config.Core.Name;
+        });
 
         Console.WriteLine();
         Console.WriteLine();

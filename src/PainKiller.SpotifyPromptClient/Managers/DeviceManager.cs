@@ -1,10 +1,13 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text;
+using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 public sealed class DeviceManager : SpotifyClientBase, IDeviceManager
 {
+    private readonly ILogger<DeviceManager> _logger = LoggerProvider.CreateLogger<DeviceManager>();
     private DeviceManager() { }
     private static readonly Lazy<IDeviceManager> Instance = new(() => new DeviceManager());
     public static IDeviceManager Default => Instance.Value;
@@ -16,6 +19,7 @@ public sealed class DeviceManager : SpotifyClientBase, IDeviceManager
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var res = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {res.StatusCode}");
         res.EnsureSuccessStatusCode();
 
         var json = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
@@ -36,6 +40,7 @@ public sealed class DeviceManager : SpotifyClientBase, IDeviceManager
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var res = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {res.StatusCode}");
         res.EnsureSuccessStatusCode();
     }
     public string GetDeviceId()
@@ -44,6 +49,7 @@ public sealed class DeviceManager : SpotifyClientBase, IDeviceManager
         var request = new HttpRequestMessage(HttpMethod.Get, "https://api.spotify.com/v1/me/player/devices");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
 
         using var doc = JsonDocument.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
@@ -70,6 +76,7 @@ public sealed class DeviceManager : SpotifyClientBase, IDeviceManager
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
     }
     public int GetCurrentVolume(string? deviceId = null)

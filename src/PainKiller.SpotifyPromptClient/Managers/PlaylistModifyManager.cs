@@ -1,11 +1,14 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text;
+using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 
 public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
 {
+    private readonly ILogger<PlaylistModifyManager> _logger = LoggerProvider.CreateLogger<PlaylistModifyManager>();
     private PlaylistModifyManager() { }
     private static readonly Lazy<IPlaylistModifyManager> Instance = new(() => new PlaylistModifyManager());
     public static IPlaylistModifyManager Default => Instance.Value;
@@ -26,6 +29,7 @@ public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
 
         var json = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
@@ -41,6 +45,7 @@ public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
     }
     public void AddTracksToPlaylist(string playlistId, IEnumerable<string> trackUris, int position = -1)
@@ -59,6 +64,7 @@ public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
     }
     public void RemoveTracksFromPlaylist(string playlistId, IEnumerable<string> trackUris)
@@ -74,6 +80,7 @@ public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
     }
 }

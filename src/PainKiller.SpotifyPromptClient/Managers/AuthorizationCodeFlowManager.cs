@@ -3,10 +3,14 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 public class AuthorizationCodeFlowManager(string clientId, string redirectUri, string[] scopes) : IAuthorizationCodeFlowManager
 {
+    private readonly ILogger<AuthorizationCodeFlowManager> _logger = LoggerProvider.CreateLogger<AuthorizationCodeFlowManager>();
+
     private readonly string _redirectUri = redirectUri.EndsWith("/") ? redirectUri : redirectUri + "/";
     private string _codeVerifier = string.Empty;
     public async Task<string> AuthenticateAsync()
@@ -52,6 +56,7 @@ public class AuthorizationCodeFlowManager(string clientId, string redirectUri, s
         };
 
         var res = await http.PostAsync("https://accounts.spotify.com/api/token", new FormUrlEncodedContent(payload));
+        _logger.LogInformation($"Response: {res.StatusCode}");
         res.EnsureSuccessStatusCode();
 
         var json  = await res.Content.ReadAsStringAsync();
@@ -70,6 +75,7 @@ public class AuthorizationCodeFlowManager(string clientId, string redirectUri, s
         };
 
         var res = await http.PostAsync("https://accounts.spotify.com/api/token", new FormUrlEncodedContent(payload));
+        _logger.LogInformation($"Response: {res.StatusCode}");
         res.EnsureSuccessStatusCode();
 
         var json  = await res.Content.ReadAsStringAsync();

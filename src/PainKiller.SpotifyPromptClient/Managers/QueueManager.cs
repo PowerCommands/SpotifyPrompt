@@ -1,10 +1,15 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 
 public class QueueManager : SpotifyClientBase, IQueueManager
 {
+
+    private readonly ILogger<QueueManager> _logger = LoggerProvider.CreateLogger<QueueManager>();
+    
     private QueueManager(){}
     private static readonly Lazy<IQueueManager> Instance = new(() => new QueueManager());
     public static IQueueManager Default => Instance.Value;
@@ -16,6 +21,7 @@ public class QueueManager : SpotifyClientBase, IQueueManager
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
 
         using var doc = JsonDocument.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
@@ -62,6 +68,7 @@ public class QueueManager : SpotifyClientBase, IQueueManager
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
     }
 }

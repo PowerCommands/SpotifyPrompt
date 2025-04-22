@@ -1,10 +1,13 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 
 public class UserManager : SpotifyClientBase, IUserManager
 {
+    private readonly ILogger<UserManager> _logger = LoggerProvider.CreateLogger<UserManager>();
     private UserManager() { }
     private static readonly Lazy<IUserManager> Instance = new(() => new UserManager());
     public static IUserManager Default => Instance.Value;
@@ -14,6 +17,7 @@ public class UserManager : SpotifyClientBase, IUserManager
         using var req = new HttpRequestMessage(HttpMethod.Get, "https://api.spotify.com/v1/me");
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
         var json = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
         return JsonSerializer.Deserialize<UserProfile>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
@@ -25,6 +29,7 @@ public class UserManager : SpotifyClientBase, IUserManager
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
 
         using var doc = JsonDocument.Parse(resp.Content.ReadAsStringAsync().GetAwaiter().GetResult());
@@ -69,6 +74,7 @@ public class UserManager : SpotifyClientBase, IUserManager
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
 
         using var doc = JsonDocument.Parse(resp.Content.ReadAsStringAsync().GetAwaiter().GetResult());

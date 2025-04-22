@@ -3,7 +3,7 @@ using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Artist command", 
+[CommandDesign(     description: "Spotify - Artist actions", 
                       arguments: ["filter"],
                         options: ["tags"],
                        examples: ["//Show your artists and their tracks","artist"])]
