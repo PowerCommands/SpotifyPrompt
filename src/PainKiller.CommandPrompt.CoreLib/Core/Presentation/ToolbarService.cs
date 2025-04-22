@@ -12,18 +12,16 @@ public static class ToolbarService
     private static readonly ILogger<CommandExecutor> Logger = LoggerProvider.CreateLogger<CommandExecutor>();
     private static string[]? _labels;
     private static readonly Dictionary<string, string[]> ContextualToolbar = new();
-    public static TEnum NavigateToolbar<TEnum>(ConsoleColor[]? consoleColors = null, int padLeft = 1, string title = "Use tab to select, then hit [RETURN]") where TEnum : Enum
+    public static TEnum NavigateToolbar<TEnum>(ConsoleColor[]? consoleColors = null, int padLeft = 1, string title = "Use Tab to select, then hit [RETURN] or Esc to cancel") where TEnum : struct, Enum
     {
         ConsoleService.Writer.WriteHeadLine(title.PadLeft(title.Length + padLeft));
-        var enumValues = Enum.GetValues(typeof(TEnum)).Cast<TEnum>().ToList();
-        var labels = enumValues
-            .OrderBy(e => Convert.ToInt32(e))
-            .Select(e => e.ToString())
-            .ToArray();
+        var enumValues = Enum.GetValues(typeof(TEnum)).Cast<TEnum>().OrderBy(e => Convert.ToInt32(e)).ToList();
+        var labels = enumValues.Select(e => e.ToString()!).ToArray();
         var selectedLabel = NavigateToolbar(labels, consoleColors, padLeft: padLeft);
         ConsoleService.Writer.ClearRow(Console.CursorTop);
+        if (string.IsNullOrEmpty(selectedLabel) || !Enum.TryParse<TEnum>(selectedLabel, ignoreCase: true, out var parsed)) return default;
         ConsoleService.Writer.WriteSuccessLine(selectedLabel.PadLeft(selectedLabel.Length + padLeft));
-        return (TEnum)Enum.Parse(typeof(TEnum), selectedLabel);
+        return parsed;
     }
     public static string NavigateToolbar(string[] labels, ConsoleColor[]? consoleColors = null, int padLeft = 1)
     {
