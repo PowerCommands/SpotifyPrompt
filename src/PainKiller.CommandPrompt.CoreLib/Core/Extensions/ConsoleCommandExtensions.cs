@@ -1,7 +1,10 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Core.Runtime;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
+using PainKiller.CommandPrompt.CoreLib.Metadata.DomainObjects;
+using PainKiller.CommandPrompt.CoreLib.Metadata.Extensions;
 
 namespace PainKiller.CommandPrompt.CoreLib.Core.Extensions;
 
@@ -64,6 +67,49 @@ public static class ConsoleCommandExtensions
         var stringValue = rawValue ?? defaultValue;
         if (typeof(T).IsEnum) return (T)Enum.Parse(typeof(T), stringValue, ignoreCase: true);
         return (T)Convert.ChangeType(stringValue, typeof(T), CultureInfo.InvariantCulture);
+    }
+    public static bool TryGetOption<T>(this ICommandLineInput input, out T value, T defaultValue = default!, [CallerArgumentExpression("value")] string optionName = null!)
+    {
+        optionName = optionName.ToLowerInvariant();
+        if (!input.Options.TryGetValue(optionName, out var raw))
+        {
+            value = defaultValue;
+            return false;
+        }
+        if (typeof(T) == typeof(bool))
+        {
+            value = (T)(object)true!;
+            return true;
+        }
+        if (string.IsNullOrEmpty(raw))
+        {
+            value = defaultValue;
+            return false;
+        }
+        try
+        {
+            if (typeof(T).IsEnum)
+            {
+                value = (T)Enum.Parse(typeof(T), raw, ignoreCase: true)!;
+            }
+            else
+            {
+                value = (T)Convert.ChangeType(raw, typeof(T), CultureInfo.InvariantCulture)!;
+            }
+            return true;
+        }
+        catch
+        {
+            value = defaultValue;
+            return false;
+        }
+    }
+    public static string GetSuggestion(this IConsoleCommand command, string? argument, string defaultValue)
+    {
+        var retVal = argument;
+        var metaData = command.GetMetadata() ?? new CommandMetadata();
+        if (string.IsNullOrEmpty(argument) || metaData.Suggestions.All(s => s != argument)) retVal = "medium_term";
+        return retVal;
     }
     public static string GetFullPath(this ICommandLineInput input)
     {
