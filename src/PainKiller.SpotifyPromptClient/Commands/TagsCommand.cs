@@ -7,13 +7,13 @@ namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(
     description: "Spotify - Enrich your items with tags.",
-    options: ["artist", "album", "playlist", "filter", "filter-tag-missing"],
-    examples: ["//Add a tag to artist","tags --artist","//Add a tag to album","tags --album","//Add a tag to playlist","tags --playlist","//Show only does who misses a tag","tags --filter-tag-missing"]
+        options: ["artist", "album", "playlist", "filter", "filter-tag-missing"],
+       examples: ["//Add a tag to artist","tags --artist","//Add a tag to album","tags --album","//Add a tag to playlist","tags --playlist","//Show only does who misses a tag","tags --filter-tag-missing"]
 )]
 public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
-    private readonly SpotifyObjectStorage<Albums, Album> _albumStore       = new();
-    private readonly SpotifyObjectStorage<Artists, ArtistSimplified> _artistStore     = new();
+    private readonly SpotifyObjectStorage<Albums, Album> _albumStore = new();
+    private readonly SpotifyObjectStorage<Artists, ArtistSimplified> _artistStore = new();
     private readonly SpotifyObjectStorage<Playlists, PlaylistInfo> _playlistStore = new();
 
     public override RunResult Run(ICommandLineInput input)

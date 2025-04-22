@@ -37,7 +37,7 @@ public static class ConsoleCommandExtensions
     }
     public static RunResult ExecuteWithSimpleOptions(this IConsoleCommand command, string[]? arguments = null, string[]? quotes = null, params string[] options)
     {
-        var optionsDict = options.ToDictionary(opt => opt, opt => string.Empty);
+        var optionsDict = options.ToDictionary(opt => opt, _ => string.Empty);
         return command.Execute(arguments: arguments, quotes: quotes, options: optionsDict);
     }
     private static string BuildRaw(
@@ -70,31 +70,31 @@ public static class ConsoleCommandExtensions
     }
     public static bool TryGetOption<T>(this ICommandLineInput input, out T value, T defaultValue = default!, [CallerArgumentExpression("value")] string optionName = null!)
     {
-        optionName = optionName.ToLowerInvariant();
-        if (!input.Options.TryGetValue(optionName, out var raw))
-        {
-            value = defaultValue;
-            return false;
-        }
-        if (typeof(T) == typeof(bool))
-        {
-            value = (T)(object)true!;
-            return true;
-        }
-        if (string.IsNullOrEmpty(raw))
-        {
-            value = defaultValue;
-            return false;
-        }
         try
         {
+            optionName = optionName.Split(' ').Last().ToLowerInvariant();
+            if (!input.Options.TryGetValue(optionName, out var raw))
+            {
+                value = defaultValue;
+                return false;
+            }
+            if (typeof(T) == typeof(bool))
+            {
+                value = (T)(object)true;
+                return true;
+            }
+            if (string.IsNullOrEmpty(raw))
+            {
+                value = defaultValue;
+                return false;
+            }
             if (typeof(T).IsEnum)
             {
-                value = (T)Enum.Parse(typeof(T), raw, ignoreCase: true)!;
+                value = (T)Enum.Parse(typeof(T), raw, ignoreCase: true);
             }
             else
             {
-                value = (T)Convert.ChangeType(raw, typeof(T), CultureInfo.InvariantCulture)!;
+                value = (T)Convert.ChangeType(raw, typeof(T), CultureInfo.InvariantCulture);
             }
             return true;
         }
@@ -109,7 +109,7 @@ public static class ConsoleCommandExtensions
         var retVal = argument;
         var metaData = command.GetMetadata() ?? new CommandMetadata();
         if (string.IsNullOrEmpty(argument) || metaData.Suggestions.All(s => s != argument)) retVal = "medium_term";
-        return retVal;
+        return retVal ?? defaultValue;
     }
     public static string GetFullPath(this ICommandLineInput input)
     {

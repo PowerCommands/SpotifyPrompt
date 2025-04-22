@@ -18,5 +18,5 @@ public class TrackCommand(string identifier) : TracksBaseCommand(identifier)
         ShowSelectedTracks();
         return Ok();
     }
-    private void Presentation(List<TrackObject> items) => Writer.WriteTable(items.Select(a => new{Name = a.Name, Artist = a.Artists.FirstOrDefault()?.Name}));
+    private void Presentation(List<TrackObject> items) => Writer.WriteTable(items.Select(a => new{Name = a.Name, Artist = a.Artists.FirstOrDefault()?.Name, Tags = a.Tags}));
 }

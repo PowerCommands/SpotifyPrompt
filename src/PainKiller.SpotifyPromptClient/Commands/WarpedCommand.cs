@@ -11,7 +11,6 @@ public class WarpedCommand(string identifier) : ConsoleCommandBase<CommandPrompt
     {
         var timeRange = this.GetSuggestion(input.Arguments.FirstOrDefault(), "medium_term");
         input.TryGetOption(out var limit, 30);
-        
         if (input.HasOption("artists"))
         {
             Writer.WriteHeadLine("Top artists");
