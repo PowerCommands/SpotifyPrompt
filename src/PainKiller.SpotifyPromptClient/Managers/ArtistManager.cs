@@ -16,7 +16,7 @@ public class ArtistManager : SpotifyClientBase, IArtistManager
     public Artist GetArtist(string artistId)
     {
         var token = GetAccessToken();
-        var url   = $"{BaseUrl}/{Uri.EscapeDataString(artistId)}";
+        var url = $"{BaseUrl}/{Uri.EscapeDataString(artistId)}";
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -31,14 +31,14 @@ public class ArtistManager : SpotifyClientBase, IArtistManager
     public List<Artist> GetArtists(IEnumerable<string> ids)
     {
         const int maxBatchSize = 50;
-        var allIds  = ids.ToList();
+        var allIds = ids.ToList();
         var results = new List<Artist>();
-        var token   = GetAccessToken();
+        var token = GetAccessToken();
 
         for (var i = 0; i < allIds.Count; i += maxBatchSize)
         {
             var batch = allIds.Skip(i).Take(maxBatchSize);
-            var url   = $"https://api.spotify.com/v1/artists?ids={string.Join(',', batch)}";
+            var url = $"https://api.spotify.com/v1/artists?ids={string.Join(',', batch)}";
 
             HttpResponseMessage resp;
             while (true)
@@ -75,5 +75,62 @@ public class ArtistManager : SpotifyClientBase, IArtistManager
             }
         }
         return results;
+    }
+    public List<TrackObject> GetTopTracks(string artistId, string market = "US")
+    {
+        var token = GetAccessToken();
+        var url = $"{BaseUrl}/{Uri.EscapeDataString(artistId)}/top-tracks?market={Uri.EscapeDataString(market)}";
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        resp.EnsureSuccessStatusCode();
+
+        using var doc = JsonDocument.Parse(resp.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+        return doc.RootElement
+            .GetProperty("tracks")
+            .EnumerateArray()
+            .Select(ParseTrack)
+            .ToList();
+    }
+    public ArtistSimplified GetArtistByName(string artistName)
+    {
+        var searchResult = SearchManager.Default.SearchArtists(artistName);
+        foreach (var artistSimplified in searchResult.Where(artistSimplified => artistSimplified.Name.Trim() == artistName)) return artistSimplified;
+        return new ArtistSimplified();
+    }
+    private TrackObject ParseTrack(JsonElement item)
+    {
+        return new TrackObject
+        {
+            Id = item.GetProperty("id").GetString() ?? string.Empty,
+            Name = item.GetProperty("name").GetString() ?? string.Empty,
+            DurationMs = item.GetProperty("duration_ms").GetInt32(),
+            Uri = item.GetProperty("uri").GetString() ?? string.Empty,
+            Artists = item.GetProperty("artists").EnumerateArray()
+                .Select(a => new ArtistSimplified
+                {
+                    Id = a.GetProperty("id").GetString() ?? string.Empty,
+                    Name = a.GetProperty("name").GetString() ?? string.Empty,
+                    Uri = a.GetProperty("uri").GetString() ?? string.Empty
+                })
+                .ToList(),
+            Album = new Album
+            {
+                Id = item.GetProperty("album").GetProperty("id").GetString() ?? string.Empty,
+                Name = item.GetProperty("album").GetProperty("name").GetString() ?? string.Empty,
+                ReleaseDate = item.GetProperty("album").GetProperty("release_date").GetString() ?? string.Empty,
+                TotalTracks = item.GetProperty("album").GetProperty("total_tracks").GetInt32(),
+                Uri = item.GetProperty("album").GetProperty("uri").GetString() ?? string.Empty,
+                Artists = item.GetProperty("album").GetProperty("artists").EnumerateArray()
+                    .Select(a => new ArtistSimplified
+                    {
+                        Id = a.GetProperty("id").GetString() ?? string.Empty,
+                        Name = a.GetProperty("name").GetString() ?? string.Empty,
+                        Uri = a.GetProperty("uri").GetString() ?? string.Empty
+                    })
+                    .ToList()
+            }
+        };
     }
 }

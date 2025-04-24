@@ -36,6 +36,10 @@ configuration:
         enabled: true
         height: 2
         updateIntervalSeconds: -1
+      ollama:
+        baseAddress: localhost
+        port: 11434
+        model: gemma3:latest
   log:
     fileName: commandprompt.log
     filePath: logs
