@@ -9,7 +9,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                       arguments: ["filter"],
                         options: ["update","compare"],
                        examples: ["//View playlist","list","//Update playlists", "list --update","//Compare playlist with updated playlists with tracks","list --compare"])]
-public class ListCommand(string identifier) : TracksBaseCommand(identifier)
+public class ListCommand(string identifier) : SelectedBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
@@ -34,7 +34,7 @@ public class ListCommand(string identifier) : TracksBaseCommand(identifier)
                     var playListWithTracks = new PlaylistWithTracks { Id = playlist.Id, Items =  allTracks};
                     playlistTracksStorage.Insert(playListWithTracks, p => p.Id == playListWithTracks.Id, saveToFile: false);
                     Writer.WriteSuccessLine($"Playlists tracks stored for [{playlist.Name}] trackcount: {playlist.TrackCount}");
-                    TrackService.Default.StoreTracks(allTracks);
+                    SelectedService.Default.Store(allTracks);
                 }
                 catch (Exception ex)
                 {
@@ -68,7 +68,7 @@ public class ListCommand(string identifier) : TracksBaseCommand(identifier)
         if (action == PlayListAction.Play || action == PlayListAction.View)
         {
             var tracks = PlaylistManager.Default.GetAllTracksForPlaylist(selectedPlayList.Id);
-            TrackService.Default.UpdateSelectedTracks(tracks);
+            SelectedService.Default.UpdateSelected(tracks);
             ShowSelectedTracks();
         }
         if(action == PlayListAction.Delete)

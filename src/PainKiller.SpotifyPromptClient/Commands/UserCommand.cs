@@ -3,7 +3,7 @@ using Spectre.Console;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - User command", 
+[CommandDesign(     description: "Spotify - Show user details.", 
                        examples: ["//View user details","user"])]
 public class UserCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {

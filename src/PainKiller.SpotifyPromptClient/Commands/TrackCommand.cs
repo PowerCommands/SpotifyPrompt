@@ -7,7 +7,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                         options: ["tags"],
                       arguments: ["filter"],
                        examples: ["//Show tracks","track"])]
-public class TrackCommand(string identifier) : TracksBaseCommand(identifier)
+public class TrackCommand(string identifier) : SelectedBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
@@ -16,7 +16,7 @@ public class TrackCommand(string identifier) : TracksBaseCommand(identifier)
         input.TryGetOption(out string tags, "");
         var tracks = tracksStorage.GetItems();
         var selectedTracks = ListService.ShowSelectFromFilteredList<TrackObject>("Select a track!", tracks,(info, s) => ((info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) || info.Artists.Any(a => a.Name.Contains(s, StringComparison.OrdinalIgnoreCase))) && info.Tags.Contains(tags, StringComparison.OrdinalIgnoreCase)), Presentation, Writer, filter);
-        TrackService.Default.UpdateSelectedTracks(selectedTracks);
+        SelectedService.Default.UpdateSelected(selectedTracks);
         ShowSelectedTracks();
         return Ok();
     }

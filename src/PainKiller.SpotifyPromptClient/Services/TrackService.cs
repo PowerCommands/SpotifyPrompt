@@ -1,17 +1,19 @@
 ﻿using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 
 namespace PainKiller.SpotifyPromptClient.Services;
-public class TrackService : ITrackService
+public class SelectedService : ISelectedService
 {
-    private readonly List<TrackObject> _selected = [];
-    private TrackService() { }
-    private static readonly Lazy<ITrackService> Instance = new(() => new TrackService());
-    public static ITrackService Default => Instance.Value;
+    private readonly List<TrackObject> _selectedTracks = [];
+    private SelectedService() { }
+    private static readonly Lazy<ISelectedService> Instance = new(() => new SelectedService());
+    public static ISelectedService Default => Instance.Value;
 
     private readonly ObjectStorage<Tracks, TrackObject> _trackStore = new();
     private readonly SpotifyObjectStorage<Albums, Album> _albumStore = new();
     private readonly SpotifyObjectStorage<Artists, ArtistSimplified> _artistStore = new();
-    public void StoreTracks(IEnumerable<TrackObject> tracks)
+    private readonly List<Album> _selectedAlbums = new();
+    private readonly List<ArtistSimplified> _selectedArtists = new();
+    public void Store(IEnumerable<TrackObject> tracks)
     {
         var uniqueTracks = tracks.GroupBy(t => t.Id).Select(g => g.First()).ToList();
         var uniqueAlbums = uniqueTracks.Select(t => t.Album).GroupBy(a => a.Id).Select(g => g.First());
@@ -25,13 +27,28 @@ public class TrackService : ITrackService
         _albumStore.Save();
         _artistStore.Save();
     }
-    public void UpdateSelectedTracks(List<TrackObject> tracks)
+    public void UpdateSelected(List<TrackObject> tracks)
     {
-        _selected.Clear();
-        _selected.AddRange(tracks);
+        _selectedTracks.Clear();
+        _selectedTracks.AddRange(tracks);
     }
-    public void AppendToSelectedTracks(List<TrackObject> tracks) => _selected.AddRange(tracks);
-    public List<TrackObject> GetSelectedTracks() => _selected;
+    public void AppendToSelected(List<TrackObject> tracks) => _selectedTracks.AddRange(tracks);
+    public List<TrackObject> GetSelectedTracks() => _selectedTracks;
 
+    public void UpdateSelected(List<Album> albums)
+    {
+        _selectedAlbums.Clear();
+        _selectedAlbums.AddRange(albums);
+    }
+    public void AppendToSelected(List<Album> albums) => _selectedAlbums.AddRange(albums);
 
+    public List<Album> GetSelectedAlbums() => _selectedAlbums;
+
+    public void UpdateSelected(List<ArtistSimplified> artists)
+    {
+        _selectedArtists.Clear();
+        _selectedArtists.AddRange(artists);
+    }
+    public void AppendToSelected(List<ArtistSimplified> artists) => _selectedArtists.AddRange(artists);
+    public List<ArtistSimplified> GetSelectedArtists() => _selectedArtists;
 }

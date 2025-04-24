@@ -108,7 +108,7 @@ public static class ConsoleCommandExtensions
     {
         var retVal = argument;
         var metaData = command.GetMetadata() ?? new CommandMetadata();
-        if (string.IsNullOrEmpty(argument) || metaData.Suggestions.All(s => s != argument)) retVal = "medium_term";
+        if (string.IsNullOrEmpty(argument) || metaData.Suggestions.All(s => s != argument)) retVal = defaultValue;
         return retVal ?? defaultValue;
     }
     public static string GetFullPath(this ICommandLineInput input)
