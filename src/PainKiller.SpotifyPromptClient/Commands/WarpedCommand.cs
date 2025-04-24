@@ -1,4 +1,6 @@
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
+
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Warped, get statistic top tracks or top artists",
@@ -15,11 +17,13 @@ public class WarpedCommand(string identifier) : ConsoleCommandBase<CommandPrompt
         {
             Writer.WriteHeadLine("Top artists");
             var artists = UserManager.Default.GetTopArtists(limit, timeRange);
+            SelectedService.Default.UpdateSelected(artists);
             Writer.WriteTable(artists.Select(a => new{Name = a.Name, Tags = a.Tags}));
             return Ok();
         }
         Writer.WriteHeadLine("Top tracks");
         var tracks = UserManager.Default.GetTopTracks(limit, timeRange);
+        SelectedService.Default.UpdateSelected(tracks);
         Writer.WriteTable(tracks.Select(t => new { Artist = t.Artists?.First().Name , Name = t.Name }));
         return Ok();
     }

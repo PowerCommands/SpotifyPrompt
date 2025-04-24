@@ -6,7 +6,8 @@ namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Player command",
                       arguments: ["index"],
-                       examples: ["//Play","play","//Play the third track of the current selected tracks.","play 3"])]
+                        options: ["all"],
+                       examples: ["//Play","play","//Play the third track of the current selected tracks.","play 3","//Play all selected tracks","play --all"])]
 public class PlayCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
     public override void OnInitialized()
@@ -17,12 +18,17 @@ public class PlayCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
     {
         IPlayerManager playerManager = new PlayerManager();
         var index = input.Arguments.Length > 0 ? int.Parse(input.Arguments[0]) : -1;
+        var selectedTracks = SelectedService.Default.GetSelectedTracks();
+        if (input.HasOption("all") && selectedTracks.Count > 0)
+        {
+            playerManager.Play(selectedTracks.Select(t => t.Uri));
+            return Ok();
+        }
         if (index < 1)
         {
             playerManager.Play();
             return Ok();
         }
-        var selectedTracks = SelectedService.Default.GetSelectedTracks();
         if (index < selectedTracks.Count)
         {
             playerManager.Play(selectedTracks[index-1].Uri);
