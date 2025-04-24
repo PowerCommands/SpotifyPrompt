@@ -26,7 +26,19 @@ public class PlayerManager : SpotifyClientBase, IPlayerManager
         response.EnsureSuccessStatusCode();
     }
     public void Play() => SendCommand(HttpMethod.Put, "https://api.spotify.com/v1/me/player/play");
-
+    public void Play(string uri) => Play([uri]);
+    public void Play(IEnumerable<string> uris)
+    {
+        var enumerable = uris as string[] ?? uris.ToArray();
+        if (uris == null || !enumerable.Any())
+        {
+            Play();
+        }
+        else
+        {
+            SendCommand(HttpMethod.Put, "https://api.spotify.com/v1/me/player/play", new { uris = enumerable.ToArray() });
+        }
+    }
     public void Pause() => SendCommand(HttpMethod.Put, "https://api.spotify.com/v1/me/player/pause");
 
     public void Next() => SendCommand(HttpMethod.Post, "https://api.spotify.com/v1/me/player/next");

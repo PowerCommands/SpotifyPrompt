@@ -27,7 +27,7 @@ public abstract class SelectedBaseCommand(string identifier) : ConsoleCommandBas
             var playlistId = PlaylistModifyManager.Default.CreatePlaylist(user.Id, playListName, $"{description}\nPlaylist created with SpotifyPrompt");
             PlaylistModifyManager.Default.AddTracksToPlaylist(playlistId, tracks.Select(t => t.Uri));
         }
-        Writer.WriteTable(tracks.Select(t => new{Artist = t.Artists.FirstOrDefault()?.Name, t.Name, Album = t.Album.Name, t.Album.ReleaseDate}));
+        Writer.WriteTable(tracks.Select((t, idx) => new { Index = idx + 1, Artist = t.Artists.FirstOrDefault()?.Name, t.Name, Album = t.Album.Name, t.Album.ReleaseDate }));
     }
     protected void ShowSelectedAlbums()
     {

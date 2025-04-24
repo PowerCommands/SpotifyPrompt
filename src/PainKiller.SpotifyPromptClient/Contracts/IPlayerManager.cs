@@ -8,6 +8,8 @@
 public interface IPlayerManager
 {
     void Play();
+    void Play(string uri);
+    void Play(IEnumerable<string> uris);
     void Pause();
     void Next();
     void Previous();
