@@ -32,23 +32,23 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
         SelectedService.Default.UpdateSelected(tracks);
         ShowSelectedTracks();
 
-        var firstArtist = selectedArtists.First();
-        var topTracks = ArtistManager.Default.GetTopTracks(firstArtist.Id);
-        Writer.WriteHeadLine("Top tracks");
-        Writer.WriteTable(topTracks.Select(t => new { t.Name, AlbumName = t.Album.Name, t.Album.ReleaseDate }));
+        //var firstArtist = selectedArtists.First();
+        //var topTracks = ArtistManager.Default.GetTopTracks(firstArtist.Id);
+        //Writer.WriteHeadLine("Top tracks");
+        //Writer.WriteTable(topTracks.Select(t => new { t.Name, AlbumName = t.Album.Name, t.Album.ReleaseDate }));
 
-        var aiConfig = Configuration.Core.Modules.Ollama;
-        var aiManager = new AIManager(aiConfig.BaseAddress, aiConfig.Port, aiConfig.Model);
-        var relatedArtistsNames = aiManager.GetSimilarArtists(firstArtist.Name);
+        //var aiConfig = Configuration.Core.Modules.Ollama;
+        //var aiManager = new AIManager(aiConfig.BaseAddress, aiConfig.Port, aiConfig.Model);
+        //var relatedArtistsNames = aiManager.GetSimilarArtists(firstArtist.Name);
         
-        var relatedArtists = new List<ArtistSimplified>();
-        foreach (var artistName in relatedArtistsNames)
-        {
-            var artist = ArtistManager.Default.GetArtistByName(artistName);
-            if (artist != null) relatedArtists.Add(artist);
-        }
-        Writer.WriteHeadLine("Related artists");
-        Writer.WriteTable(relatedArtists.Select(a => new {a.Id, a.Name}));
+        //var relatedArtists = new List<ArtistSimplified>();
+        //foreach (var artistName in relatedArtistsNames)
+        //{
+        //    var artist = ArtistManager.Default.GetArtistByName(artistName);
+        //    if (artist != null) relatedArtists.Add(artist);
+        //}
+        //Writer.WriteHeadLine("Related artists");
+        //Writer.WriteTable(relatedArtists.Select(a => new {a.Id, a.Name}));
         return Ok();
     }
     private void Presentation(List<ArtistSimplified> items) => Writer.WriteTable(items);

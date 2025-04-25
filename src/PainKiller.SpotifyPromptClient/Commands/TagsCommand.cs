@@ -9,7 +9,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
 [CommandDesign(
     description: "Spotify - Enrich your items with tags.",
         options: ["auto","filter"],
-    suggestions: ["artist", "album", "playlist"],
+    suggestions: ["artist", "album", "playlist", "track"],
        examples: ["//Add a tag to artist","tags --artist","//Add a tag to album","tags --album","//Add a tag to playlist","tags --playlist","//Show only does who misses a tag","tags --filter-tag-missing"]
 )]
 public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
@@ -20,9 +20,11 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 
     public override RunResult Run(ICommandLineInput input)
     {
-        if (input.HasOption("auto")) return AutoTag();
-
         var mode = this.GetSuggestion(input.Arguments.FirstOrDefault(), "artist");
+        if (input.HasOption("auto") && mode == "track") return AutoTagTracks();
+        if (input.HasOption("auto") && mode == "artist") return AutoTagArtists();
+
+        
         var filter = input.GetOptionValue("filter");
 
         var artists = StorageService<Artists>.Service.GetObject().Items;
@@ -83,7 +85,7 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         store.Save();
         Writer.WriteSuccessLine("Changes is persisted.");
     }
-    private RunResult AutoTag()
+    private RunResult AutoTagTracks()
     {
         var simpleArtists = StorageService<Artists>.Service.GetObject().Items;
         var artists = ArtistManager.Default.GetArtists(simpleArtists.Select(a => a.Id)).ToList();
@@ -116,7 +118,40 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         }
 
         trackStorage.Save();
-        Writer.WriteSuccessLine("Auto‑taggning done and updates persisted.");
+        Writer.WriteSuccessLine("Auto‑tagging of tracks done and updates persisted.");
+        return Ok();
+    }
+    private RunResult AutoTagArtists()
+    {
+        var simpleArtists = StorageService<Artists>.Service.GetObject().Items;
+        var aiConfig = Configuration.Core.Modules.Ollama;
+        var aiManager = new AIManager(aiConfig.BaseAddress, aiConfig.Port, aiConfig.Model);
+        var counter = 0;
+        foreach (var artist in simpleArtists)
+        {
+            counter++;
+            if (counter++ % 5 == 0)
+            {
+                aiManager.ClearMessages();
+            }
+            if (!string.IsNullOrEmpty(artist.Tags) && artist.Tags.Trim() !=  "Unknown")
+                continue;
+            try
+            {
+                var category = aiManager.GetCategory(artist.Name);
+                Writer.WriteLine($"Category from {aiConfig.Model}: {category}");
+                var genreEnum = GenreMapper.Map(category);
+                var genreName = genreEnum.ToString();
+                artist.Tags += genreName;
+                _artistStore.Insert(artist, a => a.Id == artist.Id);
+                Writer.WriteLine($"Auto tagged «{artist.Name}» with [{artist.Tags}]");
+            }
+            catch (Exception e)
+            {
+                Writer.WriteError(e.Message, nameof(TagsCommand));
+            }
+        }
+        Writer.WriteSuccessLine("Auto‑tagging of artists done and updates persisted.");
         return Ok();
     }
 }

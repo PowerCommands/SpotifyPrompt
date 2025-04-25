@@ -12,7 +12,7 @@ public static class GenreMapper
         (Genres.Metal, ["metal", "death metal", "doom metal", "black metal", "power metal", "folk metal", "symphonic metal", "groove metal", "thrash metal", "speed metal", "nu metal", "melodic metal", "industrial metal"]),
         (Genres.Punk, ["punk", "hardcore punk", "emo", "post-punk", "skate punk", "anarcho punk", "proto-punk"]),
         (Genres.Rock, ["rock", "classic rock", "progressive rock", "stoner rock", "psychedelic rock", "space rock", "art rock", "post-grunge", "grunge"]),
-        (Genres.HipHop, ["hip hop", "hip‑hop", "gangster rap", "trap", "boom bap", "rap", "cloud rap", "rage rap", "east coast hip hop", "west coast hip hop", "southern hip hop", "hardcore hip hop", "drill"]),
+        (Genres.HipHop, ["hiphop", "hip hop", "hip‑hop", "gangster rap", "trap", "boom bap", "rap", "cloud rap", "rage rap", "east coast hip hop", "west coast hip hop", "southern hip hop", "hardcore hip hop", "drill"]),
         (Genres.RnB, ["r&b", "rnb", "neo soul", "soul", "funk ", "disco"]),
         (Genres.Pop, ["pop", "poppunk", "synthpop", "electropop", "bubblegum pop", "hyperpop", "k-pop", "latin pop"]),
         (Genres.Synth, ["synth", "synthwave", "synthpop", "electro", "ebm", "electroclash"]),
