@@ -33,7 +33,7 @@ public static class Startup
         foreach (var consoleCommand in commands) consoleCommand.OnInitialized();
         
         ShowLogo(config.Core, margin: config.Core.Modules.InfoPanel.Height);
-        InfoPanelService.Instance.RegisterContent(new SpotifyPanel(new SpotifyInfoPanelContent(config.Spotify.RefreshMarginInMinutes)));
+        InfoPanelService.Instance.RegisterContent(new SpotifyPanel(new SpotifyInfoPanelContent(config.Spotify.RefreshMarginInMinutes, config.Spotify.LatestTracksCount)));
 
         EventBusService.Service.Subscribe<AfterCommandExecutionEvent>(eventData =>
         {

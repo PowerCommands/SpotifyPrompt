@@ -13,8 +13,6 @@ public interface IPlayerManager
     void Pause();
     void Next();
     void Previous();
-    (string? TrackName, string? Artists) GetCurrentlyPlaying();
-
     /// <summary>
     /// Enable or disable shuffle (randomize) on the user’s player.
     /// </summary>

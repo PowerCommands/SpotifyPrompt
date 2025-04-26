@@ -1,4 +1,5 @@
-﻿using PainKiller.SpotifyPromptClient.DomainObjects.Data;
+﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
+using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 
 namespace PainKiller.SpotifyPromptClient.Services;
 public class SelectedService : ISelectedService
@@ -48,6 +49,16 @@ public class SelectedService : ISelectedService
     {
         _selectedArtists.Clear();
         _selectedArtists.AddRange(artists);
+    }
+    public void UpdateLatestPlaying(TrackObject track, int latestTracksCount)
+    {
+        var latestPlaying = StorageService<LatestTracks>.Service.GetObject();
+        var tracks = latestPlaying.Items.Take(latestTracksCount).ToList();
+        if (tracks.Any(t => t.Id == track.Id)) return;
+        tracks.Insert(0, track);
+        latestPlaying.Items = tracks;
+        latestPlaying.LastUpdated = DateTime.Now;
+        StorageService<LatestTracks>.Service.StoreObject(latestPlaying);
     }
     public void AppendToSelected(List<ArtistSimplified> artists) => _selectedArtists.AddRange(artists);
     public List<ArtistSimplified> GetSelectedArtists() => _selectedArtists;

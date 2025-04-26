@@ -51,4 +51,5 @@ public interface ISelectedService
     /// Get currently selected artists.
     /// </summary>
     List<ArtistSimplified> GetSelectedArtists();
+    void UpdateLatestPlaying(TrackObject track, int latestTracksCount);
 }

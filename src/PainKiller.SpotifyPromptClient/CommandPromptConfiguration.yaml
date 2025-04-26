@@ -4,6 +4,7 @@ configuration:
     redirectUri: http://localhost:50555/callback
     refreshMarginInMinutes: 10
     startSpotifyClient: false
+    latestTracksCount: 1000
     scopes:
       - user-read-playback-state
       - user-modify-playback-state
@@ -35,7 +36,7 @@ configuration:
       infoPanel:
         enabled: true
         height: 2
-        updateIntervalSeconds: -1
+        updateIntervalSeconds: 60
       ollama:
         baseAddress: localhost
         port: 11434
@@ -44,4 +45,4 @@ configuration:
     fileName: commandprompt.log
     filePath: logs
     rollingIntervall: Day
-    restrictedToMinimumLevel: Debug
+    restrictedToMinimumLevel: Warning

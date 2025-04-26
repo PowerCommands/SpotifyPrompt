@@ -1,4 +1,6 @@
-﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
+﻿using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
+using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Extensions;
@@ -6,6 +8,7 @@ using PainKiller.SpotifyPromptClient.Extensions;
 namespace PainKiller.SpotifyPromptClient.Services;
 public class BuildService : IBuildService
 {
+    private readonly ILogger<BuildService> _logger = LoggerProvider.CreateLogger<BuildService>();
     private BuildService() { }
     private static readonly Lazy<IBuildService> Instance = new(() => new BuildService());
     public static IBuildService Default => Instance.Value;
@@ -43,7 +46,7 @@ public class BuildService : IBuildService
                 }
                 else
                 {
-                    tracks = GetRandomTracks(template.Tags, template.YearSpan);
+                    tracks = GetRandomTracks(template.Tags, template.YearRange, template.UniqueArtists);
                 }
                 break;
             case PlaylistSourceType.Albums:
@@ -58,10 +61,24 @@ public class BuildService : IBuildService
         return tracks.Take(template.Count).ToList();
     }
 
-    private List<TrackObject> GetRandomTracks(List<string> tags, YearSpan years)
+    private List<TrackObject> GetRandomTracks(List<string> tags, YearRange years, bool unique)
     {
         var tracks = StorageService<Tracks>.Service.GetObject().Items.Where(t => t.Tags.Split(',').Any(tg => tg.ToLower().Contains(string.Join(' ', tags).ToLower())) && years.IsInRange(t.ReleaseYear)).ToList();
         tracks.Shuffle();
-        return tracks;
+        if(!unique) return tracks;
+        var retVal = new List<TrackObject>();
+        foreach (var track in tracks)
+        {
+            try
+            {
+                var artist = track.Artists.First();
+                if (retVal.All(t => t.Artists.First().Name != artist.Name)) retVal.Add(track);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e?.Message, nameof(GetRandomTracks));
+            }
+        }
+        return retVal;
     }
 }

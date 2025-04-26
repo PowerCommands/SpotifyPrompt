@@ -6,9 +6,10 @@ using PainKiller.CommandPrompt.CoreLib.Modules.SecurityModule.Extensions;
 using PainKiller.ReadLine.Managers;
 using PainKiller.SpotifyPromptClient.Commands;
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.DomainObjects;
-public class SpotifyInfoPanelContent(int refreshMarginInMinutes) : IInfoPanelContent
+public class SpotifyInfoPanelContent(int refreshMarginInMinutes, int latestTracksCount) : IInfoPanelContent
 {
     private readonly ILogger<SpotifyInfoPanelContent> _logger = LoggerProvider.CreateLogger<SpotifyInfoPanelContent>();
     public string GetText()
@@ -26,17 +27,16 @@ public class SpotifyInfoPanelContent(int refreshMarginInMinutes) : IInfoPanelCon
             var (token, status) = refreshManager.EnsureTokenValid();
 
             var devices = DeviceManager.Default.GetDevices();
-            SuggestionProviderManager.AppendContextBoundSuggestions(
-                nameof(DeviceCommand).Replace("Command", "").ToLower(),
-                devices.OrderBy(d => d.IsActive).Select(d => d.Name).ToArray()
-            );
+            SuggestionProviderManager.AppendContextBoundSuggestions(nameof(DeviceCommand).Replace("Command", "").ToLower(), devices.OrderBy(d => d.IsActive).Select(d => d.Name).ToArray());
 
-            var playerManager = new PlayerManager();
-            var currentlyPlaying = playerManager.GetCurrentlyPlaying();
+            var currentTrack = TrackManager.Default.GetCurrentlyPlayingTrack();
+            var currentlyPlaying = currentTrack == null ? "-" : $"{currentTrack.Artists.First().Name} - {currentTrack.Name}";
+            LatestService.Default.UpdateLatest(currentTrack, latestTracksCount);
 
             var device = devices.FirstOrDefault(d => d.IsActive);
             var deviceName = device?.Name ?? "No active device";
 
+            var playerManager = new PlayerManager();
             var shuffleState = playerManager.GetShuffleState();
             var shuffleStateText = shuffleState ? "Enabled" : "Disabled";
 
@@ -50,7 +50,7 @@ public class SpotifyInfoPanelContent(int refreshMarginInMinutes) : IInfoPanelCon
 
             var secondLine = leftText + new string(' ', padding) + rightText;
 
-            return $"Currently playing: {currentlyPlaying.Artists} - {currentlyPlaying.TrackName}\n{secondLine}";
+            return $"Currently playing: {currentlyPlaying}\n{secondLine}";
         }
         catch (Exception ex)
         {

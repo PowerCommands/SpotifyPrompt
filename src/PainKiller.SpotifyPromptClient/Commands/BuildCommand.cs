@@ -37,7 +37,7 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         var confirmSave = DialogService.YesNoDialog("Do you want to save this template for future use?");
         if (confirmSave)
         {
-            var newTemplate = new PlaylistTemplate { Id = Guid.NewGuid().ToString(), Name = name, Tags = selectedTemplate.Tags, SourceType = selectedTemplate.SourceType, RandomMode = selectedTemplate.RandomMode, YearSpan = selectedTemplate.YearSpan, Count = selectedTemplate.Count };
+            var newTemplate = new PlaylistTemplate { Id = Guid.NewGuid().ToString(), Name = name, Tags = selectedTemplate.Tags, SourceType = selectedTemplate.SourceType, RandomMode = selectedTemplate.RandomMode, YearRange = selectedTemplate.YearRange, Count = selectedTemplate.Count };
             templateStorage.Insert(newTemplate, template => template.Id == newTemplate.Id);
         }
         return Ok();
@@ -50,7 +50,7 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         retVal.Tags = tagsSelect.Select(t => t.Value).ToList() ?? [];
         retVal.SourceType = ToolbarService.NavigateToolbar<PlaylistSourceType>();
         retVal.RandomMode = ToolbarService.NavigateToolbar<RandomMode>();
-        var yearSpan = new YearSpan(1900, 2100);
+        var yearSpan = new YearRange(1900, 2100);
         var confirmSetYear = DialogService.YesNoDialog("Do you want to specify a year range?");
         if(confirmSetYear)
         {
@@ -62,7 +62,7 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
                 yearSpan.End = end;
             }
         }
-        retVal.YearSpan = yearSpan;
+        retVal.YearRange = yearSpan;
         var count = DialogService.QuestionAnswerDialog("How many tracks should the playlist contain (max value):");
         retVal.Count = int.TryParse(count, out var countValue) ? countValue : 100;
         return retVal;

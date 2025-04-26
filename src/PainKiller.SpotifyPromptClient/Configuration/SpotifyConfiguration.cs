@@ -5,4 +5,5 @@ public class SpotifyConfiguration
     public string[] Scopes { get; set; } = [];
     public int RefreshMarginInMinutes { get; set; } = 5;
     public bool StartSpotifyClient { get; set; }
+    public int LatestTracksCount { get; set; } = 1000;
 }
