@@ -29,10 +29,11 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         if (!confirmNewPlayList) return Ok();
 
         var name = DialogService.QuestionAnswerDialog("Name of the playlist:");
-        var id = PlaylistModifyManager.Default.CreatePlaylist(UserManager.Default.GetCurrentUser().Id, name, $"{selectedTemplate.Description} created by {Configuration.Core.Name}");
-        PlaylistModifyManager.Default.AddTracksToPlaylist(id, tracks.Select(t => t.Uri).ToList());
-        playlistStorage.Insert(new PlaylistInfo { Id = id, Name = name, Owner = UserManager.Default.GetCurrentUser().Id, Tags = string.Join(',', selectedTemplate.Tags), TrackCount = tracks.Count}, playlist => playlist.Id == id);
-        playlistTrackStorage.Insert(new PlaylistWithTracks { Id = id, Items = tracks }, playlist => playlist.Id == id);
+        PlaylistService.Default.CreatePlaylist(name, $"{selectedTemplate.Description} created by {Configuration.Core.Name}", tracks, selectedTemplate.Tags);
+        //var id = PlaylistModifyManager.Default.CreatePlaylist(UserManager.Default.GetCurrentUser().Id, name, $"{selectedTemplate.Description} created by {Configuration.Core.Name}");
+        //PlaylistModifyManager.Default.AddTracksToPlaylist(id, tracks.Select(t => t.Uri).ToList());
+        //playlistStorage.Insert(new PlaylistInfo { Id = id, Name = name, Owner = UserManager.Default.GetCurrentUser().Id, Tags = string.Join(',', selectedTemplate.Tags), TrackCount = tracks.Count}, playlist => playlist.Id == id);
+        //playlistTrackStorage.Insert(new PlaylistWithTracks { Id = id, Items = tracks }, playlist => playlist.Id == id);
 
         var confirmSave = DialogService.YesNoDialog("Do you want to save this template for future use?");
         if (confirmSave)

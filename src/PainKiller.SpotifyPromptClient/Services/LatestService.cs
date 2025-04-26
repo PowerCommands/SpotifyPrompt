@@ -20,4 +20,11 @@ public class LatestService : ILatestService
         StorageService<LatestTracks>.Service.StoreObject(latestPlaying);
     }
     public List<TrackObject> GetLatestTracks() => StorageService<LatestTracks>.Service.GetObject().Items;
+
+    public void Clear()
+    {
+        var tracks = new List<TrackObject>();
+        var latestTracks = new LatestTracks() { Items = tracks };
+        StorageService<LatestTracks>.Service.StoreObject(latestTracks);
+    }
 }

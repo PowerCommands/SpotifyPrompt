@@ -1,3 +1,4 @@
+using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Services;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -7,8 +8,22 @@ public class LatestCommand(string identifier) : ConsoleCommandBase<CommandPrompt
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        var queue = LatestService.Default.GetLatestTracks();
-        Writer.WriteTable(queue.Select(t => new{Artist = t.Artists.First().Name,Title = t.Name ,Album = t.Album.Name, Released = t.Album.ReleaseDate.Trim().Truncate(4,"")}));
+        var latest = LatestService.Default.GetLatestTracks();
+        Writer.WriteDescription("Latest played tracks (while client running):", latest.Count.ToString());
+        Writer.WriteTable(latest.Select(t => new{Artist = t.Artists.First().Name,Title = t.Name ,Album = t.Album.Name, Released = t.Album.ReleaseDate.Trim().Truncate(4,"")}));
+        var action = ToolbarService.NavigateToolbar<LatestAction>(title:"What do you want to do with the history?");
+        if (action == LatestAction.Nothing) return Ok();
+        if (action == LatestAction.Clear)
+        {
+            LatestService.Default.Clear();
+            Writer.WriteSuccessLine("Latest track history cleared");
+            return Ok();
+        }
+        Writer.WriteLine();
+        var playlistName = DialogService.QuestionAnswerDialog("Name of the playlist:");
+        var tag = ToolbarService.NavigateToolbar<Genres>(title: "Select a tag");
+        PlaylistService.Default.CreatePlaylist(playlistName, $"Playlist created with {Configuration.Core.Name}", latest, [tag.ToString()]);
+        Writer.WriteSuccessLine($"Playlist [{playlistName}] created.");
         return Ok();
     }
 }
