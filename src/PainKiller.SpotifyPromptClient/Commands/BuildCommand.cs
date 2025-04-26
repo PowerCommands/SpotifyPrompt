@@ -48,6 +48,7 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
     {
         var retVal = new PlaylistTemplate { Name = DialogService.QuestionAnswerDialog("Name:") };
         var tags = BuildService.Default.GetTags();
+        tags.Insert(0, "*");
         var tagsSelect = ListService.ListDialog("Choose tags:", tags, multiSelect: true);
         retVal.Tags = tagsSelect.Select(t => t.Value).ToList() ?? [];
         retVal.SourceType = ToolbarService.NavigateToolbar<PlaylistSourceType>();
@@ -64,6 +65,8 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
                 yearSpan.End = end;
             }
         }
+        int.TryParse(DialogService.QuestionAnswerDialog("Max count per artist:"), out var maxCount);
+        retVal.MaxCountPerArtist = maxCount > 0 ? maxCount : 3;
         retVal.YearRange = yearSpan;
         var count = DialogService.QuestionAnswerDialog("How many tracks should the playlist contain (max value):");
         retVal.Count = int.TryParse(count, out var countValue) ? countValue : 100;

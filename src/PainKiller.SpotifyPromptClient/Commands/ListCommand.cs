@@ -76,8 +76,7 @@ public class ListCommand(string identifier) : SelectedBaseCommand(identifier)
             var confirm = DialogService.YesNoDialog("Are you sure you want to delete the playlist?");
             if (confirm)
             {
-                playlistStorage.Remove(p => p.Id == selectedPlayList.Id, saveToFile: true);
-                PlaylistModifyManager.Default.DeletePlaylist(selectedPlayList.Id);
+                PlaylistService.Default.DeletePlaylist(selectedPlayList.Id);
                 Writer.WriteSuccessLine($"Playlist [{selectedPlayList.Name}] deleted.");
             }
         }

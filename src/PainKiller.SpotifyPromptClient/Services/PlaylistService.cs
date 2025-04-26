@@ -17,4 +17,12 @@ public class PlaylistService : IPlaylistService
         playlistStorage.Insert(new PlaylistInfo { Id = id, Name = name, Owner = UserManager.Default.GetCurrentUser().Id, Tags = string.Join(',', tags), TrackCount = tracks.Count}, playlist => playlist.Id == id);
         playlistTrackStorage.Insert(new PlaylistWithTracks { Id = id, Items = tracks }, playlist => playlist.Id == id);
     }
+    public void DeletePlaylist(string id)
+    {
+        var playlistStorage = new ObjectStorage<Playlists, PlaylistInfo>();
+        var playlistTrackStorage = new ObjectStorage<PlaylistTracks, PlaylistWithTracks>();
+        PlaylistModifyManager.Default.DeletePlaylist(id);
+        playlistTrackStorage.Remove(pts => pts.Id == id);
+        playlistStorage.Remove(playlist => playlist.Id == id);
+    }
 }

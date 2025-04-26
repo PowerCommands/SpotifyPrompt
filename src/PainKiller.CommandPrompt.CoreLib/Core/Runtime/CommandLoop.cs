@@ -7,11 +7,12 @@ namespace PainKiller.CommandPrompt.CoreLib.Core.Runtime;
 public class CommandLoop(ICommandRuntime runtime, IUserInputReader inputReader, CoreConfiguration config) : ICommandLoop
 {
     private readonly ILogger<CommandLoop> _logger = LoggerProvider.CreateLogger<CommandLoop>();
-    public void Start()
+    public void Start(string[] args)
     {
         while (true)
         {
-            var input = inputReader.ReadLine(config.Prompt).Trim();
+            var input = args.Length > 0 ? string.Join(' ', args) : inputReader.ReadLine(config.Prompt).Trim();
+            args = []; // Reset args for next iteration
             _logger.LogDebug(input);
 
             if (string.IsNullOrWhiteSpace(input)) continue;
@@ -20,7 +21,7 @@ public class CommandLoop(ICommandRuntime runtime, IUserInputReader inputReader, 
                 _logger.LogInformation($"User entered exit, application shutdown.");
                 break;
             }
-            var result = runtime.Execute(input);
+            var result = runtime.Execute(input, config.DefaultCommand);
             if(result.Success) _logger.LogDebug($"Result: {result.Identifier} {result.Message} {result.Success}");
             else
             {

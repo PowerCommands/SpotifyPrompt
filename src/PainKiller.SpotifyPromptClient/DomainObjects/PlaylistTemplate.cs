@@ -12,5 +12,5 @@ public class PlaylistTemplate
     public List<string> Tags { get; set; } = ["pop"];
     public int Count { get; set; } = 100;
     public YearRange YearRange { get; set; } = new(1980, 1989);
-    public bool UniqueArtists { get; set; }
+    public int MaxCountPerArtist { get; set; } = 3;
 }

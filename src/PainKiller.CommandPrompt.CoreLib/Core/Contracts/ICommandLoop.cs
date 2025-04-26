@@ -2,5 +2,5 @@
 
 public interface ICommandLoop
 {
-    void Start();
+    void Start(string[] args);
 }

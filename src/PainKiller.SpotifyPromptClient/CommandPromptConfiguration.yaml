@@ -19,7 +19,7 @@ configuration:
     name: SpotifyPrompt
     version: 1.0
     prompt: cp>
-    defaultCommand: ''
+    defaultCommand: search
     showLogo: true
     suggestions: 
     - exit

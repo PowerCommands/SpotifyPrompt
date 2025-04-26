@@ -1,2 +1,2 @@
 using PainKiller.SpotifyPromptClient.Bootstrap;
-Startup.Build().Start();
+Startup.Build().Start(args);
