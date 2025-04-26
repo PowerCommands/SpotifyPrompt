@@ -9,7 +9,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(
     description: "Spotify - Enrich your items with tags.",
-        options: ["auto","filter"],
+        options: ["repair","auto","filter"],
     suggestions: ["artist", "album", "playlist", "track"],
        examples: ["//Add a tag to artist","tags --artist","//Add a tag to album","tags --album","//Add a tag to playlist","tags --playlist","//Show only does who misses a tag","tags --filter-tag-missing"]
 )]
@@ -24,8 +24,8 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         var mode = this.GetSuggestion(input.Arguments.FirstOrDefault(), "artist");
         if (input.HasOption("auto") && mode == "track") return AutoTagTracks();
         if (input.HasOption("auto") && mode == "artist") return AutoTagArtists();
+        if (input.HasOption("repair") && mode == "artist") return RepairArtistTags();
 
-        
         var filter = input.GetOptionValue("filter");
 
         var artists = StorageService<Artists>.Service.GetObject().Items;
@@ -49,7 +49,7 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
     }
     private void AddTags<TKey, TEntity>(SpotifyObjectStorage<TKey, TEntity> store, string filterTitle, Func<TEntity, string> nameSelector, Func<TEntity, string> idSelector, string filter) where TKey : IDataObjects<TEntity>, new() where TEntity : class, IContainsTags, new()
     {
-        var items = store.GetItems().Where(i => !string.IsNullOrEmpty(i.Tags)).ToList();
+        var items = store.GetItems().Where(i => string.IsNullOrEmpty(i.Tags.Trim())).ToList();
         if(!string.IsNullOrEmpty("filter")) items = items.Where(t => t.Tags.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
         var names = items.Select(nameSelector).ToList();
         var selected = ListService.FilteredListDialog(filterTitle, names);
@@ -80,7 +80,7 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
             }
             if (tags.Count == 0)
                 continue;
-            entity.Tags = string.Join(',', tags);
+            entity.Tags = string.Join(',', tags).ToLower();
             store.Insert(entity, e => idSelector(e) == idSelector(entity), saveToFile: false);
         }
         store.Save();
@@ -111,6 +111,19 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         Writer.WriteSuccessLine("Auto‑tagging of tracks done and updates persisted.");
         return Ok();
     }
+    private RunResult RepairArtistTags()
+    {
+        var simpleArtists = StorageService<Artists>.Service.GetObject().Items;
+        foreach (var artist in simpleArtists)
+        {
+            var repairedTags = RepairTag(artist.Tags);
+            artist.Tags = string.Join(',', repairedTags);
+            _artistStore.Insert(artist, a => a.Id == artist.Id, saveToFile: false);
+        }
+        _artistStore.Save();
+        Writer.WriteSuccessLine("Repairing of artist tags done and updates persisted.");
+        return Ok();
+    }
     private RunResult AutoTagArtists()
     {
         var simpleArtists = StorageService<Artists>.Service.GetObject().Items;
@@ -131,7 +144,7 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
                 var category = aiManager.GetCategory(artist.Name);
                 Writer.WriteLine($"Category from {aiConfig.Model}: {category}");
                 var genreEnum = GenreMapper.Map(category);
-                var genreName = genreEnum.ToString();
+                var genreName = genreEnum.ToString().ToLower();
                 artist.Tags += genreName;
                 _artistStore.Insert(artist, a => a.Id == artist.Id);
                 Writer.WriteLine($"Auto tagged «{artist.Name}» with [{artist.Tags}]");
@@ -146,17 +159,43 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
     }
     public List<string> RepairTag(string tag)
     {
-        if (string.IsNullOrWhiteSpace(tag)) return [];
-        var parts = tag.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        
-        var segments = new List<string>();
-
-        foreach (var part in parts)
+        if (string.IsNullOrWhiteSpace(tag)) 
+            return new();
+        var exceptions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            var split = Regex.Split(part, @"(?<=[a-z])(?=[A-Z])");
-            segments.AddRange(split);
+            "hiphop",
+            "rnb",
+            "hardrock"
+        };
+        var parts = tag
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(p => p.Trim())
+            .Where(p => p.Length > 0)
+            .ToList();
+
+        var segments = new List<string>();
+        for (int i = 0; i < parts.Count; i++)
+        {
+            var lower = parts[i].ToLowerInvariant();
+            if (i < parts.Count - 1)
+            {
+                var nextLower = parts[i + 1].ToLowerInvariant();
+                var combo    = lower + nextLower;
+                if (exceptions.Contains(combo))
+                {
+                    segments.Add(combo);
+                    i++; // hoppa över nästa del
+                    continue;
+                }
+            }
+            var splits = Regex.Split(parts[i], @"(?<=[a-z])(?=[A-Z])");
+            foreach (var s in splits)
+            {
+                var clean = s.Trim().ToLowerInvariant();
+                if (clean.Length > 0 && clean != "unknown")
+                    segments.Add(clean);
+            }
         }
-        var distinct = segments.Select(s => s.Trim().ToLowerInvariant()).Where(s => s.Length > 0).Distinct().ToList();
-        return distinct;
+        return segments.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 }

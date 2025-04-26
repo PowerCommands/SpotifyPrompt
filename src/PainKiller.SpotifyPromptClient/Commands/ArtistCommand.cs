@@ -1,5 +1,4 @@
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
-using PainKiller.SpotifyPromptClient.Managers;
 using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
@@ -15,6 +14,22 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
         var filter = string.Join(' ', input.Arguments);
         var artistStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
         var artists = artistStorage.GetItems();
+
+        var noNameArtists = artists.Where(a => string.IsNullOrEmpty(a.Name)).ToList();
+        if (noNameArtists.Count > 0)
+        {
+            Writer.WriteLine("Some artists have no name. Please fix them.");
+            foreach (var artist in noNameArtists)
+            {
+                var artistId = artist.Id;
+                var confirm = DialogService.YesNoDialog($"Artist {artistId} has no name. Do you want to remove it?");
+                if (confirm)
+                {
+                    artistStorage.Remove(simplified => simplified.Id == artistId);
+                    Writer.WriteSuccessLine("Artist with no name removed");
+                }
+            }
+        }
         var tags = input.GetOptionValue("tags");
         var selectedArtists = ListService.ShowSelectFromFilteredList("Select a artist!", artists,(info, s) => (info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) && info.Tags.Contains(tags, StringComparison.OrdinalIgnoreCase)), Presentation, Writer, filter);
         if (selectedArtists.Count == 0) return Ok();
