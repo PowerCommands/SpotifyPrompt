@@ -1,11 +1,13 @@
+using System.Collections.Concurrent;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
+using PainKiller.SpotifyPromptClient.Managers;
 using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Artist actions", 
                       arguments: ["filter"],
-                        options: ["tags"],
+                        options: ["tags","ai"],
                        examples: ["//Show your artists and their tracks","artist"])]
 public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
 {
@@ -15,6 +17,33 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
         var artistStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
         var artists = artistStorage.GetItems();
 
+        var aiMatch = new ConcurrentBag<ArtistSimplified>();
+        if (input.HasOption("ai"))
+        {
+            var config = Configuration.Core.Modules.Ollama;
+            var ai = new AIManager(config.BaseAddress, config.Port, config.Model);
+            var statement = DialogService.QuestionAnswerDialog("Input your AI statement, all artist matching your statement will be shown.\nQuery always begin with artist name, you input the rest, example:\nis a swedish artist or band\n:");
+            
+            var writerLock = new object();
+            Parallel.ForEach(artists, artistSimplified =>
+            {
+                var info = WikipediaManager.Default.TryFetchWikipediaIntro(artistSimplified.Name);
+                var prediction = ai.GetPredictionToQuery($"{artistSimplified.Name} {statement}", info);
+                if (prediction)
+                {
+                    aiMatch.Add(artistSimplified);
+                    lock (writerLock)
+                    {
+                        Writer.WriteLine($"Artist {artistSimplified.Name} match your statement");
+                    }
+                }
+            });
+            if (aiMatch.Count > 0)
+            {
+                artists.Clear();
+                artists.AddRange(aiMatch);
+            }
+        }
         var noNameArtists = artists.Where(a => string.IsNullOrEmpty(a.Name)).ToList();
         if (noNameArtists.Count > 0)
         {

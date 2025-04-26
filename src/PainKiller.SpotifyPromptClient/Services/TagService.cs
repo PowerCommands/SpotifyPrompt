@@ -44,9 +44,8 @@ public class TagService(IConsoleWriter writer)
             if (tags.Count == 0)
                 continue;
             entity.Tags = string.Join(',', tags).ToLower();
-            store.Insert(entity, e => idSelector(e) == idSelector(entity), saveToFile: false);
+            store.Insert(entity, e => idSelector(e) == idSelector(entity));
         }
-        store.Save();
-        writer.WriteSuccessLine("Changes is persisted.");
+        writer.WriteSuccessLine("All items have been tagged.");
     }
 }
