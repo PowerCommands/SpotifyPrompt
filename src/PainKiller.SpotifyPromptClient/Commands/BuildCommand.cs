@@ -5,7 +5,8 @@ using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Playlist builder", 
+[CommandDesign(     description: "Spotify - Playlist builder",
+                    suggestions: ["new"],
                        examples: ["//Build a new playlist.","build"])]
 public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
@@ -13,10 +14,18 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
     {
         var templateStorage = new ObjectStorage<PlaylistTemplates, PlaylistTemplate>();
         var templates = templateStorage.GetItems();
-        var selectedTemplateItems = ListService.ListDialog("Select template", templates.Select(t => t.Name).ToList());
-        if (selectedTemplateItems.Count == 0) return Ok();
-        var selectedTemplate = templates[selectedTemplateItems.First().Key];
+        var suggestion = this.GetSuggestion(input.Arguments.FirstOrDefault(), "");
+        var selectedTemplate = new PlaylistTemplate {Id = ""};
+
+        if (string.IsNullOrEmpty(suggestion))
+        {
+            var selectedTemplateItems = ListService.ListDialog("Select template", templates.Select(t => t.Name).ToList());
+            if (selectedTemplateItems.Count == 0) return Ok();
+            selectedTemplate = templates[selectedTemplateItems.First().Key];
+        }
+        
         if(string.IsNullOrEmpty(selectedTemplate.Id)) selectedTemplate = GetNewTemplate();
+
         var config = Configuration.Core.Modules.Ollama;
         var tracks = BuildService.Default.GetPlaylist(selectedTemplate, new AIManager(config.BaseAddress, config.Port,config.Model));
         var summary = BuildService.Default.GetPlayListSummary(selectedTemplate);
@@ -24,6 +33,7 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         ConsoleService.Writer.WriteHeadLine($"Playlist summary: {summary}");
         Writer.WriteTable(tracks.Select(t => new {Artist = t.Artists.First().Name, t.Name}));
 
+        SelectedService.Default.UpdateSelected(tracks);
         var confirmNewPlayList = DialogService.YesNoDialog("Do you want to create a new playlist with these tracks?");
         if (!confirmNewPlayList) return Ok();
 
