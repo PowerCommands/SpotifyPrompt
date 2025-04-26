@@ -14,8 +14,23 @@ public class BuildService : IBuildService
     private BuildService() { }
     private static readonly Lazy<IBuildService> Instance = new(() => new BuildService());
     public static IBuildService Default => Instance.Value;
-    public List<string> GetTags() => StorageService<Tracks>.Service.GetObject().Items.Select(t => t.Tags).Distinct().ToList();
-
+    public List<string> GetTags()
+    {
+        var retVal = new List<string>();
+        foreach (var tags in StorageService<Tracks>.Service.GetObject().Items.Select(t => t.Tags).Distinct().ToList())
+        {
+            var tagList = tags.Split(',').ToList();
+            foreach (var tag in tagList)
+            {
+                if (retVal.All(t => t.ToLower() != tag.ToLower()))
+                {
+                    retVal.Add(tag);
+                }
+            }
+        }
+        retVal.Sort();
+        return retVal;
+    }
     public string GetPlayListSummary(PlaylistTemplate template)
     {
         var count = -1;

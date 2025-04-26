@@ -12,8 +12,6 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
     public override RunResult Run(ICommandLineInput input)
     {
         var templateStorage = new ObjectStorage<PlaylistTemplates, PlaylistTemplate>();
-        var playlistStorage = new ObjectStorage<Playlists, PlaylistInfo>();
-        var playlistTrackStorage = new ObjectStorage<PlaylistTracks, PlaylistWithTracks>();
         var templates = templateStorage.GetItems();
         var selectedTemplateItems = ListService.ListDialog("Select template", templates.Select(t => t.Name).ToList());
         if (selectedTemplateItems.Count == 0) return Ok();
@@ -31,10 +29,7 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
 
         var name = DialogService.QuestionAnswerDialog("Name of the playlist:");
         PlaylistService.Default.CreatePlaylist(name, $"{selectedTemplate.Description} created by {Configuration.Core.Name}", tracks, selectedTemplate.Tags);
-        //var id = PlaylistModifyManager.Default.CreatePlaylist(UserManager.Default.GetCurrentUser().Id, name, $"{selectedTemplate.Description} created by {Configuration.Core.Name}");
-        //PlaylistModifyManager.Default.AddTracksToPlaylist(id, tracks.Select(t => t.Uri).ToList());
-        //playlistStorage.Insert(new PlaylistInfo { Id = id, Name = name, Owner = UserManager.Default.GetCurrentUser().Id, Tags = string.Join(',', selectedTemplate.Tags), TrackCount = tracks.Count}, playlist => playlist.Id == id);
-        //playlistTrackStorage.Insert(new PlaylistWithTracks { Id = id, Items = tracks }, playlist => playlist.Id == id);
+        
 
         var confirmSave = DialogService.YesNoDialog("Do you want to save this template for future use?");
         if (confirmSave)
@@ -49,7 +44,7 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         var retVal = new PlaylistTemplate { Name = DialogService.QuestionAnswerDialog("Name:") };
         var tags = BuildService.Default.GetTags();
         tags.Insert(0, "*");
-        var tagsSelect = ListService.ListDialog("Choose tags:", tags, multiSelect: true);
+        var tagsSelect = ListService.ListDialog("Choose tags:", tags);
         retVal.Tags = tagsSelect.Select(t => t.Value).ToList() ?? [];
         retVal.SourceType = ToolbarService.NavigateToolbar<PlaylistSourceType>();
         retVal.RandomMode = ToolbarService.NavigateToolbar<RandomMode>();

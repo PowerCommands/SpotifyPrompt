@@ -3,6 +3,7 @@ using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 using PainKiller.SpotifyPromptClient.Utils;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
@@ -42,49 +43,12 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 
         Console.ReadLine();
 
-        if (mode == "artist") AddTags(_artistStore, "Filter artists to tag", a => a.Name, a => a.Id, filter);
-        else if (mode == "album") AddTags(_albumStore, "Filter albums to tag", a => a.Name, a => a.Id, filter);
-        else if (mode == "playlist") AddTags(_playlistStore, "Filter playlists to tag", p => p.Name, p => p.Id, filter);
-        return Ok();
-    }
-    private void AddTags<TKey, TEntity>(SpotifyObjectStorage<TKey, TEntity> store, string filterTitle, Func<TEntity, string> nameSelector, Func<TEntity, string> idSelector, string filter) where TKey : IDataObjects<TEntity>, new() where TEntity : class, IContainsTags, new()
-    {
-        var items = store.GetItems().Where(i => string.IsNullOrEmpty(i.Tags.Trim())).ToList();
-        if(!string.IsNullOrEmpty("filter")) items = items.Where(t => t.Tags.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
-        var names = items.Select(nameSelector).ToList();
-        var selected = ListService.FilteredListDialog(filterTitle, names);
+        var tagService = new TagService(Writer);
 
-        var choice = Genres.NotSet;
-        foreach (var idx in selected)
-        {
-            if(choice == Genres.End) break;
-            Writer.Clear();
-            var entity = items[idx.Key];
-            ConsoleService.WriteCenteredText("Add tags...",entity.Name);
-            var description = WikipediaManager.Default.TryFetchWikipediaIntro(entity.Name);
-            if (!string.IsNullOrWhiteSpace(description)) Writer.WriteDescription("Description", description);
-            var tags = new List<string>();
-            while ((choice = ToolbarService.NavigateToolbar<Genres>()) != Genres.Next)
-            {
-                if(choice == Genres.End) break;
-                if (choice == Genres.Custom)
-                {
-                    var custom = DialogService.QuestionAnswerDialog("Input your custom tag?");
-                    if (!string.IsNullOrWhiteSpace(custom))
-                    {
-                        tags.Add(custom);
-                        continue;
-                    }
-                }
-                tags.Add(choice.ToString());
-            }
-            if (tags.Count == 0)
-                continue;
-            entity.Tags = string.Join(',', tags).ToLower();
-            store.Insert(entity, e => idSelector(e) == idSelector(entity), saveToFile: false);
-        }
-        store.Save();
-        Writer.WriteSuccessLine("Changes is persisted.");
+        if (mode == "artist") tagService.AddTags(_artistStore, "Filter artists to tag", a => a.Name, a => a.Id, filter);
+        else if (mode == "album") tagService.AddTags(_albumStore, "Filter albums to tag", a => a.Name, a => a.Id, filter);
+        else if (mode == "playlist") tagService.AddTags(_playlistStore, "Filter playlists to tag", p => p.Name, p => p.Id, filter);
+        return Ok();
     }
     private RunResult AutoTagTracks()
     {
