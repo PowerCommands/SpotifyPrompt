@@ -19,7 +19,8 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         if (selectedTemplateItems.Count == 0) return Ok();
         var selectedTemplate = templates[selectedTemplateItems.First().Key];
         if(string.IsNullOrEmpty(selectedTemplate.Id)) selectedTemplate = GetNewTemplate();
-        var tracks = BuildService.Default.GetPlaylist(selectedTemplate);
+        var config = Configuration.Core.Modules.Ollama;
+        var tracks = BuildService.Default.GetPlaylist(selectedTemplate, new AIManager(config.BaseAddress, config.Port,config.Model));
         var summary = BuildService.Default.GetPlayListSummary(selectedTemplate);
         Writer.WriteLine();
         ConsoleService.Writer.WriteHeadLine($"Playlist summary: {summary}");

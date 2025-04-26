@@ -4,13 +4,14 @@ namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - View latest played tracks (while running this client)", 
                        examples: ["//View latest played tracks","latest"])]
-public class LatestCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
+public class LatestCommand(string identifier) : SelectedBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
         var latest = LatestService.Default.GetLatestTracks();
         Writer.WriteDescription("Latest played tracks (while client running):", latest.Count.ToString());
-        Writer.WriteTable(latest.Select(t => new{Artist = t.Artists.First().Name,Title = t.Name ,Album = t.Album.Name, Released = t.Album.ReleaseDate.Trim().Truncate(4,"")}));
+        SelectedService.Default.UpdateSelected(latest);
+        ShowSelectedTracks();
         var action = ToolbarService.NavigateToolbar<LatestAction>(title:"What do you want to do with the history?");
         if (action == LatestAction.Nothing) return Ok();
         if (action == LatestAction.Clear)

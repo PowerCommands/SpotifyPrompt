@@ -4,5 +4,5 @@ public interface IBuildService
 {
     List<string> GetTags();
     string GetPlayListSummary(PlaylistTemplate template);
-    List<TrackObject> GetPlaylist(PlaylistTemplate template);
+    List<TrackObject> GetPlaylist(PlaylistTemplate template, IAIManager aiManager);
 }

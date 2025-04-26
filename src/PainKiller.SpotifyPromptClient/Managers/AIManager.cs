@@ -5,7 +5,7 @@ using PainKiller.CommandPrompt.CoreLib.Modules.OllamaModule.Services;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 
-public class AIManager(string baseAddress, int port, string model)
+public class AIManager(string baseAddress, int port, string model) : IAIManager
 {
     private readonly ILogger<AIManager> _logger = LoggerProvider.CreateLogger<AIManager>();
     public List<string> GetSimilarArtists(string artistName)
