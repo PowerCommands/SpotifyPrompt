@@ -1,4 +1,5 @@
-﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
+﻿using System.Text.RegularExpressions;
+using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Managers;
@@ -87,10 +88,9 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
     }
     private RunResult AutoTagTracks()
     {
-        var simpleArtists = StorageService<Artists>.Service.GetObject().Items;
-        var artists = ArtistManager.Default.GetArtists(simpleArtists.Select(a => a.Id)).ToList();
+        var artists = StorageService<Artists>.Service.GetObject().Items;
         var trackStorage = new ObjectStorage<Tracks, TrackObject>();
-        var tracks = trackStorage.GetItems().Where(t => string.IsNullOrEmpty(t.Tags)).ToList();
+        var tracks = trackStorage.GetItems().ToList();
 
         foreach (var track in tracks)
         {
@@ -99,24 +99,14 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
             if (trackArtist == null) 
                 continue;
             var artist = artists.FirstOrDefault(a => a.Id == trackArtist.Id);
-            if (artist?.Genres == null || artist.Genres.Count == 0) 
-                continue;
-         
-            var tags = new List<string>();
-            foreach (var rawGenre in artist.Genres)
-            {
-                var genreEnum = GenreMapper.Map(rawGenre);
-                var genreName = genreEnum.ToString();
-                if (!tags.Contains(genreName))
-                    tags.Add(genreName);
-            }
+            if (artist == null || string.IsNullOrEmpty(artist.Tags)) continue;
 
+            var tags = RepairTag(artist.Tags);
             track.Tags = string.Join(',', tags);
             trackStorage.Insert(track, t => t.Id == track.Id, saveToFile: false);
 
             Writer.WriteLine($"Auto tagged «{track.Name}» with [{track.Tags}]");
         }
-
         trackStorage.Save();
         Writer.WriteSuccessLine("Auto‑tagging of tracks done and updates persisted.");
         return Ok();
@@ -153,5 +143,20 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         }
         Writer.WriteSuccessLine("Auto‑tagging of artists done and updates persisted.");
         return Ok();
+    }
+    public List<string> RepairTag(string tag)
+    {
+        if (string.IsNullOrWhiteSpace(tag)) return [];
+        var parts = tag.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        
+        var segments = new List<string>();
+
+        foreach (var part in parts)
+        {
+            var split = Regex.Split(part, @"(?<=[a-z])(?=[A-Z])");
+            segments.AddRange(split);
+        }
+        var distinct = segments.Select(s => s.Trim().ToLowerInvariant()).Where(s => s.Length > 0).Distinct().ToList();
+        return distinct;
     }
 }
