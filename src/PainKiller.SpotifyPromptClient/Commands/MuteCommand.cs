@@ -1,4 +1,5 @@
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -8,7 +9,7 @@ public class MuteCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        DeviceManager.Default.SetVolume(0);
+        DeviceService.Default.SetVolume(0);
         return Ok();
     }
 }

@@ -1,16 +1,16 @@
 ﻿using System.Net.Http.Headers;
-using System.Text.Json;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
-namespace PainKiller.SpotifyPromptClient.Managers;
-public sealed class DeviceManager : SpotifyClientBase, IDeviceManager
+namespace PainKiller.SpotifyPromptClient.Services;
+public sealed class DeviceService : SpotifyClientBase, IDeviceService
 {
-    private readonly ILogger<DeviceManager> _logger = LoggerProvider.CreateLogger<DeviceManager>();
-    private DeviceManager() { }
-    private static readonly Lazy<IDeviceManager> Instance = new(() => new DeviceManager());
-    public static IDeviceManager Default => Instance.Value;
+    private readonly ILogger<DeviceService> _logger = LoggerProvider.CreateLogger<DeviceService>();
+    private DeviceService() { }
+    private static readonly Lazy<IDeviceService> Instance = new(() => new DeviceService());
+    public static IDeviceService Default => Instance.Value;
     
     public List<DeviceInfo> GetDevices()
     {

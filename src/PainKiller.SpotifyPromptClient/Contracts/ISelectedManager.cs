@@ -1,6 +1,6 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
 
-public interface ISelectedService
+public interface ISelectedManager
 {
     /// <summary>
     /// Store selected tracks, and persist related tracks, albums, and artists.

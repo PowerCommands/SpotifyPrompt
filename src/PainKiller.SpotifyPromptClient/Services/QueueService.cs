@@ -3,16 +3,16 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
-namespace PainKiller.SpotifyPromptClient.Managers;
+namespace PainKiller.SpotifyPromptClient.Services;
 
-public class QueueManager : SpotifyClientBase, IQueueManager
+public class QueueService : SpotifyClientBase, IQueueService
 {
 
-    private readonly ILogger<QueueManager> _logger = LoggerProvider.CreateLogger<QueueManager>();
+    private readonly ILogger<QueueService> _logger = LoggerProvider.CreateLogger<QueueService>();
     
-    private QueueManager(){}
-    private static readonly Lazy<IQueueManager> Instance = new(() => new QueueManager());
-    public static IQueueManager Default => Instance.Value;
+    private QueueService(){}
+    private static readonly Lazy<IQueueService> Instance = new(() => new QueueService());
+    public static IQueueService Default => Instance.Value;
 
     public List<TrackObject> GetQueue()
     {

@@ -1,5 +1,5 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
-public interface IDeviceManager
+public interface IDeviceService
 {
     /// <summary>
     /// Retrieves all available devices for the user.

@@ -2,14 +2,15 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
-namespace PainKiller.SpotifyPromptClient.Managers;
-public class SearchManager : SpotifyClientBase, ISearchManager
-{
-    private readonly ILogger<SearchManager> _logger = LoggerProvider.CreateLogger<SearchManager>();
 
-    private SearchManager() { }
-    private static readonly Lazy<ISearchManager> Instance = new(() => new SearchManager());
-    public static ISearchManager Default => Instance.Value;
+namespace PainKiller.SpotifyPromptClient.Services;
+public class SearchService : SpotifyClientBase, ISearchService
+{
+    private readonly ILogger<SearchService> _logger = LoggerProvider.CreateLogger<SearchService>();
+
+    private SearchService() { }
+    private static readonly Lazy<ISearchService> Instance = new(() => new SearchService());
+    public static ISearchService Default => Instance.Value;
 
     private const string BaseUrl = "https://api.spotify.com/v1/search";
     public List<TrackObject> SearchTracks(string query, int limit = 20)

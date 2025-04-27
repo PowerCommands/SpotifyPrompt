@@ -16,14 +16,14 @@ public class WarpedCommand(string identifier) : ConsoleCommandBase<CommandPrompt
         if (input.HasOption("artists"))
         {
             Writer.WriteHeadLine("Top artists");
-            var artists = UserManager.Default.GetTopArtists(limit, timeRange);
-            SelectedService.Default.UpdateSelected(artists);
+            var artists = UserService.Default.GetTopArtists(limit, timeRange);
+            SelectedManager.Default.UpdateSelected(artists);
             Writer.WriteTable(artists.Select(a => new{Name = a.Name, Tags = a.Tags}));
             return Ok();
         }
         Writer.WriteHeadLine("Top tracks");
-        var tracks = UserManager.Default.GetTopTracks(limit, timeRange);
-        SelectedService.Default.UpdateSelected(tracks);
+        var tracks = UserService.Default.GetTopTracks(limit, timeRange);
+        SelectedManager.Default.UpdateSelected(tracks);
         Writer.WriteTable(tracks.Select(t => new { Artist = t.Artists?.First().Name , Name = t.Name }));
         return Ok();
     }

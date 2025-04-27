@@ -1,6 +1,6 @@
 using PainKiller.CommandPrompt.CoreLib.Modules.SecurityModule.Extensions;
 using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
-using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -14,7 +14,7 @@ public class LoginCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         {
             var clientId = Configuration.Core.Modules.Security.DecryptSecret("spotify_prompt");
             var cfg    = Configuration.Spotify;
-            var mgr    = new AuthorizationCodeFlowManager(clientId, cfg.RedirectUri, cfg.Scopes);
+            var mgr    = new AuthorizationCodeFlowService(clientId, cfg.RedirectUri, cfg.Scopes);
             Writer.WriteLine("Authenticating with Spotify...");
             var code = mgr.AuthenticateAsync().GetAwaiter().GetResult();
 

@@ -4,16 +4,16 @@ using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Extensions;
-using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
-namespace PainKiller.SpotifyPromptClient.Services;
-public class BuildService : IBuildService
+namespace PainKiller.SpotifyPromptClient.Managers;
+public class BuildManager : IBuildManager
 {
     private readonly IConsoleWriter _writer = ConsoleService.Writer;
-    private readonly ILogger<BuildService> _logger = LoggerProvider.CreateLogger<BuildService>();
-    private BuildService() { }
-    private static readonly Lazy<IBuildService> Instance = new(() => new BuildService());
-    public static IBuildService Default => Instance.Value;
+    private readonly ILogger<BuildManager> _logger = LoggerProvider.CreateLogger<BuildManager>();
+    private BuildManager() { }
+    private static readonly Lazy<IBuildManager> Instance = new(() => new BuildManager());
+    public static IBuildManager Default => Instance.Value;
     public List<string> GetTags()
     {
         var retVal = new List<string>();
@@ -37,13 +37,13 @@ public class BuildService : IBuildService
         switch (template.SourceType)
         {
             case PlaylistSourceType.Tracks:
-                if (template.RandomMode == RandomMode.Selected) count = SelectedService.Default.GetSelectedTracks().Count;
+                if (template.RandomMode == RandomMode.Selected) count = SelectedManager.Default.GetSelectedTracks().Count;
                 break;
             case PlaylistSourceType.Albums:
-                if (template.RandomMode == RandomMode.Selected) count = SelectedService.Default.GetSelectedAlbums().Count;
+                if (template.RandomMode == RandomMode.Selected) count = SelectedManager.Default.GetSelectedAlbums().Count;
                 break;
             case PlaylistSourceType.Artists:
-                if (template.RandomMode == RandomMode.Selected) count = SelectedService.Default.GetSelectedArtists().Count;
+                if (template.RandomMode == RandomMode.Selected) count = SelectedManager.Default.GetSelectedArtists().Count;
                 break;
             default:
                 break;
@@ -59,7 +59,7 @@ public class BuildService : IBuildService
             case PlaylistSourceType.Tracks:
                 if (template.RandomMode == RandomMode.Selected)
                 {
-                    tracks = SelectedService.Default.GetSelectedTracks();
+                    tracks = SelectedManager.Default.GetSelectedTracks();
                 }
                 else if (template.RandomMode == RandomMode.Related)
                 {
@@ -150,7 +150,7 @@ public class BuildService : IBuildService
         var relatedArtist = relatedArtists.First();
         var query = $"artist:\"{relatedArtist}\"";
         _writer.WriteLine($"Searching for tracks by {relatedArtist}");
-        var searchTracks = SearchManager.Default.SearchTracks(query);
+        var searchTracks = SearchService.Default.SearchTracks(query);
         searchTracks.Shuffle();
         return searchTracks.Take(maxCountPerArtist).ToList();
     }

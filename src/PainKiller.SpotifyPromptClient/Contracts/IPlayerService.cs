@@ -5,7 +5,7 @@
 /// Attempts to select an active device; if none is active, picks the first available device.
 /// Assumes token is kept fresh by InfoPanel refresh thread.
 /// </summary>
-public interface IPlayerManager
+public interface IPlayerService
 {
     void Play();
     void Play(string uri);

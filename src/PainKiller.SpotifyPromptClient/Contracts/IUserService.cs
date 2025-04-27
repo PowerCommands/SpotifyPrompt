@@ -1,5 +1,5 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
-public interface IUserManager
+public interface IUserService
 {
     /// <summary>
     /// Fetches the current user’s profile.

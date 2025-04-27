@@ -1,15 +1,15 @@
-﻿using System.Diagnostics;
-using PainKiller.SpotifyPromptClient.DomainObjects.Data;
+﻿using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Managers;
 using PainKiller.SpotifyPromptClient.Services;
+
 namespace PainKiller.SpotifyPromptClient.BaseClasses;
 
 public abstract class SelectedBaseCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
     protected void ShowSelectedTracks()
     {
-        var tracks = SelectedService.Default.GetSelectedTracks();
+        var tracks = SelectedManager.Default.GetSelectedTracks();
         if (tracks.Count == 0)
         {
             Writer.WriteLine("No tracks selected.");
@@ -18,12 +18,12 @@ public abstract class SelectedBaseCommand(string identifier) : ConsoleCommandBas
         var action = ToolbarService.NavigateToolbar<SelectedTracksAction>();
         if (action == SelectedTracksAction.Queue)
         {
-            foreach (var track in tracks) QueueManager.Default.AddToQueue(track.Uri);
+            foreach (var track in tracks) QueueService.Default.AddToQueue(track.Uri);
             Writer.WriteSuccessLine("Tracks added to queue."); ;
         }
         else if(action == SelectedTracksAction.Playlist)
         {
-            var user = UserManager.Default.GetCurrentUser();
+            var user = UserService.Default.GetCurrentUser();
             var playListName = DialogService.QuestionAnswerDialog("Name your new playlist");
             var description = DialogService.QuestionAnswerDialog("Describe your new playlist");
             var playlistId = PlaylistModifyManager.Default.CreatePlaylist(user.Id, playListName, $"{description}\nPlaylist created with SpotifyPrompt");
@@ -33,7 +33,7 @@ public abstract class SelectedBaseCommand(string identifier) : ConsoleCommandBas
     }
     protected void ShowSelectedAlbums()
     {
-        var albums = SelectedService.Default.GetSelectedAlbums();
+        var albums = SelectedManager.Default.GetSelectedAlbums();
         if (albums.Count == 0)
         {
             Writer.WriteLine("No albums selected.");
@@ -43,7 +43,7 @@ public abstract class SelectedBaseCommand(string identifier) : ConsoleCommandBas
     }
     protected void ShowSelectedArtists()
     {
-        var artists = SelectedService.Default.GetSelectedArtists();
+        var artists = SelectedManager.Default.GetSelectedArtists();
         if (artists.Count == 0)
         {
             Writer.WriteLine("No artists selected.");
@@ -54,7 +54,7 @@ public abstract class SelectedBaseCommand(string identifier) : ConsoleCommandBas
         if (action == SelectedTracksAction.Tag)
         {
             SpotifyObjectStorage<Artists, ArtistSimplified> artistStore = new();
-            var tagService = new TagService(Writer);
+            var tagService = new TagManager(Writer);
             tagService.AddTags(artists, artistStore, "Filter artist to tag", t => t.Name, t => t.Id, string.Empty);
         }
     }

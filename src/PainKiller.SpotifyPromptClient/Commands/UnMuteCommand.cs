@@ -1,4 +1,5 @@
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -10,7 +11,7 @@ public class UnMuteCommand(string identifier) : ConsoleCommandBase<CommandPrompt
     public override RunResult Run(ICommandLineInput input)
     {
         var volume = input.GetTypedOptionValue<int>("volume", "100");
-        DeviceManager.Default.SetVolume(volume);
+        DeviceService.Default.SetVolume(volume);
         return Ok();
     }
 }

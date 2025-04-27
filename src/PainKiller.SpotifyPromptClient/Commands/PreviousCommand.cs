@@ -1,4 +1,4 @@
-using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -8,7 +8,7 @@ public class PreviousCommand(string identifier) : ConsoleCommandBase<CommandProm
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        var playerManager = new PlayerManager();
+        var playerManager = new PlayerService();
         playerManager.Previous();
         return Ok();
     }

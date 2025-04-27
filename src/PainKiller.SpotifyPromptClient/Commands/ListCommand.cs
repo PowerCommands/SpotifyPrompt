@@ -19,7 +19,7 @@ public class ListCommand(string identifier) : SelectedBaseCommand(identifier)
 
         if (input.HasOption("update"))
         {
-            var playlists = PlaylistManager.Default.GetAllPlaylists();
+            var playlists = PlaylistService.Default.GetAllPlaylists();
             playlistStorage.SaveItems(playlists);
             Writer.WriteSuccessLine("Playlists stored, now continuing with the tracks");
 
@@ -30,11 +30,11 @@ public class ListCommand(string identifier) : SelectedBaseCommand(identifier)
                 {
                     var existing = playlistTracks.FirstOrDefault(p => p.Id == playlist.Id);
                     if(existing != null && playlist.TrackCount == existing.Items.Count) continue;
-                    var allTracks = PlaylistManager.Default.GetAllTracksForPlaylist(playlist.Id);
+                    var allTracks = PlaylistService.Default.GetAllTracksForPlaylist(playlist.Id);
                     var playListWithTracks = new PlaylistWithTracks { Id = playlist.Id, Items =  allTracks};
                     playlistTracksStorage.Insert(playListWithTracks, p => p.Id == playListWithTracks.Id, saveToFile: false);
                     Writer.WriteSuccessLine($"Playlists tracks stored for [{playlist.Name}] trackcount: {playlist.TrackCount}");
-                    SelectedService.Default.Store(allTracks);
+                    SelectedManager.Default.Store(allTracks);
                 }
                 catch (Exception ex)
                 {
@@ -46,7 +46,7 @@ public class ListCommand(string identifier) : SelectedBaseCommand(identifier)
         }
         if (input.HasOption("compare"))
         {
-            var playlists = PlaylistManager.Default.GetAllPlaylists();
+            var playlists = PlaylistService.Default.GetAllPlaylists();
             var updated = playlistTracksStorage.GetItems();
             Writer.WriteLine($"Total playlists: {playlists.Count} playlist updated with tracks: {updated.Count}");
             return Ok();
@@ -62,13 +62,13 @@ public class ListCommand(string identifier) : SelectedBaseCommand(identifier)
         var action = ToolbarService.NavigateToolbar<PlayListAction>();
         if (action == PlayListAction.Play)
         {
-            PlaylistManager.Default.PlayPlaylist(selectedPlayList.Id);
+            PlaylistService.Default.PlayPlaylist(selectedPlayList.Id);
         }
 
         if (action == PlayListAction.Play || action == PlayListAction.View)
         {
-            var tracks = PlaylistManager.Default.GetAllTracksForPlaylist(selectedPlayList.Id);
-            SelectedService.Default.UpdateSelected(tracks);
+            var tracks = PlaylistService.Default.GetAllTracksForPlaylist(selectedPlayList.Id);
+            SelectedManager.Default.UpdateSelected(tracks);
             ShowSelectedTracks();
         }
         if(action == PlayListAction.Delete)
@@ -76,7 +76,7 @@ public class ListCommand(string identifier) : SelectedBaseCommand(identifier)
             var confirm = DialogService.YesNoDialog("Are you sure you want to delete the playlist?");
             if (confirm)
             {
-                PlaylistService.Default.DeletePlaylist(selectedPlayList.Id);
+                PlaylistManager.Default.DeletePlaylist(selectedPlayList.Id);
                 Writer.WriteSuccessLine($"Playlist [{selectedPlayList.Name}] deleted.");
             }
         }

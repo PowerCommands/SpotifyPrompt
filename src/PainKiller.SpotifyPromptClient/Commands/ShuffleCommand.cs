@@ -1,4 +1,4 @@
-using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -8,7 +8,7 @@ public class ShuffleCommand(string identifier) : ConsoleCommandBase<CommandPromp
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        IPlayerManager playerManager = new PlayerManager();
+        IPlayerService playerManager = new PlayerService();
         var shuffleState = playerManager.GetShuffleState();
         playerManager.SetShuffle(!shuffleState);
         Writer.WriteSuccessLine(shuffleState ? "Shuffle is now disabled" : "Shuffle is now enabled");

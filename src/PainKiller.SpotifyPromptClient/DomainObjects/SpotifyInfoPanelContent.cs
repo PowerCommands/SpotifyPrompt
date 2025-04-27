@@ -21,23 +21,23 @@ public class SpotifyInfoPanelContent(int refreshMarginInMinutes, int latestTrack
             var clientId = config.Core.Modules.Security.DecryptSecret("spotify_prompt");
             var spotifyConfig = config.Spotify;
 
-            var flowManager = new AuthorizationCodeFlowManager(clientId, spotifyConfig.RedirectUri, spotifyConfig.Scopes);
-            var refreshManager = RefreshTokenManager.InitializeManager(flowManager, TimeSpan.FromMinutes(refreshMarginInMinutes));
+            var flowManager = new AuthorizationCodeFlowService(clientId, spotifyConfig.RedirectUri, spotifyConfig.Scopes);
+            var refreshManager = RefreshTokenService.InitializeManager(flowManager, TimeSpan.FromMinutes(refreshMarginInMinutes));
 
             var (token, status) = refreshManager.EnsureTokenValid();
 
-            var devices = DeviceManager.Default.GetDevices();
+            var devices = DeviceService.Default.GetDevices();
             SuggestionProviderManager.AppendContextBoundSuggestions(nameof(DeviceCommand).Replace("Command", "").ToLower(), devices.OrderBy(d => d.IsActive).Select(d => d.Name).ToArray());
 
-            var currentTrack = TrackManager.Default.GetCurrentlyPlayingTrack();
+            var currentTrack = TrackService.Default.GetCurrentlyPlayingTrack();
             var currentlyPlaying = currentTrack == null ? "-" : $"{currentTrack.Artists.First().Name} - {currentTrack.Name}";
-            LatestService.Default.UpdateLatest(currentTrack, latestTracksCount);
+            LatestManager.Default.UpdateLatest(currentTrack, latestTracksCount);
 
-            var volume = DeviceManager.Default.GetCurrentVolume();
+            var volume = DeviceService.Default.GetCurrentVolume();
             var device = devices.FirstOrDefault(d => d.IsActive);
             var deviceName = $"{device?.Name} volume:{volume}%" ?? "No active device";
 
-            var playerManager = new PlayerManager();
+            var playerManager = new PlayerService();
             var shuffleState = playerManager.GetShuffleState();
             var shuffleStateText = shuffleState ? "Enabled" : "Disabled";
             

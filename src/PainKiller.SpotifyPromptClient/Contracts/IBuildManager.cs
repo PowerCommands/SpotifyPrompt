@@ -1,6 +1,6 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
 
-public interface IBuildService
+public interface IBuildManager
 {
     List<string> GetTags();
     string GetPlayListSummary(PlaylistTemplate template);

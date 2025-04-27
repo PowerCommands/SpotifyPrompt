@@ -1,5 +1,5 @@
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
-using PainKiller.SpotifyPromptClient.Services;
+using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -17,7 +17,7 @@ public class AlbumCommand(string identifier) : SelectedBaseCommand(identifier)
         
         if (selectedAlbums.Count == 0) return Ok();
 
-        SelectedService.Default.UpdateSelected(selectedAlbums);
+        SelectedManager.Default.UpdateSelected(selectedAlbums);
         
         var tracksStorage = new ObjectStorage<Tracks, TrackObject>();
         var tracks = new List<TrackObject>();
@@ -27,7 +27,7 @@ public class AlbumCommand(string identifier) : SelectedBaseCommand(identifier)
             if (artistTracks.Count == 0) continue;
             tracks.AddRange(artistTracks);
         }
-        SelectedService.Default.UpdateSelected(tracks);
+        SelectedManager.Default.UpdateSelected(tracks);
         
         ShowSelectedTracks();
         return Ok();

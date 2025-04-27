@@ -1,5 +1,5 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
-public interface IArtistManager
+public interface IArtistService
 {
     /// <summary>
     /// Fetch a single artist’s full profile.

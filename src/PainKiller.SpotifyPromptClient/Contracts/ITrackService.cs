@@ -1,6 +1,6 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
 
-public interface ITrackManager
+public interface ITrackService
 {
     /// <summary>
     /// Gets the currently playing track as a full TrackObject, or null if nothing is playing or it's not a track.

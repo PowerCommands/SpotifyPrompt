@@ -7,6 +7,10 @@
     <Nullable>enable</Nullable>
     <AssemblyName>spc</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="PainKiller.SpotifyPromptClient_TemporaryKey.pfx" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="CommandPromptConfiguration.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -3,14 +3,15 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
-namespace PainKiller.SpotifyPromptClient.Managers;
-public class ArtistManager : SpotifyClientBase, IArtistManager
-{
-    private readonly ILogger<ArtistManager> _logger = LoggerProvider.CreateLogger<ArtistManager>();
 
-    private ArtistManager() { }
-    private static readonly Lazy<IArtistManager> Instance = new(() => new ArtistManager());
-    public static IArtistManager Default => Instance.Value;
+namespace PainKiller.SpotifyPromptClient.Services;
+public class ArtistService : SpotifyClientBase, IArtistService
+{
+    private readonly ILogger<ArtistService> _logger = LoggerProvider.CreateLogger<ArtistService>();
+
+    private ArtistService() { }
+    private static readonly Lazy<IArtistService> Instance = new(() => new ArtistService());
+    public static IArtistService Default => Instance.Value;
 
     private const string BaseUrl = "https://api.spotify.com/v1/artists";
     public Artist GetArtist(string artistId)
@@ -95,7 +96,7 @@ public class ArtistManager : SpotifyClientBase, IArtistManager
     }
     public ArtistSimplified GetArtistByName(string artistName)
     {
-        var searchResult = SearchManager.Default.SearchArtists(artistName);
+        var searchResult = SearchService.Default.SearchArtists(artistName);
         foreach (var artistSimplified in searchResult.Where(artistSimplified => artistSimplified.Name.Trim() == artistName)) return artistSimplified;
         return new ArtistSimplified();
     }

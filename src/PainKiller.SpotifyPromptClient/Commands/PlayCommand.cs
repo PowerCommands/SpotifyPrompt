@@ -16,9 +16,9 @@ public class PlayCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
     }
     public override RunResult Run(ICommandLineInput input)
     {
-        IPlayerManager playerManager = new PlayerManager();
+        IPlayerService playerManager = new PlayerService();
         var index = input.Arguments.Length > 0 ? int.Parse(input.Arguments[0]) : -1;
-        var selectedTracks = SelectedService.Default.GetSelectedTracks();
+        var selectedTracks = SelectedManager.Default.GetSelectedTracks();
         if (input.HasOption("all") && selectedTracks.Count > 0)
         {
             playerManager.Play(selectedTracks.Select(t => t.Uri));

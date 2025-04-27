@@ -1,6 +1,7 @@
 ﻿using PainKiller.SpotifyPromptClient.Managers;
-using PainKiller.SpotifyPromptClient.Services;
 using System.Text;
+using PainKiller.SpotifyPromptClient.Services;
+
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Search artist, tracks and albums.",
@@ -40,25 +41,25 @@ public class SearchCommand(string identifier) : SelectedBaseCommand(identifier)
             switch (searchType)
             {
                 case "track":
-                    var tracks = SearchManager.Default.SearchTracks(query, limit);
-                    SelectedService.Default.UpdateSelected(tracks);
+                    var tracks = SearchService.Default.SearchTracks(query, limit);
+                    SelectedManager.Default.UpdateSelected(tracks);
                     ShowSelectedTracks();
                     break;
 
                 case "album":
-                    var albums = SearchManager.Default.SearchAlbums(query, limit);
-                    SelectedService.Default.UpdateSelected(albums);
+                    var albums = SearchService.Default.SearchAlbums(query, limit);
+                    SelectedManager.Default.UpdateSelected(albums);
                     ShowSelectedAlbums();
                     break;
 
                 case "artist":
-                    var artists = SearchManager.Default.SearchArtists(query, limit);
-                    SelectedService.Default.UpdateSelected(artists);
+                    var artists = SearchService.Default.SearchArtists(query, limit);
+                    SelectedManager.Default.UpdateSelected(artists);
                     ShowSelectedArtists();
                     break;
 
                 case "playlist":
-                    var playlists = SearchManager.Default.SearchPlaylists(query, limit);
+                    var playlists = SearchService.Default.SearchPlaylists(query, limit);
                     if (!playlists.Any())
                     {
                         Writer.WriteLine("No playlists found.");

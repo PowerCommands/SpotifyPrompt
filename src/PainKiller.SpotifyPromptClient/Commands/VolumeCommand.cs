@@ -1,4 +1,5 @@
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -10,10 +11,10 @@ public class VolumeCommand(string identifier) : ConsoleCommandBase<CommandPrompt
     public override RunResult Run(ICommandLineInput input)
     {
         int.TryParse(input.Arguments.FirstOrDefault(), out var volume);
-        var currentVolume = DeviceManager.Default.GetCurrentVolume();
+        var currentVolume = DeviceService.Default.GetCurrentVolume();
         if(!(volume == 0 || volume == currentVolume))
         {
-            DeviceManager.Default.SetVolume(volume);
+            DeviceService.Default.SetVolume(volume);
         }
         else volume = currentVolume;
         Writer.WriteLine($"Current volume: {volume}%");

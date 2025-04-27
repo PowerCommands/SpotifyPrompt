@@ -1,10 +1,9 @@
 ﻿using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
-using PainKiller.SpotifyPromptClient.Managers;
 
-namespace PainKiller.SpotifyPromptClient.Services;
+namespace PainKiller.SpotifyPromptClient.Managers;
 
-public class TagService(IConsoleWriter writer)
+public class TagManager(IConsoleWriter writer)
 {
     public void AddTags<TKey, TEntity>(SpotifyObjectStorage<TKey, TEntity> store, string filterTitle, Func<TEntity, string> nameSelector, Func<TEntity, string> idSelector, string filter) where TKey : IDataObjects<TEntity>, new() where TEntity : class, IContainsTags, new()
     {

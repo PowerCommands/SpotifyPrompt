@@ -2,6 +2,8 @@
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
+
 namespace PainKiller.SpotifyPromptClient.Utils;
 
 public static class GenreMapper
@@ -35,7 +37,7 @@ public static class GenreMapper
     public static void CopyGenres()
     {
         var simpleArtists = StorageService<Artists>.Service.GetObject().Items;
-        var artists = ArtistManager.Default.GetArtists(simpleArtists.Select(a => a.Id));
+        var artists = ArtistService.Default.GetArtists(simpleArtists.Select(a => a.Id));
 
         var genres = new List<string>();
         foreach (var artist in artists)

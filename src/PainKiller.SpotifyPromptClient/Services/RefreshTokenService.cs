@@ -1,18 +1,18 @@
 ﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 
-namespace PainKiller.SpotifyPromptClient.Managers;
-public class RefreshTokenManager : IRefreshTokenManager
+namespace PainKiller.SpotifyPromptClient.Services;
+public class RefreshTokenService : IRefreshTokenService
 {
-    private readonly AuthorizationCodeFlowManager _flowManager;
+    private readonly AuthorizationCodeFlowService _flowManager;
     private readonly TimeSpan _refreshBuffer;
-    private RefreshTokenManager(AuthorizationCodeFlowManager flowManager, TimeSpan refreshBuffer)
+    private RefreshTokenService(AuthorizationCodeFlowService flowManager, TimeSpan refreshBuffer)
     {
         _flowManager = flowManager;
         _refreshBuffer = refreshBuffer;
     }
-    private static RefreshTokenManager _refreshTokenManager = null!;
-    public static IRefreshTokenManager InitializeManager(AuthorizationCodeFlowManager flowManager, TimeSpan refreshBuffer) => _refreshTokenManager ??= new RefreshTokenManager(flowManager, refreshBuffer);
-    public static IRefreshTokenManager DefaultInstance() => _refreshTokenManager;
+    private static RefreshTokenService _refreshTokenManager = null!;
+    public static IRefreshTokenService InitializeManager(AuthorizationCodeFlowService flowManager, TimeSpan refreshBuffer) => _refreshTokenManager ??= new RefreshTokenService(flowManager, refreshBuffer);
+    public static IRefreshTokenService DefaultInstance() => _refreshTokenManager;
     
     /// <summary>
     /// Ensures the stored token is refreshed if expired or within the buffer period.

@@ -1,12 +1,12 @@
 ﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 
-namespace PainKiller.SpotifyPromptClient.Services;
-public class LatestService : ILatestService
+namespace PainKiller.SpotifyPromptClient.Managers;
+public class LatestManager : ILatestManager
 {
-    private LatestService() { }
-    private static readonly Lazy<ILatestService> Instance = new(() => new LatestService());
-    public static ILatestService Default => Instance.Value;
+    private LatestManager() { }
+    private static readonly Lazy<ILatestManager> Instance = new(() => new LatestManager());
+    public static ILatestManager Default => Instance.Value;
 
     public void UpdateLatest(TrackObject? track, int latestTracksCount)
     {

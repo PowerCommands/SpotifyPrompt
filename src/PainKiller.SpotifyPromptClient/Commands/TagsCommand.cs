@@ -1,9 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
-using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Managers;
-using PainKiller.SpotifyPromptClient.Services;
 using PainKiller.SpotifyPromptClient.Utils;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
@@ -43,7 +41,7 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 
         Console.ReadLine();
 
-        var tagService = new TagService(Writer);
+        var tagService = new TagManager(Writer);
 
         if (mode == "artist") tagService.AddTags(_artistStore, "Filter artists to tag", a => a.Name, a => a.Id, filter);
         else if (mode == "album") tagService.AddTags(_albumStore, "Filter albums to tag", a => a.Name, a => a.Id, filter);

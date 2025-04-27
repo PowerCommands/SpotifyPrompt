@@ -6,10 +6,10 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
-namespace PainKiller.SpotifyPromptClient.Managers;
-public class AuthorizationCodeFlowManager(string clientId, string redirectUri, string[] scopes) : IAuthorizationCodeFlowManager
+namespace PainKiller.SpotifyPromptClient.Services;
+public class AuthorizationCodeFlowService(string clientId, string redirectUri, string[] scopes) : IAuthorizationCodeFlowService
 {
-    private readonly ILogger<AuthorizationCodeFlowManager> _logger = LoggerProvider.CreateLogger<AuthorizationCodeFlowManager>();
+    private readonly ILogger<AuthorizationCodeFlowService> _logger = LoggerProvider.CreateLogger<AuthorizationCodeFlowService>();
 
     private readonly string _redirectUri = redirectUri.EndsWith("/") ? redirectUri : redirectUri + "/";
     private string _codeVerifier = string.Empty;

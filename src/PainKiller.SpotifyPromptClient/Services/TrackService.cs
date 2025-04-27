@@ -1,65 +1,83 @@
-﻿using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
-using PainKiller.SpotifyPromptClient.DomainObjects.Data;
+﻿using System.Net;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
 namespace PainKiller.SpotifyPromptClient.Services;
-public class SelectedService : ISelectedService
+
+public class TrackService : SpotifyClientBase, ITrackService
 {
-    private readonly List<TrackObject> _selectedTracks = [];
-    private SelectedService() { }
-    private static readonly Lazy<ISelectedService> Instance = new(() => new SelectedService());
-    public static ISelectedService Default => Instance.Value;
+    private readonly ILogger<TrackService> _logger = LoggerProvider.CreateLogger<TrackService>();
 
-    private readonly ObjectStorage<Tracks, TrackObject> _trackStore = new();
-    private readonly SpotifyObjectStorage<Albums, Album> _albumStore = new();
-    private readonly SpotifyObjectStorage<Artists, ArtistSimplified> _artistStore = new();
-    private readonly List<Album> _selectedAlbums = new();
-    private readonly List<ArtistSimplified> _selectedArtists = new();
-    public void Store(IEnumerable<TrackObject> tracks)
+    private TrackService() { }
+    private static readonly Lazy<ITrackService> Instance = new(() => new TrackService());
+    public static ITrackService Default => Instance.Value;
+
+    public TrackObject? GetCurrentlyPlayingTrack()
     {
-        var uniqueTracks = tracks.GroupBy(t => t.Id).Select(g => g.First()).ToList();
-        var uniqueAlbums = uniqueTracks.Select(t => t.Album).GroupBy(a => a.Id).Select(g => g.First());
-        var uniqueArtists = uniqueTracks.SelectMany(t => t.Artists).GroupBy(a => a.Id).Select(g => g.First());
+        var accessToken = GetAccessToken();
+        var nowPlayingReq = new HttpRequestMessage(HttpMethod.Get, "https://api.spotify.com/v1/me/player/currently-playing");
+        nowPlayingReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        foreach (var tr in uniqueTracks) _trackStore.Insert(tr, t => t.Id == tr.Id, saveToFile: false);
-        foreach (var al in uniqueAlbums) _albumStore.Insert(al, a => a.Id == al.Id, saveToFile: false);
-        foreach (var ar in uniqueArtists) _artistStore.Insert(ar, a => a.Id == ar.Id, saveToFile: false);
+        var nowPlayingResp = _http.SendAsync(nowPlayingReq).GetAwaiter().GetResult();
+        _logger.LogInformation($"GetCurrentlyPlaying: {nowPlayingResp.StatusCode}");
+        if (nowPlayingResp.StatusCode == HttpStatusCode.NoContent)
+            return null;
 
-        _trackStore.Save();
-        _albumStore.Save();
-        _artistStore.Save();
+        nowPlayingResp.EnsureSuccessStatusCode();
+        using var nowJson = JsonDocument.Parse(nowPlayingResp.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+
+        // Only proceed if it's a track (could be episode, etc.)
+        var playingType = nowJson.RootElement.GetProperty("currently_playing_type").GetString();
+        if (!string.Equals(playingType, "track", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        var trackId = nowJson.RootElement
+            .GetProperty("item")
+            .GetProperty("id")
+            .GetString();
+
+        if (string.IsNullOrEmpty(trackId)) return null;
+        
+        return GetTrack(trackId);
     }
-    public void UpdateSelected(List<TrackObject> tracks)
+    public TrackObject GetTrack(string trackId)
     {
-        _selectedTracks.Clear();
-        _selectedTracks.AddRange(tracks);
-    }
-    public void AppendToSelected(List<TrackObject> tracks) => _selectedTracks.AddRange(tracks);
-    public List<TrackObject> GetSelectedTracks() => _selectedTracks;
+        var accessToken = GetAccessToken();
+        var trackReq = new HttpRequestMessage(HttpMethod.Get, $"https://api.spotify.com/v1/tracks/{trackId}");
+        trackReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-    public void UpdateSelected(List<Album> albums)
-    {
-        _selectedAlbums.Clear();
-        _selectedAlbums.AddRange(albums);
-    }
-    public void AppendToSelected(List<Album> albums) => _selectedAlbums.AddRange(albums);
+        var trackResp = _http.SendAsync(trackReq).GetAwaiter().GetResult();
+        trackResp.EnsureSuccessStatusCode();
+        using var trackJson = JsonDocument.Parse(trackResp.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
-    public List<Album> GetSelectedAlbums() => _selectedAlbums;
-
-    public void UpdateSelected(List<ArtistSimplified> artists)
-    {
-        _selectedArtists.Clear();
-        _selectedArtists.AddRange(artists);
+        var root = trackJson.RootElement;
+        var to = new TrackObject
+        {
+            Id         = root.GetProperty("id").GetString()!,
+            Name       = root.GetProperty("name").GetString()!,
+            Uri        = root.GetProperty("uri").GetString()!,
+            DurationMs = root.GetProperty("duration_ms").GetInt32(),
+            // Artists
+            Artists    = root
+                .GetProperty("artists")
+                .EnumerateArray()
+                .Select(a => new ArtistSimplified
+                {
+                    Id   = a.GetProperty("id").GetString()!,
+                    Name = a.GetProperty("name").GetString()!
+                })
+                .ToList()
+        };
+        
+        var alb = root.GetProperty("album");
+        to.Album = new Album
+        {
+            Id          = alb.GetProperty("id").GetString()!,
+            Name        = alb.GetProperty("name").GetString()!,
+            ReleaseDate = alb.GetProperty("release_date").GetString()!
+        };
+        return to;
     }
-    public void UpdateLatestPlaying(TrackObject track, int latestTracksCount)
-    {
-        var latestPlaying = StorageService<LatestTracks>.Service.GetObject();
-        var tracks = latestPlaying.Items.Take(latestTracksCount).ToList();
-        if (tracks.Any(t => t.Id == track.Id)) return;
-        tracks.Insert(0, track);
-        latestPlaying.Items = tracks;
-        latestPlaying.LastUpdated = DateTime.Now;
-        StorageService<LatestTracks>.Service.StoreObject(latestPlaying);
-    }
-    public void AppendToSelected(List<ArtistSimplified> artists) => _selectedArtists.AddRange(artists);
-    public List<ArtistSimplified> GetSelectedArtists() => _selectedArtists;
 }

@@ -1,6 +1,6 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
 
-public interface IAuthorizationCodeFlowManager
+public interface IAuthorizationCodeFlowService
 {
     Task<string> AuthenticateAsync();
     Task<TokenResponse> ExchangeCodeForTokenAsync(string code);

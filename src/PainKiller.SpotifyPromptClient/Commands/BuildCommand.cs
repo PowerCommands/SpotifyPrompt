@@ -1,7 +1,6 @@
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Managers;
-using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -27,18 +26,18 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         if(string.IsNullOrEmpty(selectedTemplate.Id)) selectedTemplate = GetNewTemplate();
 
         var config = Configuration.Core.Modules.Ollama;
-        var tracks = BuildService.Default.GetPlaylist(selectedTemplate, new AIManager(config.BaseAddress, config.Port,config.Model));
-        var summary = BuildService.Default.GetPlayListSummary(selectedTemplate);
+        var tracks = BuildManager.Default.GetPlaylist(selectedTemplate, new AIManager(config.BaseAddress, config.Port,config.Model));
+        var summary = BuildManager.Default.GetPlayListSummary(selectedTemplate);
         Writer.WriteLine();
         ConsoleService.Writer.WriteHeadLine($"Playlist summary: {summary}");
         Writer.WriteTable(tracks.Select(t => new {Artist = t.Artists.First().Name, t.Name}));
 
-        SelectedService.Default.UpdateSelected(tracks);
+        SelectedManager.Default.UpdateSelected(tracks);
         var confirmNewPlayList = DialogService.YesNoDialog("Do you want to create a new playlist with these tracks?");
         if (!confirmNewPlayList) return Ok();
 
         var name = DialogService.QuestionAnswerDialog("Name of the playlist:");
-        PlaylistService.Default.CreatePlaylist(name, $"{selectedTemplate.Description} created by {Configuration.Core.Name}", tracks, selectedTemplate.Tags);
+        PlaylistManager.Default.CreatePlaylist(name, $"{selectedTemplate.Description} created by {Configuration.Core.Name}", tracks, selectedTemplate.Tags);
         
 
         var confirmSave = DialogService.YesNoDialog("Do you want to save this template for future use?");
@@ -52,7 +51,7 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
     private PlaylistTemplate GetNewTemplate()
     {
         var retVal = new PlaylistTemplate { Name = DialogService.QuestionAnswerDialog("Name:") };
-        var tags = BuildService.Default.GetTags();
+        var tags = BuildManager.Default.GetTags();
         tags.Insert(0, "*");
         var tagsSelect = ListService.ListDialog("Choose tags:", tags);
         retVal.Tags = tagsSelect.Select(t => t.Value).ToList() ?? [];

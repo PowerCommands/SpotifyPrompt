@@ -1,6 +1,6 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
 
-public interface IRefreshTokenManager
+public interface IRefreshTokenService
 {
     /// <summary>
     /// Ensures the stored token is refreshed if expired or within the buffer period.

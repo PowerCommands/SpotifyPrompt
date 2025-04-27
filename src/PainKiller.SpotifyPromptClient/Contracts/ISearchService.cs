@@ -1,6 +1,6 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
 
-public interface ISearchManager
+public interface ISearchService
 {
     /// <summary>
     /// Search for tracks by query.

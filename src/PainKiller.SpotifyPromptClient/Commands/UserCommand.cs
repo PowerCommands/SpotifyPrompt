@@ -1,4 +1,5 @@
 ﻿using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 using Spectre.Console;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
@@ -9,7 +10,7 @@ public class UserCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        var user = UserManager.Default.GetCurrentUser();
+        var user = UserService.Default.GetCurrentUser();
         DisplayUser(user);
         return Ok();
     }

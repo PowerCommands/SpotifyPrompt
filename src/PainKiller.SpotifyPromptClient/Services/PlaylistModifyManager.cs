@@ -1,10 +1,10 @@
 ﻿using System.Net.Http.Headers;
-using System.Text.Json;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
-namespace PainKiller.SpotifyPromptClient.Managers;
+namespace PainKiller.SpotifyPromptClient.Services;
 
 public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
 {

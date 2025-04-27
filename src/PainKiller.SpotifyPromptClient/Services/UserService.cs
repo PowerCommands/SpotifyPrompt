@@ -3,14 +3,14 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
-namespace PainKiller.SpotifyPromptClient.Managers;
+namespace PainKiller.SpotifyPromptClient.Services;
 
-public class UserManager : SpotifyClientBase, IUserManager
+public class UserService : SpotifyClientBase, IUserService
 {
-    private readonly ILogger<UserManager> _logger = LoggerProvider.CreateLogger<UserManager>();
-    private UserManager() { }
-    private static readonly Lazy<IUserManager> Instance = new(() => new UserManager());
-    public static IUserManager Default => Instance.Value;
+    private readonly ILogger<UserService> _logger = LoggerProvider.CreateLogger<UserService>();
+    private UserService() { }
+    private static readonly Lazy<IUserService> Instance = new(() => new UserService());
+    public static IUserService Default => Instance.Value;
     public UserProfile GetCurrentUser()
     {
         var token = GetAccessToken();

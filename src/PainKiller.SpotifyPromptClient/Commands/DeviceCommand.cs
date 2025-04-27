@@ -1,5 +1,6 @@
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -14,9 +15,9 @@ public class DeviceCommand(string identifier) : ConsoleCommandBase<CommandPrompt
         {
             var deviceName = input.Arguments.First();
             var device = storage.GetItems().FirstOrDefault(d => d.Name == deviceName);
-            if (device != null) DeviceManager.Default.SetActiveDevice(device.Id);
+            if (device != null) DeviceService.Default.SetActiveDevice(device.Id);
         }
-        var devices = DeviceManager.Default.GetDevices();
+        var devices = DeviceService.Default.GetDevices();
         foreach (var deviceInfo in devices) storage.Insert(deviceInfo, info => info.Id == deviceInfo.Id);
         var storedDevices = storage.GetItems();
         Writer.WriteTable(storedDevices);

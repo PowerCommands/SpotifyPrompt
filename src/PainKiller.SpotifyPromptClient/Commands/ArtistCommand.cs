@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Managers;
-using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -63,7 +62,7 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
         var selectedArtists = ListService.ShowSelectFromFilteredList("Select a artist!", artists,(info, s) => (info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) && info.Tags.Contains(tags, StringComparison.OrdinalIgnoreCase)), Presentation, Writer, filter);
         if (selectedArtists.Count == 0) return Ok();
 
-        SelectedService.Default.UpdateSelected(selectedArtists);
+        SelectedManager.Default.UpdateSelected(selectedArtists);
         
         ShowSelectedArtists();
 
@@ -75,7 +74,7 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
             if (artistTracks.Count == 0) continue;
             tracks.AddRange(artistTracks);
         }
-        SelectedService.Default.UpdateSelected(tracks);
+        SelectedManager.Default.UpdateSelected(tracks);
         ShowSelectedTracks();
         return Ok();
     }

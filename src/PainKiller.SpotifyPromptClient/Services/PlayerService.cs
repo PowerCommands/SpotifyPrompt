@@ -2,14 +2,15 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
-namespace PainKiller.SpotifyPromptClient.Managers;
-public class PlayerManager : SpotifyClientBase, IPlayerManager
+
+namespace PainKiller.SpotifyPromptClient.Services;
+public class PlayerService : SpotifyClientBase, IPlayerService
 {
-    private readonly ILogger<PlayerManager> _logger = LoggerProvider.CreateLogger<PlayerManager>();
+    private readonly ILogger<PlayerService> _logger = LoggerProvider.CreateLogger<PlayerService>();
     private void SendCommand(HttpMethod method, string endpoint, object? content = null)
     {
         var accessToken = GetAccessToken();
-        var deviceId = DeviceManager.Default.GetDeviceId();
+        var deviceId = DeviceService.Default.GetDeviceId();
         var url = $"{endpoint}?device_id={deviceId}";
         var request = new HttpRequestMessage(method, url);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -27,12 +28,12 @@ public class PlayerManager : SpotifyClientBase, IPlayerManager
     public void Play() => SendCommand(HttpMethod.Put, "https://api.spotify.com/v1/me/player/play");
     public void Play(string uri)
     {
-        QueueManager.Default.AddToQueue(uri);
+        QueueService.Default.AddToQueue(uri);
         Next();
     }
     public void Play(IEnumerable<string> uris)
     {
-        foreach (var u in uris) QueueManager.Default.AddToQueue(u);
+        foreach (var u in uris) QueueService.Default.AddToQueue(u);
         Next();
     }
     public void Pause() => SendCommand(HttpMethod.Put, "https://api.spotify.com/v1/me/player/pause");
