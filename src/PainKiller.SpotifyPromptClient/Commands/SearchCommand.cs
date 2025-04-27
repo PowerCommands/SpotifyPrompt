@@ -5,22 +5,22 @@ using PainKiller.SpotifyPromptClient.Services;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(description: "Spotify - Search artist, tracks and albums.",
-                        options: ["year", "genre", "artist", "limit", "tag:hipster", "tag:new", "upc", "isrc"],
+                        options: ["years", "genre", "artist", "limit", "tag:hipster", "tag:new", "upc", "isrc"],
                     suggestions: ["playlist", "track", "artist", "album"],
                        examples: ["//Search tracks", "search tracks \"Balls to the wall\""])]
 public class SearchCommand(string identifier) : SelectedBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        input.TryGetOption(out int limit, 20);
-        input.TryGetOption(out int year, 1970);
+        input.TryGetOption(out int limit, 50);
+        input.TryGetOption(out string years, string.Empty);
         input.TryGetOption(out string genre, string.Empty);
         input.TryGetOption(out string upc, string.Empty);
         input.TryGetOption(out string isrc, string.Empty);
         input.TryGetOption(out string artist, string.Empty);
 
         var filters = new List<string>();
-        if (input.HasOption("year")) filters.Add($"year:{year}");
+        if (input.HasOption("year")) filters.Add($"year:{years}");
         if (!string.IsNullOrEmpty(genre) && input.HasOption("genre")) filters.Add($"genre:{genre}");
         if (!string.IsNullOrEmpty(upc) && input.HasOption("upc")) filters.Add($"upc:{upc}");
         if (!string.IsNullOrEmpty(isrc) && input.HasOption("isrc")) filters.Add($"isrc:{isrc}");

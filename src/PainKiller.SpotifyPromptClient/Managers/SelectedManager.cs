@@ -60,6 +60,12 @@ public class SelectedManager : ISelectedManager
         latestPlaying.LastUpdated = DateTime.Now;
         StorageService<LatestTracks>.Service.StoreObject(latestPlaying);
     }
+    public void Clear()
+    {
+        _selectedTracks.Clear();
+        _selectedAlbums.Clear();
+        _selectedArtists.Clear();
+    }
     public void AppendToSelected(List<ArtistSimplified> artists) => _selectedArtists.AddRange(artists);
     public List<ArtistSimplified> GetSelectedArtists() => _selectedArtists;
 }

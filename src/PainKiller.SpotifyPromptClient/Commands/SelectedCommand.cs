@@ -2,12 +2,19 @@ using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - View selected tracks, albums and artist. Could be used to create playlists.", 
+[CommandDesign(     description: "Spotify - View selected tracks, albums and artist. Could be used to create playlists.",
+                        options: ["clear"],
                        examples: ["//View selected tracks, albums and artists","selected"])]
 public class SelectedCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
+        if (input.HasOption("clear"))
+        {
+            SelectedManager.Default.Clear();
+            Writer.WriteSuccessLine("Selected items cleared.");
+            return Ok();
+        }
         Writer.WriteHeadLine("Selected items, you can append more with search command.");
         var tracks = SelectedManager.Default.GetSelectedTracks();
         var albums = SelectedManager.Default.GetSelectedAlbums();

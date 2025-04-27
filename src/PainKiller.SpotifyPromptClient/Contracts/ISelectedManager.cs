@@ -52,4 +52,9 @@ public interface ISelectedManager
     /// </summary>
     List<ArtistSimplified> GetSelectedArtists();
     void UpdateLatestPlaying(TrackObject track, int latestTracksCount);
+
+    /// <summary>
+    /// Clear all selected tracks, albums, and artists.
+    /// </summary>
+    void Clear();
 }
