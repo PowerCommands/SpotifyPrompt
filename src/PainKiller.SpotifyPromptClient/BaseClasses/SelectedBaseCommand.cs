@@ -54,8 +54,7 @@ public abstract class SelectedBaseCommand(string identifier) : ConsoleCommandBas
         if (action == SelectedTracksAction.Tag)
         {
             SpotifyObjectStorage<Artists, ArtistSimplified> artistStore = new();
-            var tagService = new TagManager(Writer);
-            tagService.AddTags(artists, artistStore, "Filter artist to tag", t => t.Name, t => t.Id, string.Empty);
+            TagManager.Default.AddTags(artists, artistStore, "Filter artist to tag", t => t.Name, t => t.Id, string.Empty);
         }
     }
 }

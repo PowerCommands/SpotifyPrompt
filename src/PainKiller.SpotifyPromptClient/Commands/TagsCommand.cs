@@ -41,8 +41,7 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
 
         Console.ReadLine();
 
-        var tagService = new TagManager(Writer);
-
+        var tagService = TagManager.Default;
         if (mode == "artist") tagService.AddTags(_artistStore, "Filter artists to tag", a => a.Name, a => a.Id, filter);
         else if (mode == "album") tagService.AddTags(_albumStore, "Filter albums to tag", a => a.Name, a => a.Id, filter);
         else if (mode == "playlist") tagService.AddTags(_playlistStore, "Filter playlists to tag", p => p.Name, p => p.Id, filter);

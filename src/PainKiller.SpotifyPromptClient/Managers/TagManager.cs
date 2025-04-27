@@ -4,8 +4,13 @@ using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 
-public class TagManager(IConsoleWriter writer)
+public class TagManager : ITagManager
 {
+    private readonly IConsoleWriter _writer = ConsoleService.Writer;
+    private TagManager() { }
+    private static readonly Lazy<ITagManager> Instance = new(() => new TagManager());
+    public static ITagManager Default => Instance.Value;
+
     public void AddTags<TKey, TEntity>(SpotifyObjectStorage<TKey, TEntity> store, string filterTitle, Func<TEntity, string> nameSelector, Func<TEntity, string> idSelector, string filter) where TKey : IDataObjects<TEntity>, new() where TEntity : class, IContainsTags, new()
     {
         var items = store.GetItems().Where(i => string.IsNullOrEmpty(i.Tags.Trim())).ToList();
@@ -21,11 +26,11 @@ public class TagManager(IConsoleWriter writer)
         foreach (var idx in selected)
         {
             if(choice == Genres.End) break;
-            writer.Clear();
+            _writer.Clear();
             var entity = items[idx.Key];
             ConsoleService.WriteCenteredText("Add tags...",entity.Name);
             var description = WikipediaService.Default.TryFetchWikipediaIntro(entity.Name);
-            if (!string.IsNullOrWhiteSpace(description)) writer.WriteDescription("Description", description);
+            if (!string.IsNullOrWhiteSpace(description)) _writer.WriteDescription("Description", description);
             var tags = new List<string>();
             while ((choice = ToolbarService.NavigateToolbar<Genres>()) != Genres.Next)
             {
@@ -46,6 +51,6 @@ public class TagManager(IConsoleWriter writer)
             entity.Tags = string.Join(',', tags).ToLower();
             store.Insert(entity, e => idSelector(e) == idSelector(entity));
         }
-        writer.WriteSuccessLine("All items have been tagged.");
+        _writer.WriteSuccessLine("All items have been tagged.");
     }
 }
