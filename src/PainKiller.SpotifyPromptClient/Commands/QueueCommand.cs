@@ -11,7 +11,7 @@ public class QueueCommand(string identifier) : ConsoleCommandBase<CommandPromptC
     public override RunResult Run(ICommandLineInput input)
     {
         var queue = QueueManager.Default.GetQueue();
-        int.TryParse(input.Arguments[0], out var index);
+        int.TryParse(input.Arguments.FirstOrDefault(), out var index);
         var selected = this.GetSuggestion(input.Arguments.FirstOrDefault(), "");
         if (index > 0)
         {

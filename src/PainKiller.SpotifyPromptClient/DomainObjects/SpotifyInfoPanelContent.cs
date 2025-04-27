@@ -33,14 +33,14 @@ public class SpotifyInfoPanelContent(int refreshMarginInMinutes, int latestTrack
             var currentlyPlaying = currentTrack == null ? "-" : $"{currentTrack.Artists.First().Name} - {currentTrack.Name}";
             LatestService.Default.UpdateLatest(currentTrack, latestTracksCount);
 
+            var volume = DeviceManager.Default.GetCurrentVolume();
             var device = devices.FirstOrDefault(d => d.IsActive);
-            var deviceName = device?.Name ?? "No active device";
+            var deviceName = $"{device?.Name} volume:{volume}%" ?? "No active device";
 
             var playerManager = new PlayerManager();
             var shuffleState = playerManager.GetShuffleState();
             var shuffleStateText = shuffleState ? "Enabled" : "Disabled";
-
-            // Build two columns: left = device/status, right = shuffle
+            
             var leftText = $"Device: {deviceName} {status}";
             var rightText = $"Shuffle status: {shuffleStateText}";
 
