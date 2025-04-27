@@ -1,5 +1,5 @@
 ﻿namespace PainKiller.SpotifyPromptClient.Contracts;
-public interface IWikipediaManager
+public interface IWikipediaService
 {
     string TryFetchWikipediaIntro(string search);
 }

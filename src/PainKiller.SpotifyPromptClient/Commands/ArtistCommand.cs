@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -26,7 +27,7 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
             var writerLock = new object();
             Parallel.ForEach(artists, artistSimplified =>
             {
-                var info = WikipediaManager.Default.TryFetchWikipediaIntro(artistSimplified.Name);
+                var info = WikipediaService.Default.TryFetchWikipediaIntro(artistSimplified.Name);
                 var prediction = ai.GetPredictionToQuery($"{artistSimplified.Name} {statement}", info);
                 if (prediction)
                 {

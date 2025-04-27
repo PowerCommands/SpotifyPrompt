@@ -1,5 +1,6 @@
 ﻿using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
 
@@ -23,7 +24,7 @@ public class TagManager(IConsoleWriter writer)
             writer.Clear();
             var entity = items[idx.Key];
             ConsoleService.WriteCenteredText("Add tags...",entity.Name);
-            var description = WikipediaManager.Default.TryFetchWikipediaIntro(entity.Name);
+            var description = WikipediaService.Default.TryFetchWikipediaIntro(entity.Name);
             if (!string.IsNullOrWhiteSpace(description)) writer.WriteDescription("Description", description);
             var tags = new List<string>();
             while ((choice = ToolbarService.NavigateToolbar<Genres>()) != Genres.Next)
