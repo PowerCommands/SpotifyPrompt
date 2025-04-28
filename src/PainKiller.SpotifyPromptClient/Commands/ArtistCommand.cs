@@ -62,7 +62,16 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
         var tags = input.GetOptionValue("tags");
         var selectedArtists = ListService.ShowSelectFromFilteredList("Select a artist!", artists,(info, s) => (info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) && info.Tags.Contains(tags, StringComparison.OrdinalIgnoreCase)), Presentation, Writer, filter);
         if (selectedArtists.Count == 0) return Ok();
-
+        if (AppendCommand.AppendMode && selectedArtists.Count > 1)
+        {
+            var selectOneArtist = ListService.ListDialog("Select one album", selectedArtists.Select(a => a.Name).ToList());
+            if (selectOneArtist.Count > 0)
+            {
+                var artist = selectedArtists[selectOneArtist.First().Key];
+                selectedArtists.Clear();
+                selectedArtists.Add(artist);
+            }
+        }
         if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(selectedArtists);
         else SelectedManager.Default.UpdateSelected(selectedArtists);
         

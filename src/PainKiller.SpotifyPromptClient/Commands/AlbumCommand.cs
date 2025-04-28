@@ -1,5 +1,6 @@
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Managers;
+using YamlDotNet.Serialization.NodeDeserializers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -17,6 +18,16 @@ public class AlbumCommand(string identifier) : SelectedBaseCommand(identifier)
         
         if (selectedAlbums.Count == 0) return Ok();
 
+        if (AppendCommand.AppendMode && selectedAlbums.Count > 1)
+        {
+            var selectOneAlbum = ListService.ListDialog("Select one album", selectedAlbums.Select(a => $"{a.Artists} {a.Name}").ToList());
+            if (selectOneAlbum.Count > 0)
+            {
+                var album = selectedAlbums[selectOneAlbum.First().Key];
+                selectedAlbums.Clear();
+                selectedAlbums.Add(album);
+            }
+        }
         if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(selectedAlbums);
         else SelectedManager.Default.UpdateSelected(selectedAlbums);
         
