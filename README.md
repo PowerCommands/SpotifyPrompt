@@ -3,6 +3,8 @@
 An advanced CLI client for Spotify, built on top of the PainKiller CommandPrompt framework.
 Provides full terminal control over Spotify including AI-assisted artist enrichment, playlist building, tagging, backup, search, and much more.
 
+Ask ChatGPT: https://chatgpt.com/g/g-680fb8d660748191a59e8aad386c727c-playlist-prompt-client
+
 <img src="images/logo2.png" width="640">
 
 ---
