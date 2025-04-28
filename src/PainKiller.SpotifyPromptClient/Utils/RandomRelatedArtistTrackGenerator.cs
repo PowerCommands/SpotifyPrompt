@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
+using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Extensions;
 using PainKiller.SpotifyPromptClient.Services;
 
@@ -46,7 +47,12 @@ public class RandomRelatedArtistTrackGenerator(IAIManager aiManager) : IRandomRe
     }
     private List<TrackObject> GetRandomRelatedArtistsTracks(ArtistSimplified artist, IAIManager aiManager, int maxCountPerArtist)
     {
-        var relatedArtists = aiManager.GetSimilarArtists(artist.Name).Where(a => !string.IsNullOrEmpty(a)).ToList();
+        var relatedArtistStorage = new ObjectStorage<RelatedArtists, RelatedArtist>();
+        var storedArtists = relatedArtistStorage.GetItems();
+        var storedArtist = storedArtists.FirstOrDefault(a => a.Id == artist.Id);
+        List<string> relatedArtists;
+        if(storedArtist != null && storedArtist.Items.Count > 0) relatedArtists = storedArtist.Items.Select(a => a.Name).ToList();
+        else relatedArtists = aiManager.GetSimilarArtists(artist.Name).Where(a => !string.IsNullOrEmpty(a)).ToList();
         if (relatedArtists.Count == 0)
         {
             _logger.LogWarning($"No related artists found for {artist.Name}", nameof(GetRandomRelatedArtistsTracks));
