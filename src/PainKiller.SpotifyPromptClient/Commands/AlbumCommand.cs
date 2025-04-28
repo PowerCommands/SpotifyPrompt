@@ -17,7 +17,8 @@ public class AlbumCommand(string identifier) : SelectedBaseCommand(identifier)
         
         if (selectedAlbums.Count == 0) return Ok();
 
-        SelectedManager.Default.UpdateSelected(selectedAlbums);
+        if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(selectedAlbums);
+        else SelectedManager.Default.UpdateSelected(selectedAlbums);
         
         var tracksStorage = new ObjectStorage<Tracks, TrackObject>();
         var tracks = new List<TrackObject>();

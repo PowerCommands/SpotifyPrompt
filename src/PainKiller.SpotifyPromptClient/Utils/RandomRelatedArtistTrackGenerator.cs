@@ -5,7 +5,6 @@ using PainKiller.SpotifyPromptClient.Extensions;
 using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Utils;
-
 public class RandomRelatedArtistTrackGenerator(IAIManager aiManager) : IRandomRelatedArtistTrackGenerator
 {
     private readonly IConsoleWriter _writer = ConsoleService.Writer;
@@ -22,7 +21,7 @@ public class RandomRelatedArtistTrackGenerator(IAIManager aiManager) : IRandomRe
                 var artist = track.Artists.First();
                 if(usedArtist.Any(a => a.Id == artist.Id)) continue;
                 usedArtist.Add(artist);
-                var relatedTracks = GetRandomRelatedArtistsTracks(artist, aiManager, maxCountPerArtist);
+                var relatedTracks = GetRandomRelatedArtistsTracks(artist, aiManager, maxCountPerArtist, years);
                 foreach (var relatedTrack in relatedTracks)
                 {
                     if (retVal.All(t => t.Id != relatedTrack.Id))
@@ -42,16 +41,20 @@ public class RandomRelatedArtistTrackGenerator(IAIManager aiManager) : IRandomRe
             }
             if (retVal.Count >= count) break;
         }
+        if (retVal.Count < count)
+        {
+            retVal.AddRange(GetRandomRelatedArtistsTracks(tracks, aiManager, years, count - retVal.Count, maxCountPerArtist));
+        }
         retVal.Shuffle();
         return retVal;
     }
-    private List<TrackObject> GetRandomRelatedArtistsTracks(ArtistSimplified artist, IAIManager aiManager, int maxCountPerArtist)
+    private List<TrackObject> GetRandomRelatedArtistsTracks(ArtistSimplified artist, IAIManager aiManager, int maxCountPerArtist, YearRange years)
     {
         var relatedArtistStorage = new ObjectStorage<RelatedArtists, RelatedArtist>();
         var storedArtists = relatedArtistStorage.GetItems();
         var storedArtist = storedArtists.FirstOrDefault(a => a.Id == artist.Id);
         List<string> relatedArtists;
-        if(storedArtist != null && storedArtist.Items.Count > 0) relatedArtists = storedArtist.Items.Select(a => a.Name).ToList();
+        if(storedArtist != null && storedArtist.Items.Count > 0) relatedArtists = storedArtist.Items.Select(a => a.Name).Take(maxCountPerArtist).ToList();
         else relatedArtists = aiManager.GetSimilarArtists(artist.Name).Where(a => !string.IsNullOrEmpty(a)).ToList();
         if (relatedArtists.Count == 0)
         {
@@ -60,7 +63,7 @@ public class RandomRelatedArtistTrackGenerator(IAIManager aiManager) : IRandomRe
         }
         relatedArtists.Shuffle();
         var relatedArtist = relatedArtists.First();
-        var query = $"artist:\"{relatedArtist}\"";
+        var query = $" artist:{relatedArtist} year:{years}";
         _writer.WriteLine($"Searching for tracks by {relatedArtist}");
         var searchTracks = SearchService.Default.SearchTracks(query);
         searchTracks.Shuffle();

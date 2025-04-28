@@ -9,4 +9,17 @@ public class Album : IContainsTags
     public int TotalTracks { get; set; }
     public string Uri { get; set; } = string.Empty;
     public string Tags { get; set; } = string.Empty;
+    public int ReleaseYear
+    {
+        get
+        {
+            var date = ReleaseDate;
+            if (!string.IsNullOrEmpty(date))
+            {
+                var yearPart = date.Contains('-') ? date.Substring(0, date.IndexOf('-')) : date;
+                if (int.TryParse(yearPart, out var year)) return year;
+            }
+            return 0;
+        }
+    }
 }

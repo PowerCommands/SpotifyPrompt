@@ -13,8 +13,9 @@ public class PlaylistManager : IPlaylistManager
         var playlistTrackStorage = new ObjectStorage<PlaylistTracks, PlaylistWithTracks>();
 
         var prefixAttribute = string.IsNullOrEmpty(prefix) ? "" : $"{prefix} - ";
+        name = $"{prefixAttribute}{name}";
 
-        var id = PlaylistModifyManager.Default.CreatePlaylist(UserService.Default.GetCurrentUser().Id, $"`{prefixAttribute}{name}", description, isPublic);
+        var id = PlaylistModifyManager.Default.CreatePlaylist(UserService.Default.GetCurrentUser().Id, name, description, isPublic);
         PlaylistModifyManager.Default.AddTracksToPlaylist(id, tracks.Select(t => t.Uri).ToList());
         playlistStorage.Insert(new PlaylistInfo { Id = id, Name = name, Owner = UserService.Default.GetCurrentUser().Id, Tags = string.Join(',', tags), TrackCount = tracks.Count }, playlist => playlist.Id == id);
         playlistTrackStorage.Insert(new PlaylistWithTracks { Id = id, Items = tracks }, playlist => playlist.Id == id);

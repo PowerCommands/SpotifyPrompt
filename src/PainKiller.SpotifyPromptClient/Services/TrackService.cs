@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 
 namespace PainKiller.SpotifyPromptClient.Services;
-
 public class TrackService : SpotifyClientBase, ITrackService
 {
     private readonly ILogger<TrackService> _logger = LoggerProvider.CreateLogger<TrackService>();
@@ -79,5 +78,42 @@ public class TrackService : SpotifyClientBase, ITrackService
             ReleaseDate = alb.GetProperty("release_date").GetString()!
         };
         return to;
+    }
+
+    public List<TrackObject> GetAlbumTracks(string albumId)
+    {
+        var accessToken = GetAccessToken();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.spotify.com/v1/albums/{albumId}/tracks");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        _logger.LogInformation($"GetAlbumTracks: {response.StatusCode} för album {albumId}");
+        response.EnsureSuccessStatusCode();
+
+        var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+        using var doc = JsonDocument.Parse(json);
+        var items = doc.RootElement.GetProperty("items").EnumerateArray();
+        var tracks = items
+            .Select(item => new TrackObject
+            {
+                Id         = item.GetProperty("id").GetString()!,
+                Name       = item.GetProperty("name").GetString()!,
+                Uri        = item.GetProperty("uri").GetString()!,
+                DurationMs = item.GetProperty("duration_ms").GetInt32(),
+                Artists    = item
+                    .GetProperty("artists")
+                    .EnumerateArray()
+                    .Select(a => new ArtistSimplified
+                    {
+                        Id   = a.GetProperty("id").GetString()!,
+                        Name = a.GetProperty("name").GetString()!
+                    })
+                    .ToList(),
+                Album = new Album
+                {
+                    Id = albumId
+                }
+            })
+            .ToList();
+        return tracks;
     }
 }

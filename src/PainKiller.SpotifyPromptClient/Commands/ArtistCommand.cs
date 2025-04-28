@@ -63,7 +63,8 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
         var selectedArtists = ListService.ShowSelectFromFilteredList("Select a artist!", artists,(info, s) => (info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) && info.Tags.Contains(tags, StringComparison.OrdinalIgnoreCase)), Presentation, Writer, filter);
         if (selectedArtists.Count == 0) return Ok();
 
-        SelectedManager.Default.UpdateSelected(selectedArtists);
+        if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(selectedArtists);
+        else SelectedManager.Default.UpdateSelected(selectedArtists);
         
         ShowSelectedArtists();
 

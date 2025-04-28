@@ -29,6 +29,7 @@ public class QueueCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         {
             foreach (var trackObject in queue) QueueService.Default.AddToQueue(trackObject.Uri);
         }
+        SelectedManager.Default.UpdateSelected(queue);
         Writer.WriteTable(queue.Select(t => new { Artist = t.Artists.First().Name, Title = t.Name, Album = t.Album.Name, Released = t.Album.ReleaseDate.Trim().Truncate(4, "") }));
         return Ok();
     }

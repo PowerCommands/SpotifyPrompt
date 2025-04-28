@@ -31,14 +31,14 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         Writer.WriteLine();
         ConsoleService.Writer.WriteHeadLine($"Playlist summary: {summary}");
         Writer.WriteTable(tracks.Select(t => new {Artist = t.Artists.First().Name, t.Name}));
-
+        ConsoleService.Writer.WriteHeadLine($"Playlist summary: {summary}");
         SelectedManager.Default.UpdateSelected(tracks);
+        
         var confirmNewPlayList = DialogService.YesNoDialog("Do you want to create a new playlist with these tracks?");
         if (!confirmNewPlayList) return Ok();
 
         var name = DialogService.QuestionAnswerDialog("Name of the playlist:");
         PlaylistManager.Default.CreatePlaylist(name, $"{selectedTemplate.Description} created by {Configuration.Core.Name}", tracks, selectedTemplate.Tags);
-        
 
         var confirmSave = DialogService.YesNoDialog("Do you want to save this template for future use?");
         if (confirmSave)
@@ -50,6 +50,7 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
     }
     private PlaylistTemplate GetNewTemplate()
     {
+        Writer.WriteLine();
         var retVal = new PlaylistTemplate { Name = DialogService.QuestionAnswerDialog("Name:") };
         var tags = BuildManager.Default.GetTags();
         tags.Insert(0, "*");

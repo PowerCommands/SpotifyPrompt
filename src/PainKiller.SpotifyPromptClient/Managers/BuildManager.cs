@@ -4,6 +4,7 @@ using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Extensions;
+using PainKiller.SpotifyPromptClient.Services;
 using PainKiller.SpotifyPromptClient.Utils;
 
 namespace PainKiller.SpotifyPromptClient.Managers;
@@ -44,8 +45,6 @@ public class BuildManager : IBuildManager
             case PlaylistSourceType.Artists:
                 if (template.RandomMode == RandomMode.Selected) count = SelectedManager.Default.GetSelectedArtists().Count;
                 break;
-            default:
-                break;
         }
         var countLabel = count == -1 ? "∞" : count.ToString();
         return $"Type: {template.SourceType} Random mode:{template.RandomMode.ToString()} {countLabel}";
@@ -73,10 +72,40 @@ public class BuildManager : IBuildManager
                 }
                 break;
             case PlaylistSourceType.Albums:
-                //tracks = GetAlbums(template);
+                if (template.RandomMode == RandomMode.Selected)
+                {
+                    tracks = GetRandomTracks(SelectedManager.Default.GetSelectedAlbums(), template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    tracks.Shuffle();
+                }
+                else if (template.RandomMode == RandomMode.Related)
+                {
+                    var selectedAlbums = GetRandomAlbums(template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    var selectedTracks = GetRandomTracks(selectedAlbums, template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, aiManager, template.YearRange, template.Count, template.MaxCountPerArtist);
+                }
+                else
+                {
+                    var selectedAlbums = GetRandomAlbums(template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    tracks = GetRandomTracks(selectedAlbums, template.Tags, template.YearRange, template.MaxCountPerArtist);
+                }
                 break;
             case PlaylistSourceType.Artists:
-                //tracks = GetArtists(template);
+                if (template.RandomMode == RandomMode.Selected)
+                {
+                    tracks = GetRandomTracks(SelectedManager.Default.GetSelectedArtists(), template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    tracks.Shuffle();
+                }
+                else if (template.RandomMode == RandomMode.Related)
+                {
+                    var selectedArtists = GetRandomArtists(template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    var selectedTracks = GetRandomTracks(selectedArtists, template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, aiManager, template.YearRange, template.Count, template.MaxCountPerArtist);
+                }
+                else
+                {
+                    var selectedArtists = GetRandomAlbums(template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    tracks = GetRandomTracks(selectedArtists, template.Tags, template.YearRange, template.MaxCountPerArtist);
+                }
                 break;
             default:
                 break;
@@ -103,5 +132,63 @@ public class BuildManager : IBuildManager
             }
         }
         return retVal;
+    }
+    private List<TrackObject> GetRandomTracks(List<Album> albums, List<string> tags, YearRange years, int maxCountPerArtist)
+    {
+        var retVal = new List<TrackObject>();
+        foreach (var album in albums)
+        {
+            var tracks = TrackService.Default.GetAlbumTracks(album.Id);
+            foreach (var track in tracks)
+            {
+                try
+                {
+                    var count = retVal.Count(t => t.Artists.First().Id == track.Artists.First().Id);
+                    if (count >= maxCountPerArtist) continue;
+                    retVal.Add(track);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e?.Message, nameof(GetRandomTracks));
+                }
+            }
+        }
+        retVal.Shuffle();
+        return retVal;
+    }
+    private List<Album> GetRandomAlbums(List<string> tags, YearRange years, int maxCountPerArtist)
+    {
+        var matchedAlbums = StorageService<Albums>.Service.GetObject().Items.Where(t => (t.Tags.Split(',').Any(tg => tg.ToLower().Contains(string.Join(' ', tags).ToLower())) || tags.First() == "*") && years.IsInRange(t.ReleaseYear)).ToList();
+        matchedAlbums.Shuffle();
+        return matchedAlbums;
+    }
+    private List<TrackObject> GetRandomTracks(List<ArtistSimplified> artists, List<string> tags, YearRange years, int maxCountPerArtist)
+    {
+        var retVal = new List<TrackObject>();
+        foreach (var artist in artists)
+        {
+            var tracks =ArtistService.Default.GetTopTracks(artist.Id, UserService.Default.GetCurrentUser().Country);
+            foreach (var track in tracks)
+            {
+                try
+                {
+                    var count = retVal.Count(t => t.Artists.First().Id == track.Artists.First().Id);
+                    if (count >= maxCountPerArtist) continue;
+                    retVal.Add(track);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e?.Message, nameof(GetRandomTracks));
+                }
+            }
+        }
+        retVal.Shuffle();
+        return retVal;
+    }
+    private List<ArtistSimplified> GetRandomArtists(List<string> tags, YearRange years, int maxCountPerArtist)
+    {
+        var matchedArtists = StorageService<Artists>.Service.GetObject().Items.Where(t => (t.Tags.Split(',').Any(tg => tg.ToLower().Contains(string.Join(' ', tags).ToLower())) || tags.First() == "*")).ToList();
+        matchedArtists.Shuffle();
+        return matchedArtists;
     }
 }

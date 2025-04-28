@@ -51,19 +51,22 @@ public class SearchCommand(string identifier) : SelectedBaseCommand(identifier)
         {
             case "track":
                 var tracks = SearchService.Default.SearchTracks(query, limit);
-                SelectedManager.Default.AppendToSelected(tracks); ;
+                if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(tracks);
+                else SelectedManager.Default.UpdateSelected(tracks);
                 ShowSelectedTracks();
                 break;
 
             case "album":
                 var albums = SearchService.Default.SearchAlbums(query, limit);
-                SelectedManager.Default.AppendToSelected(albums);
+                if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(albums);
+                else SelectedManager.Default.UpdateSelected(albums);
                 ShowSelectedAlbums();
                 break;
 
             case "artist":
                 var artists = SearchService.Default.SearchArtists(query, limit);
-                SelectedManager.Default.AppendToSelected(artists);
+                if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(artists);
+                else SelectedManager.Default.UpdateSelected(artists);
                 ShowSelectedArtists();
                 break;
 
