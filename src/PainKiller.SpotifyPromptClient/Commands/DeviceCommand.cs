@@ -1,5 +1,4 @@
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
-using PainKiller.SpotifyPromptClient.Managers;
 using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;

@@ -3,7 +3,6 @@ using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Managers;
 using PainKiller.SpotifyPromptClient.Utils;
-
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(

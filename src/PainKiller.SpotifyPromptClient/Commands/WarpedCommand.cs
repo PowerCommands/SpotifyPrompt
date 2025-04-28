@@ -1,6 +1,5 @@
 using PainKiller.SpotifyPromptClient.Managers;
 using PainKiller.SpotifyPromptClient.Services;
-
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Warped, get statistic top tracks or top artists",

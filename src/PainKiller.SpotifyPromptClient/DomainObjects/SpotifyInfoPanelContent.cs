@@ -49,8 +49,15 @@ public class SpotifyInfoPanelContent(int refreshMarginInMinutes, int latestTrack
             if (padding < 1) padding = 1;
 
             var secondLine = leftText + new string(' ', padding) + rightText;
+            
+            var firstLineLeftText = $"Currently playing: {currentlyPlaying}";
+            var firstLineRightText = $"Append mode on: {AppendCommand.AppendMode,5}    ";
 
-            return $"Currently playing: {currentlyPlaying}\n{secondLine}";
+            int available  = totalWidth - firstLineLeftText.Length - firstLineRightText.Length;
+            int spaces     = available > 1 ? available : 1;
+            var firstLine = firstLineLeftText + new string(' ', spaces) + firstLineRightText;
+
+            return $"{firstLine}\n{secondLine}";
         }
         catch (Exception ex)
         {

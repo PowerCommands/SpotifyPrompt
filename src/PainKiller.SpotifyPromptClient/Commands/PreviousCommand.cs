@@ -1,5 +1,4 @@
 using PainKiller.SpotifyPromptClient.Services;
-
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Previous command", 

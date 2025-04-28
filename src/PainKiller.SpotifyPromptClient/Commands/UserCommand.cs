@@ -1,7 +1,5 @@
-﻿using PainKiller.SpotifyPromptClient.Managers;
-using PainKiller.SpotifyPromptClient.Services;
+﻿using PainKiller.SpotifyPromptClient.Services;
 using Spectre.Console;
-
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Show user details.", 

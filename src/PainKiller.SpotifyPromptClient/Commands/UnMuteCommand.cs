@@ -1,6 +1,4 @@
-using PainKiller.SpotifyPromptClient.Managers;
 using PainKiller.SpotifyPromptClient.Services;
-
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Un Mute command", 

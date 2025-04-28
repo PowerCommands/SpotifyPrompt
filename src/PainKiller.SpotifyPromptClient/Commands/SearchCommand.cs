@@ -1,10 +1,9 @@
 ﻿using PainKiller.SpotifyPromptClient.Managers;
 using System.Text;
 using PainKiller.SpotifyPromptClient.Services;
-
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(description: "Spotify - Search artist, tracks and albums.",
+[CommandDesign(     description: "Spotify - Search artist, tracks and albums.",
                         options: ["years", "genre", "artist", "limit", "tag:hipster", "tag:new", "upc", "isrc"],
                     suggestions: ["playlist", "track", "artist", "album"],
                        examples: ["//Search tracks", "search tracks \"Balls to the wall\""])]
