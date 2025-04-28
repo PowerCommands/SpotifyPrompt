@@ -1,32 +1,41 @@
-# Spotify PromptClient
+# SpotifyPromptClient
 
-A CLI extension for the PainKiller CommandPrompt framework that lets you control Spotify playback directly from your terminal.
+An advanced CLI client for Spotify, built on top of the PainKiller CommandPrompt framework.
+Provides full terminal control over Spotify including AI-assisted artist enrichment, playlist building, tagging, backup, search, and much more.
 
 <img src="images/logo2.png" width="640">
 
+---
+
 ## Prerequisites
 
-- **.NET 9.0 SDK** installed on your machine.
-- A **Spotify Developer** account with a registered application. 
-  Register your account here: https://developer.spotify.com/
-
-  You’ll need:
+- **.NET 9.0 SDK** installed.
+- A **Spotify Developer** account with a registered application:  
+  [Register here](https://developer.spotify.com/dashboard/)
+  
+  You will need:
   - **Client ID**
   - **Redirect URI** (e.g., `http://localhost:5000/callback/`)
-- Your Spotify **Client ID** stored as an encrypted secret under the key `spotify_prompt` in the built‑in Security module.
 
-   ```secret --create "spotify_prompt"```
+- Store your **Client ID** securely using the built-in Security module:
 
+   ```bash
+   secret --create "spotify_prompt"
+   ```
+
+---
 
 ## Installation
 
-1. **Clone** this repository:
+1. **Clone** the repository:
+
    ```bash
    git clone https://github.com/your-org/SpotifyPromptClient.git
    cd SpotifyPromptClient
    ```
 
-2. **Configure** your application settings in `CommandPromptConfiguration.yaml` (or equivalent). Example:
+2. **Configure** your application settings (`CommandPromptConfiguration.yaml`):
+
    ```yaml
    spotify:
      redirectUri: "http://localhost:5000/callback/"
@@ -34,65 +43,115 @@ A CLI extension for the PainKiller CommandPrompt framework that lets you control
      scopes:
        - user-read-playback-state
        - user-modify-playback-state
-       - playlist-read-private   
+       - playlist-read-private
+       - playlist-modify-public
+       - playlist-modify-private
    ```
 
 3. **Build** the project:
+
    ```bash
    dotnet build
    ```
 
-4. **Run** the CommandPrompt host (it will auto‑discover SpotifyPromptClient commands):
+4. **Run** the CommandPrompt host:
+
    ```bash
    dotnet run --project src/PainKiller.CommandPrompt.Host
    ```
 
-## Basic Spotify Commands
+---
 
-| Command                   | Description                                                                                           |
-|---------------------------|-------------------------------------------------------------------------------------------------------|
-| `login`                   | Authorize the CLI to access your Spotify account.                                                     |
-| `device [DeviceName]`     | List saved devices. If you provide `DeviceName`, switches playback to that device.                  |
-| `list [--update]`         | Show your playlists. Use `--update` to fetch & cache all playlists from Spotify before selecting one. |
-| `play`                    | Start or resume playback on the current active device.                                                |
-| `pause`                   | Pause playback.                                                                                       |
-| `next`                    | Skip to the next track.                                                                               |
-| `previous`                | Go back to the previous track.                                                                        |
+## Available Commands
 
-### Workflow Example
-
-1. **Login**:
-   ```bash
-   login
-   ```
-2. **(Optional) Select Device**:
-   ```bash
-   device            # lists devices & marks the active one
-   device "My Phone"   # switch to "My Phone" for playback
-   ```
-3. **Update & List Playlists**:
-   ```bash
-   list --update    # fetch all playlists from Spotify
-   list             # choose a playlist to play
-   ```
-   - After running `list`, you’ll get an interactive search to pick a playlist by name.
-   - The selected playlist will start playing automatically.
-4. **Control Playback**:
-   ```bash
-   next     # skip forward
-   previous # skip back
-   pause    # pause
-   play     # resume
-   ```
-
-## Tips
-
-- You can re‑run `list` without `--update` to quickly pick a different playlist from cache.
-- If your access token expires, the built‑in info‑panel will auto‑refresh it (you’ll see status at the top).
-- Ensure your Redirect URI in the Spotify Developer Dashboard matches exactly what you configured.
+| Command          | Description                                                                         |
+|------------------|-------------------------------------------------------------------------------------|
+| `login`          | Authenticate with your Spotify account.                                             |
+| `play`           | Play current track, a specific track by index, or all selected tracks.              |
+| `pause`          | Pause the current playback.                                                         |
+| `next`           | Skip to the next track.                                                              |
+| `previous`       | Go back to the previous track.                                                       |
+| `shuffle`        | Toggle shuffle mode.                                                                |
+| `device [name]`  | List devices or switch playback to a specified device.                              |
+| `volume [value]` | Set or display the current volume.                                                   |
+| `mute`           | Mute volume (sets volume to 0).                                                      |
+| `unmute [--volume value]` | Unmute and optionally set volume.                                           |
+| `queue [index|selected]` | View or modify the playback queue.                                           |
+| `latest`         | Show latest played tracks during session, optionally create playlist from history.  |
+| `list [--update|--compare]` | View, update, or compare playlists.                                       |
+| `selected [--clear]` | Show or clear selected tracks, albums, or artists.                              |
+| `track [filter]` | Select and filter saved tracks.                                                      |
+| `album [filter]` | Select and filter saved albums.                                                      |
+| `artist [filter]`| Select and filter saved artists, with optional AI enrichment.                        |
+| `user`           | Display Spotify user profile information.                                           |
+| `tags`           | Add or repair tags for artists, albums, playlists, or tracks.                       |
+| `search [type] "query"` | Search for tracks, albums, artists, or playlists.                          |
+| `backup`         | Backup all stored Spotify data locally.                                              |
+| `build`          | Build custom playlists using templates and AI.                                       |
+| `append`         | Handle append select mode, practical to build content for your playlist.             |
+| `ai`             | Use AI to find related artists based on existing data.                               |
+| `warped`         | View your top tracks or artists statistics ("Spotify Wrapped" style).                |
 
 ---
 
-**Enjoy controlling Spotify right from your terminal!**
+## Workflow Example
 
-Read more about the Spotify API here: https://developer.spotify.com/documentation/web-api
+1. **Login** to Spotify:
+
+   ```bash
+   login
+   ```
+
+2. **Update and list your playlists**:
+
+   ```bash
+   list --update
+   list
+   ```
+
+3. **Control playback**:
+
+   ```bash
+   play
+   next
+   pause
+   ```
+
+4. **Search tracks and build playlists**:
+
+   ```bash
+   append
+   search track --artist queen
+   build
+   ```
+
+5. **Use AI enrichment**:
+
+   ```bash
+   ai
+   artist --ai
+   ```
+
+---
+
+## Notes
+
+- **Session selections**: You can accumulate selected tracks, albums, and artists across commands (search, album, artist) and operate on them, just turn on append if you want to accumulate your selection that could be use when building a playlist with `build` command.
+- **AI Integration**: Integrates with a local or remote AI server (Ollama) for artist enrichment and tagging.
+- **Backup**: Important Spotify data is persisted and can be backed up at any time.
+- **Automatic Token Handling**: No manual refresh needed; tokens are refreshed automatically when needed.
+
+---
+
+## Troubleshooting
+
+- Ensure the **Redirect URI** registered in Spotify Dashboard matches your configuration exactly.
+- If the access token expires and refresh fails, run `login` again.
+- Update your Spotify application scopes if you encounter permission issues.
+
+---
+
+**Enjoy controlling Spotify directly from your terminal!**
+
+[Learn more about Spotify Web API](https://developer.spotify.com/documentation/web-api)
+

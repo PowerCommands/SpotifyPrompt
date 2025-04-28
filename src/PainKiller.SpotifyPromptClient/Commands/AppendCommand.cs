@@ -1,6 +1,6 @@
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Handle append select mode", 
+[CommandDesign(     description: "Spotify - Handle append select mode, build playlist by selecting artist, tracks or albums and let the append to the selection.\nThis way you can build up your content and use build command to create your playlist with the selected mode.", 
                        examples: ["//Change append mode, turn off if on and vice versa","append"])]
 public class AppendCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
