@@ -22,7 +22,11 @@ Provides full terminal control over Spotify including AI-assisted artist enrichm
    ```bash
    secret --create "spotify_prompt"
    ```
+- Ollama Service
 
+  The Spotify Prompt Client uses AI with Ollama and Gemma3 to get related artists, since Spotify removed the Get Artist's Related Artists in their WebAPI. You can download this software here: https://ollama.com/download it is a lightweight service running in the background.
+  You CAN USE this client without it, but some of it´s functionality regarding building playlists will not work.
+  
 ---
 
 ## Installation
