@@ -1,7 +1,5 @@
 ﻿using PainKiller.SpotifyPromptClient.Enums;
-
 namespace PainKiller.SpotifyPromptClient.DomainObjects;
-
 public class PlaylistTemplate
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -13,4 +11,5 @@ public class PlaylistTemplate
     public int Count { get; set; } = 100;
     public YearRange YearRange { get; set; } = new(1980, 1989);
     public int MaxCountPerArtist { get; set; } = 3;
+    public List<string> Ids { get; set; } = [];
 }

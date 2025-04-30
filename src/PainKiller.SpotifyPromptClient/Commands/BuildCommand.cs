@@ -43,7 +43,10 @@ public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptC
         var confirmSave = DialogService.YesNoDialog("Do you want to save this template for future use?");
         if (confirmSave)
         {
-            var newTemplate = new PlaylistTemplate { Id = Guid.NewGuid().ToString(), Name = name, Tags = selectedTemplate.Tags, SourceType = selectedTemplate.SourceType, RandomMode = selectedTemplate.RandomMode, YearRange = selectedTemplate.YearRange, Count = selectedTemplate.Count };
+            var ids = new List<string>();
+            if(selectedTemplate.SourceType == PlaylistSourceType.Albums) ids = SelectedManager.Default.GetSelectedAlbums().Select(a => a.Id).ToList();
+            if (selectedTemplate.SourceType == PlaylistSourceType.Artists) ids = SelectedManager.Default.GetSelectedArtists().Select(a => a.Id).ToList();
+            var newTemplate = new PlaylistTemplate { Id = Guid.NewGuid().ToString(), Name = name, Tags = selectedTemplate.Tags, SourceType = selectedTemplate.SourceType, RandomMode = selectedTemplate.RandomMode, YearRange = selectedTemplate.YearRange, Count = selectedTemplate.Count, Ids = ids};
             templateStorage.Insert(newTemplate, template => template.Id == newTemplate.Id);
         }
         return Ok();

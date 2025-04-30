@@ -4,6 +4,5 @@ public enum PlaylistSourceType
 {
     Tracks,
     Albums,
-    Artists,
-    Playlists,
+    Artists
 }
