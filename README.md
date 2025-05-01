@@ -82,9 +82,9 @@ Ask ChatGPT: https://chatgpt.com/g/g-680fb8d660748191a59e8aad386c727c-playlist-p
 | `volume [value]` | Set or display the current volume.                                                   |
 | `mute`           | Mute volume (sets volume to 0).                                                      |
 | `unmute [--volume value]` | Unmute and optionally set volume.                                           |
-| `queue [index|selected]` | View or modify the playback queue.                                           |
+| `queue [index,selected]` | View or modify the playback queue.                                           |
 | `latest`         | Show latest played tracks during session, optionally create playlist from history.  |
-| `list [--update|--compare]` | View, update, or compare playlists.                                       |
+| `list [--update,--compare]` | View, update, or compare playlists.                                       |
 | `selected [--clear]` | Show or clear selected tracks, albums, or artists.                              |
 | `track [filter]` | Select and filter saved tracks.                                                      |
 | `album [filter]` | Select and filter saved albums.                                                      |
@@ -123,12 +123,11 @@ Ask ChatGPT: https://chatgpt.com/g/g-680fb8d660748191a59e8aad386c727c-playlist-p
    pause
    ```
 
-4. **Search tracks and build playlists**:
+4. **Example Search albums and then create a playlist with build command**:
 
-   ```bash
-   append
-   search track --artist queen
-   build
+   ```bash   
+   search album --artist queen //(select some great queen albums in the list)
+   build new                   //(choose * as tag, Albums, Selected, No year range, 100 as max count, 20 as number of tracks)
    ```
 
 5. **Use AI enrichment**:
@@ -152,7 +151,7 @@ Ask ChatGPT: https://chatgpt.com/g/g-680fb8d660748191a59e8aad386c727c-playlist-p
 ## Troubleshooting
 
 - Ensure the **Redirect URI** registered in Spotify Dashboard matches your configuration exactly.
-- If the access token expires and refresh fails, run `login` again.
+- If the access token expires and refresh fails, first try to start your player with `play` command or run `login` again.
 - Update your Spotify application scopes if you encounter permission issues.
 
 ---
