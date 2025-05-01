@@ -3,7 +3,7 @@ using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Artist actions", 
+[CommandDesign(     description: "Spotify - Artist actions, selected artists will be stored in the current selection that could be used to build playlists.\nEnable append mode with append command to append artists to the current selection.", 
                       arguments: ["filter"],
                         options: ["tags"],
                        examples: ["//Show your artists and their tracks","artist"])]
@@ -20,7 +20,7 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
         if (selectedArtists.Count == 0) return Ok();
         if (AppendCommand.AppendMode && selectedArtists.Count > 1)
         {
-            var selectOneArtist = ListService.ListDialog("Select one album", selectedArtists.Select(a => a.Name).ToList());
+            var selectOneArtist = ListService.ListDialog("Select one artist", selectedArtists.Select(a => a.Name).ToList());
             if (selectOneArtist.Count > 0)
             {
                 var artist = selectedArtists[selectOneArtist.First().Key];
@@ -32,6 +32,7 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
         else SelectedManager.Default.UpdateSelected(selectedArtists);
         
         ShowSelectedArtists();
+        if(AppendCommand.AppendMode) return Ok();
 
         var tracksStorage = new ObjectStorage<Tracks, TrackObject>();
         var tracks = new List<TrackObject>();

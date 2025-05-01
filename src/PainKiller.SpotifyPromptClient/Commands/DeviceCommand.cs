@@ -3,8 +3,8 @@ using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Player command", 
-                       examples: ["//Play","play"])]
+[CommandDesign(     description: "Spotify - View your devices that could be controlled by Spotify Prompt using the WebAPI, only devices that are using the WebAPI are shown.", 
+                       examples: ["//Show devices that have been registered by Spotify Prompt","device"])]
 public class DeviceCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
     public override RunResult Run(ICommandLineInput input)

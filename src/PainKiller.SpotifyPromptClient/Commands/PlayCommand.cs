@@ -4,7 +4,7 @@ using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Player command",
+[CommandDesign(     description: "Spotify - Start play on the active Spotify player.",
                       arguments: ["index"],
                         options: ["all"],
                        examples: ["//Play","play","//Play the third track of the current selected tracks.","play 3","//Play all selected tracks","play --all"])]

@@ -5,7 +5,7 @@ using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Playlist command",
+[CommandDesign(     description: "Spotify - Manage your playlist.",
                       arguments: ["filter"],
                         options: ["update","compare"],
                        examples: ["//View playlist","list","//Update playlists", "list --update","//Compare playlist with updated playlists with tracks","list --compare"])]

@@ -1,10 +1,9 @@
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Managers;
-using YamlDotNet.Serialization.NodeDeserializers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Show album tracks.", 
+[CommandDesign(     description: "Spotify - Show album tracks, selected albums will be added to the current selection that could be used to build playlists.\nEnable append mode with append command to append albums to the current selection.", 
                       arguments: ["filter"],
                        examples: ["//Show album and their tracks","album"])]
 public class AlbumCommand(string identifier) : SelectedBaseCommand(identifier)
@@ -30,6 +29,9 @@ public class AlbumCommand(string identifier) : SelectedBaseCommand(identifier)
         }
         if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(selectedAlbums);
         else SelectedManager.Default.UpdateSelected(selectedAlbums);
+
+        ShowSelectedAlbums();
+        if (AppendCommand.AppendMode) return Ok();
         
         var tracksStorage = new ObjectStorage<Tracks, TrackObject>();
         var tracks = new List<TrackObject>();

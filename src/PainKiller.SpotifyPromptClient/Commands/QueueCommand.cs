@@ -2,7 +2,7 @@ using PainKiller.SpotifyPromptClient.Managers;
 using PainKiller.SpotifyPromptClient.Services;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - View queue", 
+[CommandDesign(     description: "Spotify - View queued tracks", 
                       arguments: ["index","selected"],
                     suggestions: ["1","selected"],
                        examples: ["//View Queue","queue"])]

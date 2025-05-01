@@ -4,7 +4,7 @@ using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - Playlist builder",
+[CommandDesign(     description: "Spotify - Playlist builder, use current selected items (artist, albums, tracks) to build new playlist, a playlist could have different source types, tag filtering, year range and use related artists to randomize new playlists.",
                     suggestions: ["new"],
                        examples: ["//Build a new playlist.","build"])]
 public class BuildCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)

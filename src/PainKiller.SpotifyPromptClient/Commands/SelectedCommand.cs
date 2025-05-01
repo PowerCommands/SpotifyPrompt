@@ -1,7 +1,7 @@
 using PainKiller.SpotifyPromptClient.Managers;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
-[CommandDesign(     description: "Spotify - View selected tracks, albums and artist. Could be used to create playlists.",
+[CommandDesign(     description: "Spotify - View selected tracks, albums and artist.",
                         options: ["clear"],
                        examples: ["//View selected tracks, albums and artists","selected"])]
 public class SelectedCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
