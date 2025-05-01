@@ -11,7 +11,7 @@ public class SpectreConsoleWriter : ConsoleWriterBase, IConsoleWriter
     public static SpectreConsoleWriter Instance => _instance.Value;
     private SpectreConsoleWriter(){}
     private int _reservedLines;
-    public void WriteDescription(string label, string text, bool writeToLog = true, Color? consoleColor = null, bool noBorder = false, [CallerMemberName] string scope = "")
+    public void WriteDescription(string label, string text, string title = "Description", bool writeToLog = true, Color? consoleColor = null, bool noBorder = false, [CallerMemberName] string scope = "")
     {
         EnforceMargin();
         var color = consoleColor ?? Color.Blue;
@@ -25,7 +25,8 @@ public class SpectreConsoleWriter : ConsoleWriterBase, IConsoleWriter
         {
             Border = BoxBorder.Rounded,
             Padding = new Padding(1, 1),
-            Header = new PanelHeader("[gray]Description[/]", Justify.Center)
+            Header = new PanelHeader($"[gray]{title}[/]", Justify.Center),
+            Width = (label.Length + text.Length + 5 > title.Length) ? Math.Min(label.Length + text.Length + 5, Console.BufferWidth - 4) : Math.Min(title.Length + 10, Console.BufferWidth - 4)
         };
         AnsiConsole.Write(panel);
         if (writeToLog) Information($"{label} : {text}", scope);
