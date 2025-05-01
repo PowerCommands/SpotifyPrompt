@@ -40,10 +40,10 @@ public class BuildManager : IBuildManager
                 if (template.RandomMode == RandomMode.Selected) count = SelectedManager.Default.GetSelectedTracks().Count;
                 break;
             case PlaylistSourceType.Albums:
-                if (template.RandomMode == RandomMode.Selected) count = SelectedManager.Default.GetSelectedAlbums().Count;
+                if (template.RandomMode == RandomMode.Selected) count = template.Ids.Count == 0 ? SelectedManager.Default.GetSelectedAlbums().Count : template.Ids.Count;
                 break;
             case PlaylistSourceType.Artists:
-                if (template.RandomMode == RandomMode.Selected) count = SelectedManager.Default.GetSelectedArtists().Count;
+                if (template.RandomMode == RandomMode.Selected) count = template.Ids.Count == 0 ? SelectedManager.Default.GetSelectedAlbums().Count : template.Ids.Count;
                 break;
         }
         var countLabel = count == -1 ? "∞" : count.ToString();
@@ -74,37 +74,37 @@ public class BuildManager : IBuildManager
             case PlaylistSourceType.Albums:
                 if (template.RandomMode == RandomMode.Selected)
                 {
-                    tracks = GetRandomTracks(SelectedManager.Default.GetSelectedAlbums(), template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    tracks = GetRandomTracksByAlbum(SelectedManager.Default.GetSelectedAlbums().Select(a => a.Id).ToList(), template.MaxCountPerArtist);
                     tracks.Shuffle();
                 }
                 else if (template.RandomMode == RandomMode.Related)
                 {
-                    var selectedAlbums = GetRandomAlbums(template.Tags, template.YearRange, template.MaxCountPerArtist);
-                    var selectedTracks = GetRandomTracks(selectedAlbums, template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    var selectedAlbums = GetRandomAlbums(template.Tags, template.YearRange);
+                    var selectedTracks = GetRandomTracksByAlbum(selectedAlbums.Select(a => a.Id).ToList(), template.MaxCountPerArtist);
                     tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, aiManager, template.YearRange, template.Count, template.MaxCountPerArtist);
                 }
                 else
                 {
-                    var selectedAlbums = GetRandomAlbums(template.Tags, template.YearRange, template.MaxCountPerArtist);
-                    tracks = GetRandomTracks(selectedAlbums, template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    var selectedAlbums = GetRandomAlbums(template.Tags, template.YearRange);
+                    tracks = GetRandomTracksByAlbum(selectedAlbums.Select(a => a.Id).ToList(), template.MaxCountPerArtist);
                 }
                 break;
             case PlaylistSourceType.Artists:
                 if (template.RandomMode == RandomMode.Selected)
                 {
-                    tracks = GetRandomTracks(SelectedManager.Default.GetSelectedArtists(), template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    tracks = GetRandomTracks(SelectedManager.Default.GetSelectedArtists(), template.MaxCountPerArtist);
                     tracks.Shuffle();
                 }
                 else if (template.RandomMode == RandomMode.Related)
                 {
-                    var selectedArtists = GetRandomArtists(template.Tags, template.YearRange, template.MaxCountPerArtist);
-                    var selectedTracks = GetRandomTracks(selectedArtists, template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    var selectedArtists = GetRandomArtists(template.Tags);
+                    var selectedTracks = GetRandomTracks(selectedArtists, template.MaxCountPerArtist);
                     tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, aiManager, template.YearRange, template.Count, template.MaxCountPerArtist);
                 }
                 else
                 {
-                    var selectedArtists = GetRandomAlbums(template.Tags, template.YearRange, template.MaxCountPerArtist);
-                    tracks = GetRandomTracks(selectedArtists, template.Tags, template.YearRange, template.MaxCountPerArtist);
+                    var selectedArtists = GetRandomAlbums(template.Tags, template.YearRange);
+                    tracks = GetRandomTracksByAlbum(selectedArtists.Select(a => a.Id).ToList(), template.MaxCountPerArtist);
                 }
                 break;
             default:
@@ -128,17 +128,17 @@ public class BuildManager : IBuildManager
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e?.Message, nameof(GetRandomTracks));
+                _logger.LogWarning(e?.Message, nameof(GetRandomTracksByAlbum));
             }
         }
         return retVal;
     }
-    private List<TrackObject> GetRandomTracks(List<Album> albums, List<string> tags, YearRange years, int maxCountPerArtist)
+    private List<TrackObject> GetRandomTracksByAlbum(List<string> albumIds, int maxCountPerArtist)
     {
         var retVal = new List<TrackObject>();
-        foreach (var album in albums)
+        foreach (var albumId in albumIds)
         {
-            var tracks = TrackService.Default.GetAlbumTracks(album.Id);
+            var tracks = TrackService.Default.GetAlbumTracks(albumId);
             foreach (var track in tracks)
             {
                 try
@@ -149,25 +149,28 @@ public class BuildManager : IBuildManager
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e?.Message, nameof(GetRandomTracks));
+                    _logger.LogWarning(e?.Message, nameof(GetRandomTracksByAlbum));
                 }
             }
         }
         retVal.Shuffle();
         return retVal;
     }
-    private List<Album> GetRandomAlbums(List<string> tags, YearRange years, int maxCountPerArtist)
+    private List<Album> GetRandomAlbums(List<string> tags, YearRange years)
     {
         var matchedAlbums = StorageService<Albums>.Service.GetObject().Items.Where(t => (t.Tags.Split(',').Any(tg => tg.ToLower().Contains(string.Join(' ', tags).ToLower())) || tags.First() == "*") && years.IsInRange(t.ReleaseYear)).ToList();
         matchedAlbums.Shuffle();
         return matchedAlbums;
     }
-    private List<TrackObject> GetRandomTracks(List<ArtistSimplified> artists, List<string> tags, YearRange years, int maxCountPerArtist)
+    private List<TrackObject> GetRandomTracks(List<ArtistSimplified> artists, int maxCountPerArtist)
     {
         var retVal = new List<TrackObject>();
         foreach (var artist in artists)
         {
-            var tracks =ArtistService.Default.GetTopTracks(artist.Id, UserService.Default.GetCurrentUser().Country);
+            var tracks = ArtistService.Default.GetTopTracks(artist.Id, UserService.Default.GetCurrentUser().Country);
+            var searchTrack = SearchService.Default.SearchTracks($"artist:{artist.Name}");
+            tracks.AddRange(searchTrack);
+            tracks =  tracks.DistinctBy(o => o.Id).ToList();
             foreach (var track in tracks)
             {
                 try
@@ -178,14 +181,14 @@ public class BuildManager : IBuildManager
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e?.Message, nameof(GetRandomTracks));
+                    _logger.LogWarning(e?.Message, nameof(GetRandomTracksByAlbum));
                 }
             }
         }
         retVal.Shuffle();
         return retVal;
     }
-    private List<ArtistSimplified> GetRandomArtists(List<string> tags, YearRange years, int maxCountPerArtist)
+    private List<ArtistSimplified> GetRandomArtists(List<string> tags)
     {
         var matchedArtists = StorageService<Artists>.Service.GetObject().Items.Where(t => (t.Tags.Split(',').Any(tg => tg.ToLower().Contains(string.Join(' ', tags).ToLower())) || tags.First() == "*")).ToList();
         matchedArtists.Shuffle();

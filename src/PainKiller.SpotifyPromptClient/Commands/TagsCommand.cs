@@ -1,15 +1,16 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Concurrent;
 using PainKiller.CommandPrompt.CoreLib.Modules.StorageModule.Services;
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
 using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 using PainKiller.SpotifyPromptClient.Utils;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(
     description: "Spotify - Enrich your items with tags.",
-        options: ["repair","auto","filter"],
+        options: ["auto", "ai", "filter"],
     suggestions: ["artist", "album", "playlist", "track"],
-       examples: ["//Add a tag to artist","tags --artist","//Add a tag to album","tags --album","//Add a tag to playlist","tags --playlist","//Show only does who misses a tag","tags --filter-tag-missing"]
+       examples: ["//Add a tag to artist", "tags --artist", "//Add a tag to album", "tags --album", "//Add a tag to playlist", "tags --playlist", "//Show only does who misses a tag", "tags --filter-tag-missing"]
 )]
 public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
@@ -20,9 +21,9 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
     public override RunResult Run(ICommandLineInput input)
     {
         var mode = this.GetSuggestion(input.Arguments.FirstOrDefault(), "artist");
+        if (input.HasOption("ai")) return AiTagArtists();
         if (input.HasOption("auto") && mode == "track") return AutoTagTracks();
         if (input.HasOption("auto") && mode == "artist") return AutoTagArtists();
-        if (input.HasOption("repair") && mode == "artist") return RepairArtistTags();
 
         var filter = input.GetOptionValue("filter");
 
@@ -34,7 +35,7 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         var taggedAlbums = albums.Where(a => !string.IsNullOrEmpty(a.Tags)).ToList();
         var taggedPlaylists = playlists.Where(a => !string.IsNullOrEmpty(a.Tags)).ToList();
 
-        Writer.WriteDescription("Artists:",$"{taggedArtists.Count} of {artists.Count}");
+        Writer.WriteDescription("Artists:", $"{taggedArtists.Count} of {artists.Count}");
         Writer.WriteDescription("Albums:", $"{taggedAlbums.Count} of {albums.Count}");
         Writer.WriteDescription("Playlists:", $"{taggedPlaylists.Count} of {playlists.Count}");
 
@@ -51,37 +52,19 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         var artists = StorageService<Artists>.Service.GetObject().Items;
         var trackStorage = new ObjectStorage<Tracks, TrackObject>();
         var tracks = trackStorage.GetItems().ToList();
-
         foreach (var track in tracks)
         {
             if (track.Artists == null || track.Artists.Count == 0) continue;
             var trackArtist = track.Artists.FirstOrDefault();
-            if (trackArtist == null) 
+            if (trackArtist == null)
                 continue;
             var artist = artists.FirstOrDefault(a => a.Id == trackArtist.Id);
             if (artist == null || string.IsNullOrEmpty(artist.Tags)) continue;
-
-            var tags = RepairTag(artist.Tags);
-            track.Tags = string.Join(',', tags);
             trackStorage.Insert(track, t => t.Id == track.Id, saveToFile: false);
-
             Writer.WriteLine($"Auto tagged «{track.Name}» with [{track.Tags}]");
         }
         trackStorage.Save();
         Writer.WriteSuccessLine("Auto‑tagging of tracks done and updates persisted.");
-        return Ok();
-    }
-    private RunResult RepairArtistTags()
-    {
-        var simpleArtists = StorageService<Artists>.Service.GetObject().Items;
-        foreach (var artist in simpleArtists)
-        {
-            var repairedTags = RepairTag(artist.Tags);
-            artist.Tags = string.Join(',', repairedTags);
-            _artistStore.Insert(artist, a => a.Id == artist.Id, saveToFile: false);
-        }
-        _artistStore.Save();
-        Writer.WriteSuccessLine("Repairing of artist tags done and updates persisted.");
         return Ok();
     }
     private RunResult AutoTagArtists()
@@ -97,7 +80,7 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
             {
                 aiManager.ClearMessages();
             }
-            if (!string.IsNullOrEmpty(artist.Tags) && artist.Tags.Trim() !=  "Unknown")
+            if (!string.IsNullOrEmpty(artist.Tags) && artist.Tags.Trim() != "Unknown")
                 continue;
             try
             {
@@ -117,45 +100,37 @@ public class TagsCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
         Writer.WriteSuccessLine("Auto‑tagging of artists done and updates persisted.");
         return Ok();
     }
-    public List<string> RepairTag(string tag)
+    private RunResult AiTagArtists()
     {
-        if (string.IsNullOrWhiteSpace(tag)) 
-            return new();
-        var exceptions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "hiphop",
-            "rnb",
-            "hardrock"
-        };
-        var parts = tag
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(p => p.Trim())
-            .Where(p => p.Length > 0)
-            .ToList();
+        Writer.WriteHeadLine("This function is only for test, no artist are actually updated.");
+        var artistStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
+        var artists = artistStorage.GetItems();
 
-        var segments = new List<string>();
-        for (int i = 0; i < parts.Count; i++)
+        var aiMatch = new ConcurrentBag<ArtistSimplified>();
+
+        var config = Configuration.Core.Modules.Ollama;
+        var ai = new AIManager(config.BaseAddress, config.Port, config.Model);
+        var statement = DialogService.QuestionAnswerDialog("Input your AI statement, all artist matching your statement will be shown.\nQuery always begin with artist name, you input the rest, example:\nis a swedish artist or band\n:");
+
+        var writerLock = new object();
+        Parallel.ForEach(artists, artistSimplified =>
         {
-            var lower = parts[i].ToLowerInvariant();
-            if (i < parts.Count - 1)
+            var info = WikipediaService.Default.TryFetchWikipediaIntro(artistSimplified.Name);
+            var prediction = ai.GetPredictionToQuery($"{artistSimplified.Name} {statement}", info);
+            if (prediction)
             {
-                var nextLower = parts[i + 1].ToLowerInvariant();
-                var combo    = lower + nextLower;
-                if (exceptions.Contains(combo))
+                aiMatch.Add(artistSimplified);
+                lock (writerLock)
                 {
-                    segments.Add(combo);
-                    i++; // hoppa över nästa del
-                    continue;
+                    Writer.WriteLine($"Artist {artistSimplified.Name} match your statement");
                 }
             }
-            var splits = Regex.Split(parts[i], @"(?<=[a-z])(?=[A-Z])");
-            foreach (var s in splits)
-            {
-                var clean = s.Trim().ToLowerInvariant();
-                if (clean.Length > 0 && clean != "unknown")
-                    segments.Add(clean);
-            }
+        });
+        if (aiMatch.Count > 0)
+        {
+            artists.Clear();
+            artists.AddRange(aiMatch);
         }
-        return segments.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        return Ok();
     }
 }
