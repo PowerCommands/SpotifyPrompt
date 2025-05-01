@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
-
 namespace PainKiller.CommandPrompt.CoreLib.Core.BaseClasses;
 public abstract class ConsoleWriterBase
 {

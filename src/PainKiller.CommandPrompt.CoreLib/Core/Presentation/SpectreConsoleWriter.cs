@@ -1,8 +1,6 @@
 ﻿using Spectre.Console;
 using System.Runtime.CompilerServices;
 using PainKiller.CommandPrompt.CoreLib.Core.BaseClasses;
-
-
 namespace PainKiller.CommandPrompt.CoreLib.Core.Presentation;
 public class SpectreConsoleWriter : ConsoleWriterBase, IConsoleWriter
 {
