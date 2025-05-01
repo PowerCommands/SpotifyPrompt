@@ -57,7 +57,22 @@ public class SearchCommand(string identifier) : SelectedBaseCommand(identifier)
 
             case "album":
                 var albums = SearchService.Default.SearchAlbums(query, limit);
-                if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(albums);
+                if (AppendCommand.AppendMode && albums.Count > 1)
+                {
+                    var selectAlbums = ListService.ListDialog("Select one album", albums.Select(a => $"{a.Artists.First().Name} {a.Name}").ToList(), multiSelect: true);
+                    if (selectAlbums.Count > 0)
+                    {
+                        var chosenAlbums = new List<Album>();
+                        foreach (var selectAlbum in selectAlbums)
+                        {
+                            var album = albums[selectAlbum.Key];
+                            chosenAlbums.Add(album);
+                        }
+                        albums.Clear();
+                        albums.AddRange(chosenAlbums);
+                    }
+                    SelectedManager.Default.AppendToSelected(albums);
+                }
                 else SelectedManager.Default.UpdateSelected(albums);
                 ShowSelectedAlbums();
                 break;
