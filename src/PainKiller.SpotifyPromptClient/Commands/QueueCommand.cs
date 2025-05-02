@@ -18,7 +18,7 @@ public class QueueCommand(string identifier) : ConsoleCommandBase<CommandPromptC
             var selectedTracks = SelectedManager.Default.GetSelectedTracks();
             if (index < selectedTracks.Count)
             {
-                var selectedTrack = selectedTracks[index];
+                var selectedTrack = selectedTracks[index-1];
                 QueueService.Default.AddToQueue(selectedTrack.Uri);
                 Writer.WriteSuccessLine($"{selectedTrack.Name} added to queue");
                 return Ok();
