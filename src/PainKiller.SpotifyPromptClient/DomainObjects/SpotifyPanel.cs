@@ -13,7 +13,7 @@ namespace PainKiller.SpotifyPromptClient.DomainObjects
             Clear(margin);
             
             var text = content.GetText();
-            var lines = text.Split(new[] { '\n' }, StringSplitOptions.None);
+            var lines = text.Split(['\n'], StringSplitOptions.None);
 
             for (int i = 0; i < lines.Length && i < margin; i++)
             {

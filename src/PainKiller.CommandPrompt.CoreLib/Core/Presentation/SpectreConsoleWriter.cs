@@ -135,6 +135,13 @@ public class SpectreConsoleWriter : ConsoleWriterBase, IConsoleWriter
         AnsiConsole.Clear();
         EnforceMargin();
     }
+    public void WriteSeparator(string separator = "-")
+    {
+        var width = Console.WindowWidth;
+        if (string.IsNullOrEmpty(separator)) separator = "-";
+        var repeated = new string(separator[0], width);
+        Console.WriteLine(repeated);
+    }
     public void WriteTable<T>(IEnumerable<T> items, string[]? columnNames = null, Color? consoleColor = null, Color? borderColor = null, bool expand = true)
     {
         EnforceMargin();
