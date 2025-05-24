@@ -83,7 +83,7 @@ public static class Startup
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         if(!config.ShowLogo) return;
-        ConsoleService.WriteCenteredText($" Version {config.Version} ", $"{config.Name}", margin);
+        ConsoleService.WriteCenteredText($" Version {config.Version} ", $"{config.Name}", margin, config.LogoColor);
         Console.WriteLine();
 
     }

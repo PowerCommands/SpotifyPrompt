@@ -16,11 +16,12 @@ configuration:
       - playlist-modify-public
       - playlist-modify-private    
   core:
-    name: SpotifyPrompt
+    name: Spotify Prompt
     version: 1.0
     prompt: cp>
     defaultCommand: search
     showLogo: true
+    logoColor: LightGreen
     suggestions: 
     - exit
     roamingDirectory: SpotifyPrompt

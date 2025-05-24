@@ -7,6 +7,7 @@ public class CoreConfiguration
     public string Prompt { get; set; } = "pcm>";
     public string DefaultCommand { get; set; } = "";
     public bool ShowLogo { get; set; } = true;
+    public string LogoColor { get; set; } = "DarkMagenta";
     public List<string> Suggestions { get; set; } = [];
 
     public string RoamingDirectory
