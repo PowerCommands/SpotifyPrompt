@@ -54,17 +54,8 @@ public static class FormatExtensions
     public static long GetDirectorySize(this DirectoryInfo dir)
     {
         if (!dir.Exists) return 0;
-
-        long size = 0;
-
-        // Summerar filstorlekar
-        FileInfo[] files = dir.GetFiles("*", SearchOption.AllDirectories);
-        foreach (var file in files)
-        {
-            size += file.Length;
-        }
-
-        return size;
+        var files = dir.GetFiles("*", SearchOption.AllDirectories);
+        return files.Sum(file => file.Length);
     }
     public static string GetDisplayTimeSinceLastUpdate(this DateTime lastUpdated)
     {
@@ -76,7 +67,7 @@ public static class FormatExtensions
         if (timeDifference.TotalDays < 30) return $"{(int)timeDifference.TotalDays} days ago";
         if (timeDifference.TotalDays < 365)
         {
-            int months = (int)(timeDifference.TotalDays / 30);
+            var months = (int)(timeDifference.TotalDays / 30);
             return $"{months} months ago";
         }
         var years = (int)(timeDifference.TotalDays / 365);
@@ -197,7 +188,6 @@ public static class FormatExtensions
         var extension = fileInfo.Extension.ToLowerInvariant();
         return FileTypeDescriptions.GetValueOrDefault(extension, "Unknown file type");
     }
-
     private static readonly Dictionary<string, string> PlainTextFileContent = new()
         {
             // Text files
@@ -235,12 +225,10 @@ public static class FormatExtensions
         if (path.Length <= maxLength)
             return path;
 
-        string ellipsis = "...";
-
-        // Behåll de första och sista delarna av sökvägen
-        int keepLength = (maxLength - ellipsis.Length) / 2;
-        string start = path.Substring(0, keepLength);
-        string end = path.Substring(path.Length - keepLength);
+        var ellipsis = "...";
+        var keepLength = (maxLength - ellipsis.Length) / 2;
+        var start = path.Substring(0, keepLength);
+        var end = path.Substring(path.Length - keepLength);
 
         return $"{start}{ellipsis}{end}";
     }

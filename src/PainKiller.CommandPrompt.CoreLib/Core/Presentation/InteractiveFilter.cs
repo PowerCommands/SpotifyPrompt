@@ -1,13 +1,14 @@
 ﻿using Spectre.Console;
-
 namespace PainKiller.CommandPrompt.CoreLib.Core.Presentation;
 public static class InteractiveFilter<T>
 {
-    public static void Run(IEnumerable<T> items, Func<T, string, bool> filter, Action<IEnumerable<T>, int> display, Action<T>? onSelected = null)
+    public static void Run(IEnumerable<T> items, Func<T, string, bool> filter, Action<IEnumerable<T>, int> display, Action<T>? onSelected = null, string initialFilter = "")
     {
         var list = items.ToList();
-        var filtered = list;
-        var filterString = "";
+        var filterString = initialFilter;
+        var filtered = string.IsNullOrWhiteSpace(filterString)
+            ? list
+            : list.Where(e => filter(e, filterString)).ToList();
         var selectedIndex = 0;
 
         while (true)
@@ -16,7 +17,8 @@ public static class InteractiveFilter<T>
             AnsiConsole.MarkupLine("[grey]Use [italic]Up/Down Arrows[/] to navigate, [italic]Enter[/] to select, [italic]Escape[/] to exit, [italic]Backspace[/] to delete filter, [italic]Any character[/] to filter.[/]");
             display(filtered, selectedIndex);
 
-            if (!string.IsNullOrWhiteSpace(filterString)) AnsiConsole.MarkupLine($"\n[grey]Filter:[/] [italic]{Markup.Escape(filterString)}[/]");
+            if (!string.IsNullOrWhiteSpace(filterString))
+                AnsiConsole.MarkupLine($"\n[grey]Filter:[/] [italic]{Markup.Escape(filterString)}[/]");
 
             var key = Console.ReadKey(intercept: true);
             switch (key.Key)

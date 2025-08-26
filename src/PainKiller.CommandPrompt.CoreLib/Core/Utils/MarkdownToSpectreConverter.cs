@@ -42,7 +42,7 @@ public static class MarkdownToSpectreConverter
 
     private static string ConvertInline(string line)
     {
-        line = Markup.Escape(line); // För att undvika oönskade markup-problem
+        line = Markup.Escape(line);
         line = Regex.Replace(line, @"\*\*(.+?)\*\*", "[bold]$1[/]");
         line = Regex.Replace(line, @"\*(.+?)\*", "[italic]$1[/]");
         line = Regex.Replace(line, @"`(.+?)`", "[grey]$1[/]");

@@ -4,15 +4,17 @@ using PainKiller.SpotifyPromptClient.Managers;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
 [CommandDesign(     description: "Spotify - Show album tracks, selected albums will be added to the current selection that could be used to build playlists.\nEnable append mode with append command to append albums to the current selection.", 
+                        options: ["year"],
                       arguments: ["filter"],
                        examples: ["//Show album and their tracks","album"])]
 public class AlbumCommand(string identifier) : SelectedBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
+        input.TryGetOption(out int year, 1955);
         var filter = string.Join(' ', input.Arguments);
         var albumsStorage = new SpotifyObjectStorage<Albums, Album>();
-        var albums = albumsStorage.GetItems();
+        var albums = albumsStorage.GetItems().Where(a => a.ReleaseYear == year || year == 1955).ToList();
         var selectedAlbums = ListService.ShowSelectFromFilteredList("Select a album!", albums,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer, filter);
         
         if (selectedAlbums.Count == 0) return Ok();
