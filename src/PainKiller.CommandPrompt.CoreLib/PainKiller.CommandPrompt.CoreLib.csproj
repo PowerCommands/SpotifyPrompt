@@ -6,6 +6,11 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Modules\InfoPanelModule\DomainObjects\**" />
+	  <EmbeddedResource Remove="Modules\InfoPanelModule\DomainObjects\**" />
+	  <None Remove="Modules\InfoPanelModule\DomainObjects\**" />
+	</ItemGroup>
+	<ItemGroup>
 
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
 		<PackageReference Include="Serilog" Version="4.2.0" />
@@ -20,8 +25,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\PainKiller.ReadLine\PainKiller.ReadLine.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Modules\InfoPanelModule\DomainObjects\" />
 	</ItemGroup>
 </Project>

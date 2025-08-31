@@ -41,7 +41,7 @@ configuration:
       ollama:
         baseAddress: localhost
         port: 11434
-        model: gemma3:latest
+        model: gemma3:27b
   log:
     fileName: commandprompt.log
     filePath: logs

@@ -31,11 +31,26 @@ public class ChatCommand(string identifier) : ConsoleCommandBase<ApplicationConf
             if (userInput.Trim().Equals("/bye", StringComparison.OrdinalIgnoreCase)) break;
 
             service.AddMessage(new ChatMessage("user", userInput));
-            var response = service.SendChatToOllama().GetAwaiter().GetResult();
 
-            Writer.WriteLine(response);
-            service.AddMessage(new ChatMessage("assistant", response));
+            var baseColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+
+            var cts = new CancellationTokenSource();
+            Console.CancelKeyPress += (s, e) =>
+            {
+                e.Cancel = true;
+                cts.Cancel();
+            };
+            
+            var fullReply = service.SendChatToOllamaStreamAsync(onChunk: chunk => Console.Write(chunk), numCtx: 32768, cancellationToken: cts.Token).GetAwaiter().GetResult();
+
+            Console.ForegroundColor = baseColor;
+            Console.WriteLine();
+
+            service.AddMessage(new ChatMessage("assistant", fullReply));
         }
+
+
         return Ok();
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
 using PainKiller.CommandPrompt.CoreLib.Modules.OllamaModule.Contracts;
 using PainKiller.CommandPrompt.CoreLib.Modules.ShellModule.Services;
+using System.Text.Json.Serialization;
 
 namespace PainKiller.CommandPrompt.CoreLib.Modules.OllamaModule.Services;
 public class OllamaService : IOllamaService
@@ -93,6 +94,82 @@ public class OllamaService : IOllamaService
 
         return "Unexpected respond from Ollama-server.";
     }
+
+    public async Task<string> SendChatToOllamaStreamAsync(Action<string>? onChunk, int? numCtx = null, CancellationToken cancellationToken = default)
+    {
+        var ollamaBaseAddress = $"http://{_baseAddress}:{_port}";
+        using var httpClient = new HttpClient { BaseAddress = new Uri(ollamaBaseAddress) };
+
+        var payload = new Dictionary<string, object?>
+        {
+            ["model"] = _model,
+            ["messages"] = _messages,   // your running chat history
+            ["stream"] = true
+        };
+        if (numCtx.HasValue) payload["num_ctx"] = numCtx.Value;
+
+        var jsonOptions = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
+
+        var jsonPayload = JsonSerializer.Serialize(payload, jsonOptions);
+        using var req = new HttpRequestMessage(HttpMethod.Post, "/api/chat")
+        {
+            Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json")
+        };
+
+        using var response = await httpClient.SendAsync(
+            req, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError($"Error from ollama server: {response.StatusCode} {body}");
+            return $"Error from ollama server: {response.StatusCode}";
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: false);
+
+        var sb = new StringBuilder();
+
+        while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
+        {
+            var line = await reader.ReadLineAsync();
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            using var doc = JsonDocument.Parse(line);
+            var root = doc.RootElement;
+
+            // Optional error field
+            if (root.TryGetProperty("error", out var errEl))
+            {
+                var errMsg = errEl.GetString() ?? "Unknown error";
+                _logger.LogError($"Ollama stream error: {errMsg}");
+                break;
+            }
+
+            // Incremental content
+            if (root.TryGetProperty("message", out var msgObj) &&
+                msgObj.TryGetProperty("content", out var contentEl))
+            {
+                var chunk = contentEl.GetString() ?? string.Empty;
+                if (chunk.Length > 0)
+                {
+                    sb.Append(chunk);
+                    onChunk?.Invoke(chunk);
+                }
+            }
+
+            // End of stream flag
+            if (root.TryGetProperty("done", out var doneEl) && doneEl.GetBoolean())
+                break;
+        }
+
+        return sb.ToString();
+    }
+
     public void AddMessage(ChatMessage message) => _messages.Add(message);
     public void ClearChatMessages()
     {
