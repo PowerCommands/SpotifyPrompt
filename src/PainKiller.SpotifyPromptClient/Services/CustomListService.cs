@@ -1,5 +1,6 @@
 ﻿using PainKiller.CommandPrompt.CoreLib.Core.Enums;
 using PainKiller.SpotifyPromptClient.Enums;
+using PainKiller.SpotifyPromptClient.Managers;
 
 namespace PainKiller.SpotifyPromptClient.Services;
 public static class CustomListService
@@ -81,7 +82,6 @@ public static class CustomListService
             }
         }
     }
-
     public static void ShowSelectedTracks(List<TrackObject> tracks, IConsoleWriter writer)
     {
         if (tracks.Count == 0)
@@ -103,8 +103,8 @@ public static class CustomListService
             var user = UserService.Default.GetCurrentUser();
             var playListName = DialogService.QuestionAnswerDialog("Name your new playlist");
             var description = DialogService.QuestionAnswerDialog("Describe your new playlist");
-            var playlistId = PlaylistModifyManager.Default.CreatePlaylist(user.Id, playListName, $"{description}\nPlaylist created with SpotifyPrompt");
-            PlaylistModifyManager.Default.AddTracksToPlaylist(playlistId, selectedTracks.Select(t => t.Uri));
+
+            PlaylistManager.Default.CreatePlaylist(playListName, $"{description} Playlist created with SpotifyPrompt", selectedTracks, [user.DisplayName], isPublic: true);
         }
     }
 }
