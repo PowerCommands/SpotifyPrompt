@@ -16,7 +16,7 @@ public class UserService : SpotifyClientBase, IUserService
         var token = GetAccessToken();
         using var req = new HttpRequestMessage(HttpMethod.Get, "https://api.spotify.com/v1/me");
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        var resp = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
         var json = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
@@ -28,7 +28,7 @@ public class UserService : SpotifyClientBase, IUserService
         var url = $"https://api.spotify.com/v1/me/top/tracks?limit={limit}&time_range={timeRange}";
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        var resp = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
 
@@ -73,7 +73,7 @@ public class UserService : SpotifyClientBase, IUserService
         var url = $"https://api.spotify.com/v1/me/top/artists?limit={limit}&time_range={timeRange}";
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        var resp = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
 

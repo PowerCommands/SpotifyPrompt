@@ -35,12 +35,6 @@ public static class Startup
         ShowLogo(config.Core, margin: config.Core.Modules.InfoPanel.Height);
         InfoPanelService.Instance.RegisterContent(new SpotifyPanel(new SpotifyInfoPanelContent(config.Spotify.RefreshMarginInMinutes, config.Spotify.LatestTracksCount)));
 
-        EventBusService.Service.Subscribe<AfterCommandExecutionEvent>(eventData =>
-        {
-            InfoPanelService.Instance.Update();
-            Console.Title = config.Core.Name;
-        });
-
         Console.WriteLine();
         Console.WriteLine();
 

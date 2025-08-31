@@ -21,7 +21,7 @@ public class PlayerService : SpotifyClientBase, IPlayerService
             request.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
         }
 
-        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        var response = Http.SendAsync(request).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
     }
@@ -52,7 +52,7 @@ public class PlayerService : SpotifyClientBase, IPlayerService
         using var request = new HttpRequestMessage(HttpMethod.Put, url);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        var response = Http.SendAsync(request).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
     }
@@ -66,7 +66,7 @@ public class PlayerService : SpotifyClientBase, IPlayerService
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        var response = Http.SendAsync(request).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
 

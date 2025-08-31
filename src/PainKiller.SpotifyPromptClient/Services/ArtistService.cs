@@ -21,7 +21,7 @@ public class ArtistService : SpotifyClientBase, IArtistService
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        var resp = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
 
@@ -46,7 +46,7 @@ public class ArtistService : SpotifyClientBase, IArtistService
             {
                 using var req = new HttpRequestMessage(HttpMethod.Get, url);
                 req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                resp = _http.SendAsync(req).GetAwaiter().GetResult();
+                resp = Http.SendAsync(req).GetAwaiter().GetResult();
                 if (resp.StatusCode == (HttpStatusCode)429)
                 {
                     var wait = resp.Headers.RetryAfter?.Delta?.Seconds ?? 1;
@@ -84,7 +84,7 @@ public class ArtistService : SpotifyClientBase, IArtistService
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        var resp = Http.SendAsync(req).GetAwaiter().GetResult();
         resp.EnsureSuccessStatusCode();
 
         using var doc = JsonDocument.Parse(resp.Content.ReadAsStringAsync().GetAwaiter().GetResult());

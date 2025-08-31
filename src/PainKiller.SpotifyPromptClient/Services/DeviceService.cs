@@ -18,7 +18,7 @@ public sealed class DeviceService : SpotifyClientBase, IDeviceService
         var req = new HttpRequestMessage(HttpMethod.Get, "https://api.spotify.com/v1/me/player/devices");
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var res = _http.SendAsync(req).GetAwaiter().GetResult();
+        var res = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {res.StatusCode}");
         res.EnsureSuccessStatusCode();
 
@@ -39,7 +39,7 @@ public sealed class DeviceService : SpotifyClientBase, IDeviceService
         var req = new HttpRequestMessage(HttpMethod.Put, uri) { Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json") };
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var res = _http.SendAsync(req).GetAwaiter().GetResult();
+        var res = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {res.StatusCode}");
         res.EnsureSuccessStatusCode();
     }
@@ -48,7 +48,7 @@ public sealed class DeviceService : SpotifyClientBase, IDeviceService
         var accessToken = GetAccessToken();
         var request = new HttpRequestMessage(HttpMethod.Get, "https://api.spotify.com/v1/me/player/devices");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        var response = Http.SendAsync(request).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
 
@@ -75,7 +75,7 @@ public sealed class DeviceService : SpotifyClientBase, IDeviceService
         using var request = new HttpRequestMessage(HttpMethod.Put, url);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        var response = Http.SendAsync(request).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
     }

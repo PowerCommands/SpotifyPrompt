@@ -5,7 +5,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                        examples: ["//Change append mode, turn off if on and vice versa","append"])]
 public class AppendCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
-    public static bool AppendMode = true;
+    public static bool AppendMode;
     public override RunResult Run(ICommandLineInput input)
     {
         var toggle = this.GetSuggestion(input.Arguments.FirstOrDefault(), "");

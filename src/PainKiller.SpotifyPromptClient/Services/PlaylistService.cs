@@ -24,7 +24,7 @@ public class PlaylistService : SpotifyClientBase, IPlaylistService
             var request = new HttpRequestMessage(HttpMethod.Get, nextUrl);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-            var response = _http.SendAsync(request).GetAwaiter().GetResult();
+            var response = Http.SendAsync(request).GetAwaiter().GetResult();
             _logger.LogInformation($"Response: {response.StatusCode}");
             response.EnsureSuccessStatusCode();
 
@@ -61,7 +61,7 @@ public class PlaylistService : SpotifyClientBase, IPlaylistService
         var request = new HttpRequestMessage(HttpMethod.Put, uri) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        var response = Http.SendAsync(request).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
     }
@@ -75,7 +75,7 @@ public class PlaylistService : SpotifyClientBase, IPlaylistService
         {
             var request = new HttpRequestMessage(HttpMethod.Get, nextUrl);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = _http.SendAsync(request).GetAwaiter().GetResult();
+            var response = Http.SendAsync(request).GetAwaiter().GetResult();
             _logger.LogInformation($"Response: {response.StatusCode}");
             response.EnsureSuccessStatusCode();
 

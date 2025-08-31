@@ -14,14 +14,14 @@ public class AlbumCommand(string identifier) : SelectedBaseCommand(identifier)
         input.TryGetOption(out int year, 1955);
         var filter = string.Join(' ', input.Arguments);
         var albumsStorage = new SpotifyObjectStorage<Albums, Album>();
-        var albums = albumsStorage.GetItems().Where(a => a.ReleaseYear == year || year == 1955).ToList();
-        var selectedAlbums = ListService.ShowSelectFromFilteredList("Select a album!", albums,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer, filter);
+        var albums = albumsStorage.GetItems().Where(a => (a.ReleaseYear == year || year == 1955) && a.Name.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+        var selectedAlbums = ListService.ShowSelectFromFilteredList("Select a album!", albums,(info, s) => info.Name.Contains(s,StringComparison.OrdinalIgnoreCase), Presentation, Writer, "");
         
         if (selectedAlbums.Count == 0) return Ok();
 
         if (AppendCommand.AppendMode && selectedAlbums.Count > 1)
         {
-            var selectOneAlbum = ListService.ListDialog("Select one album", selectedAlbums.Select(a => $"{a.Artists} {a.Name}").ToList());
+            var selectOneAlbum = ListService.ListDialog("Select one album", selectedAlbums.Select(a => $"{a.Artists.FirstOrDefault()?.Name} {a.Name}").ToList());
             if (selectOneAlbum.Count > 0)
             {
                 var album = selectedAlbums[selectOneAlbum.First().Key];

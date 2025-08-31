@@ -19,7 +19,7 @@ public class TrackService : SpotifyClientBase, ITrackService
         var nowPlayingReq = new HttpRequestMessage(HttpMethod.Get, "https://api.spotify.com/v1/me/player/currently-playing");
         nowPlayingReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var nowPlayingResp = _http.SendAsync(nowPlayingReq).GetAwaiter().GetResult();
+        var nowPlayingResp = Http.SendAsync(nowPlayingReq).GetAwaiter().GetResult();
         _logger.LogInformation($"GetCurrentlyPlaying: {nowPlayingResp.StatusCode}");
         if (nowPlayingResp.StatusCode == HttpStatusCode.NoContent)
             return null;
@@ -47,7 +47,7 @@ public class TrackService : SpotifyClientBase, ITrackService
         var trackReq = new HttpRequestMessage(HttpMethod.Get, $"https://api.spotify.com/v1/tracks/{trackId}");
         trackReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var trackResp = _http.SendAsync(trackReq).GetAwaiter().GetResult();
+        var trackResp = Http.SendAsync(trackReq).GetAwaiter().GetResult();
         trackResp.EnsureSuccessStatusCode();
         using var trackJson = JsonDocument.Parse(trackResp.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
@@ -85,7 +85,7 @@ public class TrackService : SpotifyClientBase, ITrackService
         var accessToken = GetAccessToken();
         var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.spotify.com/v1/albums/{albumId}/tracks");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var response = _http.SendAsync(request).GetAwaiter().GetResult();
+        var response = Http.SendAsync(request).GetAwaiter().GetResult();
         _logger.LogInformation($"GetAlbumTracks: {response.StatusCode} för album {albumId}");
         response.EnsureSuccessStatusCode();
 

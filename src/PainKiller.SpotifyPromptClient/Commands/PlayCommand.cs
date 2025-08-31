@@ -1,3 +1,4 @@
+using PainKiller.CommandPrompt.CoreLib.Modules.InfoPanelModule.Services;
 using PainKiller.CommandPrompt.CoreLib.Modules.ShellModule.Services;
 using PainKiller.SpotifyPromptClient.Managers;
 using PainKiller.SpotifyPromptClient.Services;
@@ -17,24 +18,27 @@ public class PlayCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
     public override RunResult Run(ICommandLineInput input)
     {
         IPlayerService playerManager = new PlayerService();
-        var index = input.Arguments.Length > 0 ? int.Parse(input.Arguments[0]) : -1;
+        var index = input.Arguments.Length > 0 ? int.Parse(input.Arguments[0]) : int.Parse(input.Raw);
         var selectedTracks = SelectedManager.Default.GetSelectedTracks();
         if (input.HasOption("all") && selectedTracks.Count > 0)
         {
             playerManager.Play(selectedTracks.Select(t => t.Uri));
-            return Ok();
         }
         if (index < 1)
         {
             playerManager.Play();
-            return Ok();
+            
         }
-        if (index < selectedTracks.Count)
+        if (index <= selectedTracks.Count)
         {
             playerManager.Play(selectedTracks[index-1].Uri);
-            return Ok();
+            
         }
-        playerManager.Play();
+        else
+        {
+            playerManager.Play();
+        }
+        InfoPanelService.Instance.Update();
         return Ok();
     }
 }

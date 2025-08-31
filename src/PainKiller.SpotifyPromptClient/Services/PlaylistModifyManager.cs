@@ -28,7 +28,7 @@ public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
         req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        var resp = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
 
@@ -44,7 +44,7 @@ public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
         using var req = new HttpRequestMessage(HttpMethod.Delete, url);
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        var resp = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
     }
@@ -63,7 +63,7 @@ public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
         req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        var resp = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
     }
@@ -79,7 +79,7 @@ public class PlaylistModifyManager : SpotifyClientBase, IPlaylistModifyManager
         req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var resp = _http.SendAsync(req).GetAwaiter().GetResult();
+        var resp = Http.SendAsync(req).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {resp.StatusCode}");
         resp.EnsureSuccessStatusCode();
     }
