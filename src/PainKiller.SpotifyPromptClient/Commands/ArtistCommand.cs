@@ -1,5 +1,5 @@
 using PainKiller.SpotifyPromptClient.DomainObjects.Data;
-using PainKiller.SpotifyPromptClient.Managers;
+using PainKiller.SpotifyPromptClient.Services;
 
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -11,40 +11,23 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
+        input.TryGetOption(out int year, 1955);
         var filter = string.Join(' ', input.Arguments);
-        var artistStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
-        var artists = artistStorage.GetItems();
+        var albumsStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
+        var albums = albumsStorage.GetItems().Where(a => a.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+        var selectedArtists = CustomListService.ShowSelectFromList("Select artist(s)!", albums, Writer, true, (info, s) => info.Name.Contains(s, StringComparison.OrdinalIgnoreCase));
         
-        var tags = input.GetOptionValue("tags");
-        var selectedArtists = ListService.ShowSelectFromFilteredList("Select a artist!", artists,(info, s) => (info.Name.Contains(s,StringComparison.OrdinalIgnoreCase) && info.Tags.Contains(tags, StringComparison.OrdinalIgnoreCase)), Presentation, Writer, filter);
         if (selectedArtists.Count == 0) return Ok();
-        if (AppendCommand.AppendMode && selectedArtists.Count > 1)
-        {
-            var selectOneArtist = ListService.ListDialog("Select one artist", selectedArtists.Select(a => a.Name).ToList());
-            if (selectOneArtist.Count > 0)
-            {
-                var artist = selectedArtists[selectOneArtist.First().Key];
-                selectedArtists.Clear();
-                selectedArtists.Add(artist);
-            }
-        }
-        if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(selectedArtists);
-        else SelectedManager.Default.UpdateSelected(selectedArtists);
         
-        ShowSelectedArtists();
-        if(AppendCommand.AppendMode) return Ok();
-
         var tracksStorage = new ObjectStorage<Tracks, TrackObject>();
         var tracks = new List<TrackObject>();
-        foreach (var artist in selectedArtists.Take(10))
+        foreach (var artist in selectedArtists)
         {
-            var artistTracks = tracksStorage.GetItems().Where(t => t.Artists.Any(a => a.Name.Contains(artist.Name))).ToList() ?? [];
+            var artistTracks = tracksStorage.GetItems().Where(t => t.Artists.Any(art => art.Name.Contains(artist.Name))).ToList() ?? [];
             if (artistTracks.Count == 0) continue;
             tracks.AddRange(artistTracks);
         }
-        SelectedManager.Default.UpdateSelected(tracks);
-        ShowSelectedTracks();
+        CustomListService.ShowSelectedTracks(tracks, Writer);
         return Ok();
     }
-    private void Presentation(List<ArtistSimplified> items) => Writer.WriteTable(items);
 }
