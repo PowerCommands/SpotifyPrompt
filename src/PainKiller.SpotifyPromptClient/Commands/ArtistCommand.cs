@@ -11,7 +11,6 @@ public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
-        input.TryGetOption(out int year, 1955);
         var filter = string.Join(' ', input.Arguments);
         var albumsStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
         var albums = albumsStorage.GetItems().Where(a => a.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
