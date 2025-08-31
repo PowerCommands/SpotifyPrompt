@@ -2,8 +2,6 @@
 
 public enum SelectedTracksAction
 {
-    View,
     Queue,
-    Playlist,
-    Tag
+    Playlist
 }

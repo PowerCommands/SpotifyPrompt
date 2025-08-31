@@ -22,4 +22,10 @@ public class Album : IContainsTags
             return 0;
         }
     }
+    public override string ToString()
+    {
+        var artist = Artists?.FirstOrDefault()?.Name ?? "Unknown Artist";
+        var tagsText = string.IsNullOrWhiteSpace(Tags) ? "" : $" [{Tags}]";
+        return $"{artist} - {Name} ({ReleaseDate}){tagsText} ({TotalTracks} tracks)";
+    }
 }

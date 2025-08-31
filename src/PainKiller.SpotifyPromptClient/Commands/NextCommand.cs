@@ -1,3 +1,4 @@
+using PainKiller.CommandPrompt.CoreLib.Modules.InfoPanelModule.Services;
 using PainKiller.SpotifyPromptClient.Services;
 namespace PainKiller.SpotifyPromptClient.Commands;
 
@@ -9,6 +10,7 @@ public class NextCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
     {
         var playerManager = new PlayerService();
         playerManager.Next();
+        InfoPanelService.Instance.Update();
         return Ok();
     }
 }

@@ -14,7 +14,7 @@ public class TrackObject : IContainsTags
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public List<ArtistSimplified> Artists { get; set; } = [];
-    public Album Album { get; set; } = new Album();
+    public Album Album { get; set; } = new();
     public int DurationMs { get; set; }
     public string Uri { get; set; } = string.Empty;
     public string Tags { get; set; } = string.Empty;
@@ -30,5 +30,10 @@ public class TrackObject : IContainsTags
             }
             return 0;
         }
+    }
+    public override string ToString()
+    {
+        var artist = Artists?.FirstOrDefault()?.Name ?? "Unknown Artist";
+        return $"{artist} - {Name} ({ReleaseYear})";
     }
 }
