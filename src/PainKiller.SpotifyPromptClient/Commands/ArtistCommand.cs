@@ -7,14 +7,14 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                       arguments: ["filter"],
                         options: ["tags"],
                        examples: ["//Show your artists and their tracks","artist"])]
-public class ArtistCommand(string identifier) : SelectedBaseCommand(identifier)
+public class ArtistCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
         var filter = string.Join(' ', input.Arguments);
-        var albumsStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
-        var albums = albumsStorage.GetItems().Where(a => a.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
-        var selectedArtists = CustomListService.ShowSelectFromList("Select artist(s)!", albums, Writer, true, (info, s) => info.Name.Contains(s, StringComparison.OrdinalIgnoreCase));
+        var artistStorage = new SpotifyObjectStorage<Artists, ArtistSimplified>();
+        var artists = artistStorage.GetItems().Where(a => a.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+        var selectedArtists = CustomListService.ShowSelectFromList("Select artist(s)!", artists, Writer, true, (info, s) => info.Name.Contains(s, StringComparison.OrdinalIgnoreCase));
         
         if (selectedArtists.Count == 0) return Ok();
         

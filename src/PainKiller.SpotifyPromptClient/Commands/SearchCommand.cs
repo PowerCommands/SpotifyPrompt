@@ -7,7 +7,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                         options: ["years", "genre", "artist", "limit", "tag:hipster", "tag:new", "upc", "isrc"],
                     suggestions: ["playlist", "track", "artist", "album"],
                        examples: ["//Search tracks", "search tracks \"Balls to the wall\""])]
-public class SearchCommand(string identifier) : SelectedBaseCommand(identifier)
+public class SearchCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
@@ -52,36 +52,34 @@ public class SearchCommand(string identifier) : SelectedBaseCommand(identifier)
                 var tracks = SearchService.Default.SearchTracks(query, limit);
                 if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(tracks);
                 else SelectedManager.Default.UpdateSelected(tracks);
-                ShowSelectedTracks();
+                CustomListService.ShowSelectedTracks(tracks, Writer);
                 break;
 
             case "album":
                 var albums = SearchService.Default.SearchAlbums(query, limit);
-                if (AppendCommand.AppendMode && albums.Count > 1)
+                if (albums.Count > 1)
                 {
-                    var selectAlbums = ListService.ListDialog("Select one album", albums.Select(a => $"{a.Artists.First().Name} {a.Name}").ToList(), multiSelect: true);
-                    if (selectAlbums.Count > 0)
+                    var selectedAlbums = CustomListService.ShowSelectFromList("Select a album!", albums, Writer, true, (info, s) => info.Name.Contains(s, StringComparison.OrdinalIgnoreCase));
+                    var albumTracks = new List<TrackObject>();
+                    foreach (var albumTrack in selectedAlbums.Select(album => TrackService.Default.GetAlbumTracks(album.Id)).Where(artistTracks => artistTracks.Count != 0))
                     {
-                        var chosenAlbums = new List<Album>();
-                        foreach (var selectAlbum in selectAlbums)
-                        {
-                            var album = albums[selectAlbum.Key];
-                            chosenAlbums.Add(album);
-                        }
-                        albums.Clear();
-                        albums.AddRange(chosenAlbums);
+                        albumTracks.AddRange(albumTrack);
                     }
-                    SelectedManager.Default.AppendToSelected(albums);
+                    CustomListService.ShowSelectedTracks(albumTracks, Writer);
                 }
-                else SelectedManager.Default.UpdateSelected(albums);
-                ShowSelectedAlbums();
                 break;
 
             case "artist":
                 var artists = SearchService.Default.SearchArtists(query, limit);
-                if(AppendCommand.AppendMode) SelectedManager.Default.AppendToSelected(artists);
-                else SelectedManager.Default.UpdateSelected(artists);
-                ShowSelectedArtists();
+                var selectedArtists = CustomListService.ShowSelectFromList("Select artist(s)!", artists, Writer, true, (info, s) => info.Name.Contains(s, StringComparison.OrdinalIgnoreCase));
+                var artistTracks = new List<TrackObject>();
+                foreach (var art in selectedArtists)
+                {
+                    var tracksByArtist = ArtistService.Default.GetTopTracks(art.Id);
+                    if (tracksByArtist.Count == 0) continue;
+                    artistTracks.AddRange(tracksByArtist);
+                }
+                CustomListService.ShowSelectedTracks(artistTracks, Writer);
                 break;
 
             case "playlist":
@@ -100,7 +98,6 @@ public class SearchCommand(string identifier) : SelectedBaseCommand(identifier)
                 Writer.WriteLine($"Unknown search type: {searchType}");
                 break;
         }
-
         return Ok();
     }
 }

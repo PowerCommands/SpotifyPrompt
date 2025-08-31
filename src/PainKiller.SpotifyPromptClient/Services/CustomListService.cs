@@ -89,8 +89,8 @@ public static class CustomListService
             writer.WriteLine("No tracks selected.");
             return;
         }
-
         var selectedTracks = ShowSelectFromList("Select your tracks", tracks, writer);
+        if (selectedTracks.Count == 0) return;
 
         var action = ToolbarService.NavigateToolbar<SelectedTracksAction>();
         if (action == SelectedTracksAction.Queue)

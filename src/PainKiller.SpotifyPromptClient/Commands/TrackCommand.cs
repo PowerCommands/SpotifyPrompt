@@ -7,7 +7,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                         options: ["tags"],
                       arguments: ["filter"],
                        examples: ["//Show tracks","track"])]
-public class TrackCommand(string identifier) : SelectedBaseCommand(identifier)
+public class TrackCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
