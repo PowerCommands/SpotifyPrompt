@@ -15,7 +15,19 @@ public class PlayCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
     public override RunResult Run(ICommandLineInput input)
     {
         IPlayerService playerManager = new PlayerService();
-        playerManager.Play();
+        try
+        {
+            playerManager.Play();
+        }
+        catch (Exception ex)
+        {
+            Writer.WriteLine("Trying to start Spotify...");
+            ShellService.Default.Execute("spotify");
+            Thread.Sleep(3000);
+            playerManager.Play();
+            return Ok(ex.Message);
+        }
+
         InfoPanelService.Instance.Update();
         return Ok();
     }
