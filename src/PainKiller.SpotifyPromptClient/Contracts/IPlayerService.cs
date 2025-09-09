@@ -26,4 +26,5 @@ public interface IPlayerService
     /// <param name="deviceId">Optional device ID. If provided, returns the shuffle state for that device.</param>
     /// <returns>True if shuffle is on, false if off.</returns>
     bool GetShuffleState(string? deviceId = null);
+    TrackObject? GetCurrentTrack();
 }

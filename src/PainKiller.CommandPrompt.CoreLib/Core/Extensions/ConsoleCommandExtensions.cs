@@ -119,5 +119,5 @@ public static class ConsoleCommandExtensions
         var retVal = Path.GetFullPath(path);
         return retVal.GetReplacedPlaceHolderPath();
     }
-    public static string GetRawStringWithIdentifierRemoved(this ICommandLineInput input) => input.Raw.Substring(input.Identifier.Length).TrimStart();
+    public static string GetSearchString(this ICommandLineInput input) => input.Raw.Trim().StartsWith(input.Identifier) ? input.Raw.Substring(input.Identifier.Length).TrimStart() : input.Raw.Trim();
 }

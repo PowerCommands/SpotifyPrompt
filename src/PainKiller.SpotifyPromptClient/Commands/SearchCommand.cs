@@ -26,7 +26,7 @@ public class SearchCommand(string identifier) : ConsoleCommandBase<CommandPrompt
         if (input.HasOption("tag:hipster")) filters.Add("tag:hipster");
         if (input.HasOption("tag:new")) filters.Add("tag:new");
 
-        var searchTerm = input.Quotes.FirstOrDefault() ?? string.Join(' ', input.Arguments);
+        var searchTerm = input.GetSearchString();
         if (string.IsNullOrEmpty(searchTerm))
         {
             Writer.WriteLine("No search term provided.", scope: nameof(SearchCommand));

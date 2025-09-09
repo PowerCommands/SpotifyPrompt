@@ -9,7 +9,7 @@ namespace PainKiller.SpotifyPromptClient.Commands;
                       arguments: ["filter"],
                         options: ["update","compare"],
                        examples: ["//View playlist","list","//Update playlists", "list --update","//Compare playlist with updated playlists with tracks","list --compare"])]
-public class ListCommand(string identifier) : SelectedBaseCommand(identifier)
+public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptConfiguration>(identifier)
 {
     public override RunResult Run(ICommandLineInput input)
     {
