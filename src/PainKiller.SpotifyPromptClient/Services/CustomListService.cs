@@ -1,4 +1,5 @@
 ﻿using PainKiller.CommandPrompt.CoreLib.Core.Enums;
+using PainKiller.CommandPrompt.CoreLib.Modules.InfoPanelModule.Services;
 using PainKiller.SpotifyPromptClient.Enums;
 using PainKiller.SpotifyPromptClient.Managers;
 
@@ -82,17 +83,24 @@ public static class CustomListService
             }
         }
     }
-    public static void ShowSelectedTracks(List<TrackObject> tracks, IConsoleWriter writer)
+    public static void ShowSelectedTracks(List<TrackObject> tracks, IConsoleWriter writer, string title = "")
     {
         if (tracks.Count == 0)
         {
             writer.WriteLine("No tracks selected.");
             return;
         }
+        if (!string.IsNullOrEmpty(title)) writer.WriteHeadLine(title);
         var selectedTracks = ShowSelectFromList("Select your tracks", tracks, writer);
         if (selectedTracks.Count == 0) return;
 
         var action = ToolbarService.NavigateToolbar<SelectedTracksAction>();
+        if (action == SelectedTracksAction.Play)
+        {
+            IPlayerService playerManager = new PlayerService();
+            playerManager.Play(selectedTracks.Select(t => t.Uri));
+            InfoPanelService.Instance.Update();
+        }
         if (action == SelectedTracksAction.Queue)
         {
             foreach (var track in selectedTracks) QueueService.Default.AddToQueue(track.Uri);

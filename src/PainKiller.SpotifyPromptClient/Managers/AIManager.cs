@@ -40,6 +40,13 @@ public class AIManager(string baseAddress, int port, string model) : IAIManager
         var response = service.SendChatToOllama().GetAwaiter().GetResult();
         return $"{response}".Trim();
     }
+
+    public string GetArtistAndSongTitle(string query)
+    {
+        var service = GetService();
+        service.AddMessage(new ChatMessage("user", $"Return a suggestion for an artist's song based on the query that follows \"{query}\". Please provide only the artist name and the song title and nothing more."));
+        return service.SendChatToOllama().GetAwaiter().GetResult();
+    }
     public bool GetPredictionToQuery(string statement, string information, bool debugMode = false)
     {
         var service = GetService();
