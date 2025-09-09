@@ -1,8 +1,10 @@
-﻿using System.Net.Http.Headers;
+﻿using System;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using PainKiller.CommandPrompt.CoreLib.Logging.Services;
+using PainKiller.CommandPrompt.CoreLib.Modules.ShellModule.Services;
 
 namespace PainKiller.SpotifyPromptClient.Services;
 public class PlaylistService : SpotifyClientBase, IPlaylistService
@@ -51,16 +53,37 @@ public class PlaylistService : SpotifyClientBase, IPlaylistService
     }
     public void PlayPlaylist(string playlistId, string? deviceId = null)
     {
-        var accessToken = GetAccessToken();
         var uri = "https://api.spotify.com/v1/me/player/play";
         if (!string.IsNullOrEmpty(deviceId)) uri += "?device_id=" + Uri.EscapeDataString(deviceId);
 
         var body = new { context_uri = $"spotify:playlist:{playlistId}" };
         var json = JsonSerializer.Serialize(body);
+        var request = CreateRequest(uri, json);
+        try
+        {
+            StartPlaylist(request);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error starting playlist. Attempting to start Spotify client.");
+            ShellService.Default.Execute("spotify");
+            Thread.Sleep(3000);
+            IPlayerService playerManager = new PlayerService();
+            playerManager.Play();
+            request = CreateRequest(uri, json);
+            StartPlaylist(request);
+        }
+    }
 
+    private HttpRequestMessage CreateRequest(string uri, string json)
+    {
+        var accessToken = GetAccessToken();
         var request = new HttpRequestMessage(HttpMethod.Put, uri) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
+        return request;
+    }
+    private void StartPlaylist(HttpRequestMessage request)
+    {
         var response = Http.SendAsync(request).GetAwaiter().GetResult();
         _logger.LogInformation($"Response: {response.StatusCode}");
         response.EnsureSuccessStatusCode();
@@ -128,7 +151,7 @@ public class PlaylistService : SpotifyClientBase, IPlaylistService
                 }
                 catch (Exception ex)
                 {
-                    ConsoleService.Writer.WriteWarning($"Warning: failed to parse track '{trackName}' (ID: {trackId}) in playlist {playlistId}: {ex.Message}", scope:nameof(GetAllTracksForPlaylist));
+                    ConsoleService.Writer.WriteWarning($"Warning: failed to parse track '{trackName}' (ID: {trackId}) in playlist {playlistId}: {ex.Message}", scope: nameof(GetAllTracksForPlaylist));
                 }
             }
             nextUrl = root.GetProperty("next").GetString();

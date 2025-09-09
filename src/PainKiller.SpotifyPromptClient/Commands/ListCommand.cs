@@ -68,8 +68,7 @@ public class ListCommand(string identifier) : SelectedBaseCommand(identifier)
         if (action == PlayListAction.Play || action == PlayListAction.View)
         {
             var tracks = PlaylistService.Default.GetAllTracksForPlaylist(selectedPlayList.Id);
-            SelectedManager.Default.UpdateSelected(tracks);
-            ShowSelectedTracks();
+            Writer.WriteTable(tracks.Select(t => new { Artist = t.Artists.First().Name, t.Name, t.Album}));
         }
         if(action == PlayListAction.Delete)
         {
