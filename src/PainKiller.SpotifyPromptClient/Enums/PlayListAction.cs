@@ -4,5 +4,6 @@ public enum PlayListAction
 {
     Play,
     View,
-    Delete
+    Delete,
+    Text
 }

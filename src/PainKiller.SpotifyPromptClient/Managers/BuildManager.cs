@@ -64,7 +64,7 @@ public class BuildManager : IBuildManager
                 else if (template.RandomMode == RandomMode.Related)
                 {
                     var selectedTracks = GetRandomTracks(template.Tags, template.YearRange, template.MaxCountPerArtist);
-                    tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, aiManager, template.YearRange, template.Count, template.MaxCountPerArtist);
+                    tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, template.YearRange, template.Count, template.MaxCountPerArtist);
                 }
                 else
                 {
@@ -81,7 +81,7 @@ public class BuildManager : IBuildManager
                 {
                     var selectedAlbums = GetRandomAlbums(template.Tags, template.YearRange);
                     var selectedTracks = GetRandomTracksByAlbum(selectedAlbums.Select(a => a.Id).ToList(), template.MaxCountPerArtist);
-                    tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, aiManager, template.YearRange, template.Count, template.MaxCountPerArtist);
+                    tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, template.YearRange, template.Count, template.MaxCountPerArtist);
                 }
                 else
                 {
@@ -99,7 +99,7 @@ public class BuildManager : IBuildManager
                 {
                     var selectedArtists = GetRandomArtists(template.Tags);
                     var selectedTracks = GetRandomTracks(selectedArtists, template.MaxCountPerArtist);
-                    tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, aiManager, template.YearRange, template.Count, template.MaxCountPerArtist);
+                    tracks = randomRelatedArtistTracks.GetRandomRelatedArtistsTracks(selectedTracks, template.YearRange, template.Count, template.MaxCountPerArtist);
                 }
                 else
                 {

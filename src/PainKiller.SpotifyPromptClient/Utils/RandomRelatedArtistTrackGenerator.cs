@@ -9,7 +9,7 @@ public class RandomRelatedArtistTrackGenerator(IAIManager aiManager) : IRandomRe
 {
     private readonly IConsoleWriter _writer = ConsoleService.Writer;
     private readonly ILogger<RandomRelatedArtistTrackGenerator> _logger = LoggerProvider.CreateLogger<RandomRelatedArtistTrackGenerator>();
-    public List<TrackObject> GetRandomRelatedArtistsTracks(List<TrackObject> tracks, IAIManager aiManager, YearRange years, int count, int maxCountPerArtist)
+    public List<TrackObject> GetRandomRelatedArtistsTracks(List<TrackObject> tracks, YearRange years, int count, int maxCountPerArtist)
     {
         var retVal = new List<TrackObject>();
         var usedArtist = new List<ArtistSimplified>();
@@ -43,7 +43,7 @@ public class RandomRelatedArtistTrackGenerator(IAIManager aiManager) : IRandomRe
         }
         if (retVal.Count < count)
         {
-            retVal.AddRange(GetRandomRelatedArtistsTracks(tracks, aiManager, years, count - retVal.Count, maxCountPerArtist));
+            retVal.AddRange(GetRandomRelatedArtistsTracks(tracks, years, count - retVal.Count, maxCountPerArtist));
         }
         retVal.Shuffle();
         return retVal;

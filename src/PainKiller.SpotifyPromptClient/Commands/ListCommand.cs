@@ -70,6 +70,14 @@ public class ListCommand(string identifier) : ConsoleCommandBase<CommandPromptCo
             var tracks = PlaylistService.Default.GetAllTracksForPlaylist(selectedPlayList.Id);
             Writer.WriteTable(tracks.Select(t => new { Artist = t.Artists.First().Name, t.Name, t.Album}));
         }
+        if (action == PlayListAction.Text)
+        {
+            var tracks = PlaylistService.Default.GetAllTracksForPlaylist(selectedPlayList.Id);
+            Writer.WriteTable(tracks.Select(t => new { Artist = t.Artists.First().Name, t.Name, t.Album}));
+            var tracksText = string.Join("\n", tracks.Select(t => $"{t.Artists.First().Name} - {t.Name}"));
+            TextCopy.ClipboardService.SetText(tracksText);
+            Writer.WriteSuccessLine($"Copied {tracks.Count} tracks to clipboard.");
+        }
         if(action == PlayListAction.Delete)
         {
             var confirm = DialogService.YesNoDialog("Are you sure you want to delete the playlist?");
